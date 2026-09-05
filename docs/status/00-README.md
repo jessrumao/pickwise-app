@@ -42,12 +42,18 @@ Read in this order:
    object reference silently breaks once data round-trips through Postgres
    `jsonb`. Verified against the live database directly (curl + a real
    cookie jar), reproducing every check from Package C's own note.
-9. `i-regulatory-writeup-status.md` — the in-product disclaimer (now real
-   copy, not Package E's placeholder) and the regulatory/deferral writeup
-   (`docs/regulatory-and-deferral-writeup.md`): sourced FSSAI/DPDPA
-   research, and a 4-tier-safety-model calibration section grounded in
-   which former "Yellow" ingredients already have real policies today vs.
-   which "Red" compounds exist only as entities with no policy yet.
+9. `g-routine-builder-status.md` — the one place an LLM writes free text in
+   this product, and why it's safe: routine timing is fenced by each dosing
+   policy's own declared `DosingTiming` constraint, tested against the real
+   policies in `data/`, and verified against the live model not to invent
+   timing folklore (e.g. a post-workout rule for creatine) that the
+   evidence doesn't support.
+10. `i-regulatory-writeup-status.md` — the in-product disclaimer (now real
+    copy, not Package E's placeholder) and the regulatory/deferral writeup
+    (`docs/regulatory-and-deferral-writeup.md`): sourced FSSAI/DPDPA
+    research, and a 4-tier-safety-model calibration section grounded in
+    which former "Yellow" ingredients already have real policies today vs.
+    which "Red" compounds exist only as entities with no policy yet.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

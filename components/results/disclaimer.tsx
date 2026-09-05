@@ -1,9 +1,6 @@
-// Package I owns the final copy for this (tasks/I-regulatory-and-writeup.md
-// deliverable 1). Package I hadn't landed yet when this page was built, so
-// this is placeholder copy written directly from that brief's own required
-// coverage (not medical advice, not a diagnosis, not FDA/FSSAI-evaluated,
-// escalation means see a doctor) — swap in Package I's real text here, in
-// this one place, once it exists.
+// Package I's final copy (tasks/I-regulatory-and-writeup.md deliverable 1;
+// full context in docs/regulatory-and-deferral-writeup.md §1). Kept
+// word-for-word identical to that doc so the two never drift.
 export function Disclaimer() {
   return (
     <p className="text-xs text-muted-foreground border-t pt-4">

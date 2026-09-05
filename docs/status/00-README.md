@@ -42,6 +42,12 @@ Read in this order:
    object reference silently breaks once data round-trips through Postgres
    `jsonb`. Verified against the live database directly (curl + a real
    cookie jar), reproducing every check from Package C's own note.
+9. `i-regulatory-writeup-status.md` — the in-product disclaimer (now real
+   copy, not Package E's placeholder) and the regulatory/deferral writeup
+   (`docs/regulatory-and-deferral-writeup.md`): sourced FSSAI/DPDPA
+   research, and a 4-tier-safety-model calibration section grounded in
+   which former "Yellow" ingredients already have real policies today vs.
+   which "Red" compounds exist only as entities with no policy yet.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

@@ -19,6 +19,10 @@ Read in this order:
    test coverage, one deliberate extension beyond `data/tools/demo.mjs`
    (targeted safety escalation via ingredient substitution), and known
    issues flagged for Package A (the domain expert).
+5. `d-profile-intake-ui-status.md` — the `/intake` questionnaire UI: the
+   17-step flow, the AI free-text normalization step (and only that step),
+   the stub `/api/profile` Package C will replace, and a known gap (no real
+   `ANTHROPIC_API_KEY` configured yet in this dev environment).
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

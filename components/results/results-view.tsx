@@ -1,8 +1,4 @@
-"use client";
-
-import * as React from "react";
-import { generateRecommendations } from "@/lib/engine";
-import type { UserProfile } from "@/types/engine";
+import type { RecommendationResult } from "@/lib/engine";
 import { BasketSummary } from "@/components/results/basket-summary";
 import { Disclaimer } from "@/components/results/disclaimer";
 import { RecommendationCard } from "@/components/results/recommendation-card";
@@ -19,9 +15,11 @@ const STATUS_ORDER: Record<string, number> = {
   not_shown: 3,
 };
 
-export function ResultsView({ profile }: { profile: UserProfile }) {
-  const result = React.useMemo(() => generateRecommendations(profile), [profile]);
-
+// Purely presentational over an already-computed RecommendationResult — the
+// caller decides how that result was produced: generateRecommendations()
+// directly for the demo picker, or fetched back from Package C's
+// /api/decisions (via adaptDecisionRecord) for a real submitted profile.
+export function ResultsView({ result }: { result: RecommendationResult }) {
   if (result.globalEscalation) {
     return (
       <div className="mx-auto w-full max-w-xl space-y-4">

@@ -1,0 +1,1021 @@
+{
+    "decisionRecord": {
+        "id": "83fbfcf9-5424-4cf5-af81-c95ff89e631b",
+        "userId": "fc902e2e-3b12-4ff3-b027-3e6387e7f098",
+        "profileVersionId": "823c0c58-a32d-4dbf-93eb-40c263c712bc",
+        "createdAt": "2026-09-05T21:18:47.291Z",
+        "kbSha": "local-dev",
+        "rulesetSha": "local-dev",
+        "engineVersion": "1.0.0",
+        "trace": {
+            "safety": {
+                "escalations": [],
+                "globalEscalations": [],
+                "blockedCompoundIds": {},
+                "blockedIngredientIds": {}
+            },
+            "perRecommendation": [
+                {
+                    "policyId": "elig-bcaa",
+                    "compoundId": "bcaa",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "contains_any",
+                                "path": "$",
+                                "field": "primaryGoals",
+                                "label": "has a muscle or strength goal, so would plausibly have considered BCAAs",
+                                "value": "true",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "muscle_gain",
+                                    "strength_performance"
+                                ]
+                            }
+                        ],
+                        "value": "true"
+                    }
+                },
+                {
+                    "policyId": "elig-creatine-monohydrate",
+                    "compoundId": "creatine-monohydrate",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "contains_any",
+                                "path": "$.all[0]",
+                                "field": "primaryGoals",
+                                "label": "has a strength, muscle or power goal",
+                                "value": "true",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "muscle_gain",
+                                    "strength_performance",
+                                    "endurance_performance"
+                                ]
+                            },
+                            {
+                                "op": "gte",
+                                "path": "$.all[1]",
+                                "field": "exerciseFrequencyPerWeek",
+                                "label": "trains at least twice a week",
+                                "value": "true",
+                                "actual": 4,
+                                "expected": 2
+                            },
+                            {
+                                "op": "all",
+                                "path": "$",
+                                "field": null,
+                                "value": "true",
+                                "actual": null,
+                                "expected": null
+                            }
+                        ],
+                        "value": "true"
+                    }
+                },
+                {
+                    "policyId": "elig-epa-dha-general",
+                    "compoundId": "epa-dha",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "lt",
+                                "path": "$.all[0]",
+                                "field": "dietaryOilyFishServingsPerWeek",
+                                "label": "eats oily fish less than twice a week",
+                                "value": "true",
+                                "actual": 0,
+                                "expected": 2
+                            },
+                            {
+                                "op": "contains_any",
+                                "path": "$.all[1]",
+                                "field": "primaryGoals",
+                                "label": "has a general wellness or joint goal",
+                                "value": "true",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "general_wellness",
+                                    "joint_health",
+                                    "immunity"
+                                ]
+                            },
+                            {
+                                "op": "all",
+                                "path": "$",
+                                "field": null,
+                                "value": "true",
+                                "actual": null,
+                                "expected": null
+                            }
+                        ],
+                        "value": "true"
+                    }
+                },
+                {
+                    "policyId": "elig-lgg",
+                    "compoundId": "lgg",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "contains_any",
+                                "path": "$",
+                                "field": "primaryGoals",
+                                "label": "has digestive health as a goal",
+                                "value": "false",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "digestive_health"
+                                ]
+                            }
+                        ],
+                        "value": "false"
+                    }
+                },
+                {
+                    "policyId": "elig-multivitamin",
+                    "ingredientId": "multivitamin",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "contains_any",
+                                "path": "$.all[0]",
+                                "field": "primaryGoals",
+                                "label": "has a general wellness, energy or immunity goal",
+                                "value": "true",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "general_wellness",
+                                    "energy_fatigue",
+                                    "immunity"
+                                ]
+                            },
+                            {
+                                "op": "in",
+                                "path": "$.all[1]",
+                                "field": "dietaryPattern",
+                                "label": "follows a restricted diet where gaps are more likely",
+                                "value": "true",
+                                "actual": "vegetarian",
+                                "expected": [
+                                    "vegan",
+                                    "vegetarian"
+                                ]
+                            },
+                            {
+                                "op": "all",
+                                "path": "$",
+                                "field": null,
+                                "value": "true",
+                                "actual": null,
+                                "expected": null
+                            }
+                        ],
+                        "value": "true"
+                    }
+                },
+                {
+                    "policyId": "elig-protein-complete",
+                    "compoundId": "protein-complete",
+                    "eligibilityTrace": {
+                        "trace": [
+                            {
+                                "op": "contains_any",
+                                "path": "$.all[0]",
+                                "field": "primaryGoals",
+                                "label": "has a goal that extra protein supports",
+                                "value": "true",
+                                "actual": [
+                                    "muscle_gain",
+                                    "general_wellness"
+                                ],
+                                "expected": [
+                                    "muscle_gain",
+                                    "strength_performance",
+                                    "general_fitness",
+                                    "weight_loss"
+                                ]
+                            },
+                            {
+                                "op": "gte",
+                                "path": "$.all[1]",
+                                "field": "exerciseFrequencyPerWeek",
+                                "label": "trains at least twice a week",
+                                "value": "true",
+                                "actual": 4,
+                                "expected": 2
+                            },
+                            {
+                                "op": "neq",
+                                "path": "$.all[2]",
+                                "field": "dietaryProteinAdequacy",
+                                "label": "is not already getting enough protein from food",
+                                "value": "true",
+                                "actual": "likely_inadequate",
+                                "expected": "likely_adequate"
+                            },
+                            {
+                                "op": "all",
+                                "path": "$",
+                                "field": null,
+                                "value": "true",
+                                "actual": null,
+                                "expected": null
+                            }
+                        ],
+                        "value": "true"
+                    }
+                }
+            ]
+        },
+        "recommendation": [
+            {
+                "why": "has a muscle or strength goal, so would plausibly have considered BCAAs",
+                "grade": "Moderate",
+                "status": "not_needed",
+                "policyId": "elig-bcaa",
+                "compoundId": "bcaa",
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "contains_any",
+                            "path": "$",
+                            "field": "primaryGoals",
+                            "label": "has a muscle or strength goal, so would plausibly have considered BCAAs",
+                            "value": "true",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "muscle_gain",
+                                "strength_performance"
+                            ]
+                        }
+                    ],
+                    "value": "true"
+                }
+            },
+            {
+                "why": "has a strength, muscle or power goal; trains at least twice a week",
+                "grade": "Strong",
+                "dosing": {
+                    "target": {
+                        "max": 5,
+                        "min": 3,
+                        "unit": "g/day",
+                        "target": 5
+                    },
+                    "timing": {
+                        "note": "Day-to-day consistency matters; timing relative to the workout does not. Recorded explicitly BECAUSE it is folklore - if the field were absent the routine builder would be free to invent a post-workout rule that the evidence does not support.",
+                        "constraint": "any",
+                        "citesClaims": [
+                            "creatine-strength-power-resistance-trained"
+                        ],
+                        "separateFromCompoundIds": []
+                    },
+                    "policyId": "dose-creatine-maintenance",
+                    "gapAmount": 5,
+                    "gapIsQuantified": false,
+                    "resolvedTargetAmount": 5
+                },
+                "status": "recommended",
+                "policyId": "elig-creatine-monohydrate",
+                "compoundId": "creatine-monohydrate",
+                "servingPlan": {
+                    "raw": 1,
+                    "unit": "g",
+                    "servings": 1,
+                    "delivered": 5,
+                    "increment": 0.5,
+                    "productId": "muscleblaze-creatine-100g",
+                    "compoundId": "creatine-monohydrate",
+                    "targetAmount": 5,
+                    "amountPerServing": 5,
+                    "flooredUpToMinEffective": false
+                },
+                "priorityScore": {
+                    "total": 7,
+                    "gapTier": 2,
+                    "evidenceTier": 3,
+                    "goalAlignment": 2
+                },
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "contains_any",
+                            "path": "$.all[0]",
+                            "field": "primaryGoals",
+                            "label": "has a strength, muscle or power goal",
+                            "value": "true",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "muscle_gain",
+                                "strength_performance",
+                                "endurance_performance"
+                            ]
+                        },
+                        {
+                            "op": "gte",
+                            "path": "$.all[1]",
+                            "field": "exerciseFrequencyPerWeek",
+                            "label": "trains at least twice a week",
+                            "value": "true",
+                            "actual": 4,
+                            "expected": 2
+                        },
+                        {
+                            "op": "all",
+                            "path": "$",
+                            "field": null,
+                            "value": "true",
+                            "actual": null,
+                            "expected": null
+                        }
+                    ],
+                    "value": "true"
+                },
+                "candidateIngredients": [
+                    {
+                        "ingredientId": "creatine-monohydrate",
+                        "matchesUserDiet": true
+                    }
+                ]
+            },
+            {
+                "why": "eats oily fish less than twice a week; has a general wellness or joint goal",
+                "grade": "Limited",
+                "dosing": {
+                    "target": {
+                        "max": 2000,
+                        "min": 250,
+                        "unit": "mg/day",
+                        "target": 500
+                    },
+                    "timing": {
+                        "note": "Taken with a meal containing fat to aid absorption. This is an absorption constraint, not a clinical-interaction one - the routine builder may pick which meal.",
+                        "constraint": "with_food",
+                        "citesClaims": [],
+                        "separateFromCompoundIds": []
+                    },
+                    "policyId": "dose-epa-dha-general-health",
+                    "gapAmount": 500,
+                    "gapIsQuantified": false,
+                    "resolvedTargetAmount": 500
+                },
+                "status": "potentially_useful",
+                "policyId": "elig-epa-dha-general",
+                "compoundId": "epa-dha",
+                "servingPlan": {
+                    "raw": 1.667,
+                    "unit": "mg",
+                    "servings": 2,
+                    "delivered": 600,
+                    "increment": 1,
+                    "productId": "algal-omega3-vegan-60",
+                    "compoundId": "epa-dha",
+                    "targetAmount": 500,
+                    "amountPerServing": 300,
+                    "flooredUpToMinEffective": false
+                },
+                "priorityScore": {
+                    "total": 4,
+                    "gapTier": 2,
+                    "evidenceTier": 1,
+                    "goalAlignment": 1
+                },
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "lt",
+                            "path": "$.all[0]",
+                            "field": "dietaryOilyFishServingsPerWeek",
+                            "label": "eats oily fish less than twice a week",
+                            "value": "true",
+                            "actual": 0,
+                            "expected": 2
+                        },
+                        {
+                            "op": "contains_any",
+                            "path": "$.all[1]",
+                            "field": "primaryGoals",
+                            "label": "has a general wellness or joint goal",
+                            "value": "true",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "general_wellness",
+                                "joint_health",
+                                "immunity"
+                            ]
+                        },
+                        {
+                            "op": "all",
+                            "path": "$",
+                            "field": null,
+                            "value": "true",
+                            "actual": null,
+                            "expected": null
+                        }
+                    ],
+                    "value": "true"
+                },
+                "candidateIngredients": [
+                    {
+                        "ingredientId": "algal-oil",
+                        "matchesUserDiet": true
+                    }
+                ]
+            },
+            {
+                "why": "would need: has digestive health as a goal",
+                "grade": "Moderate",
+                "status": "not_shown",
+                "policyId": "elig-lgg",
+                "compoundId": "lgg",
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "contains_any",
+                            "path": "$",
+                            "field": "primaryGoals",
+                            "label": "has digestive health as a goal",
+                            "value": "false",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "digestive_health"
+                            ]
+                        }
+                    ],
+                    "value": "false"
+                }
+            },
+            {
+                "why": "has a general wellness, energy or immunity goal; follows a restricted diet where gaps are more likely",
+                "grade": "Limited",
+                "status": "potentially_useful",
+                "policyId": "elig-multivitamin",
+                "ingredientId": "multivitamin",
+                "priorityScore": {
+                    "total": 4,
+                    "gapTier": 2,
+                    "evidenceTier": 1,
+                    "goalAlignment": 1
+                },
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "contains_any",
+                            "path": "$.all[0]",
+                            "field": "primaryGoals",
+                            "label": "has a general wellness, energy or immunity goal",
+                            "value": "true",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "general_wellness",
+                                "energy_fatigue",
+                                "immunity"
+                            ]
+                        },
+                        {
+                            "op": "in",
+                            "path": "$.all[1]",
+                            "field": "dietaryPattern",
+                            "label": "follows a restricted diet where gaps are more likely",
+                            "value": "true",
+                            "actual": "vegetarian",
+                            "expected": [
+                                "vegan",
+                                "vegetarian"
+                            ]
+                        },
+                        {
+                            "op": "all",
+                            "path": "$",
+                            "field": null,
+                            "value": "true",
+                            "actual": null,
+                            "expected": null
+                        }
+                    ],
+                    "value": "true"
+                }
+            },
+            {
+                "why": "has a goal that extra protein supports; trains at least twice a week; is not already getting enough protein from food",
+                "grade": "Strong",
+                "dosing": {
+                    "target": {
+                        "max": 2.2,
+                        "min": 1.6,
+                        "unit": "g/kg/day",
+                        "target": 1.8
+                    },
+                    "timing": {
+                        "note": "Total daily intake dominates; the post-workout window is far less important than the meta-analytic evidence is often used to suggest. The routine builder may therefore schedule freely around the user's day.",
+                        "constraint": "any",
+                        "citesClaims": [
+                            "protein-lean-mass-resistance-trained"
+                        ],
+                        "separateFromCompoundIds": []
+                    },
+                    "policyId": "dose-protein-resistance-training",
+                    "gapAmount": 40,
+                    "gapIsQuantified": true,
+                    "resolvedTargetAmount": 130
+                },
+                "status": "recommended",
+                "policyId": "elig-protein-complete",
+                "compoundId": "protein-complete",
+                "servingPlan": {
+                    "raw": 1.667,
+                    "unit": "g",
+                    "servings": 1.5,
+                    "delivered": 36,
+                    "increment": 0.5,
+                    "productId": "on-gold-standard-whey-1lb",
+                    "compoundId": "protein-complete",
+                    "targetAmount": 40,
+                    "amountPerServing": 24,
+                    "flooredUpToMinEffective": false
+                },
+                "priorityScore": {
+                    "total": 8,
+                    "gapTier": 3,
+                    "evidenceTier": 3,
+                    "goalAlignment": 2
+                },
+                "eligibilityTrace": {
+                    "trace": [
+                        {
+                            "op": "contains_any",
+                            "path": "$.all[0]",
+                            "field": "primaryGoals",
+                            "label": "has a goal that extra protein supports",
+                            "value": "true",
+                            "actual": [
+                                "muscle_gain",
+                                "general_wellness"
+                            ],
+                            "expected": [
+                                "muscle_gain",
+                                "strength_performance",
+                                "general_fitness",
+                                "weight_loss"
+                            ]
+                        },
+                        {
+                            "op": "gte",
+                            "path": "$.all[1]",
+                            "field": "exerciseFrequencyPerWeek",
+                            "label": "trains at least twice a week",
+                            "value": "true",
+                            "actual": 4,
+                            "expected": 2
+                        },
+                        {
+                            "op": "neq",
+                            "path": "$.all[2]",
+                            "field": "dietaryProteinAdequacy",
+                            "label": "is not already getting enough protein from food",
+                            "value": "true",
+                            "actual": "likely_inadequate",
+                            "expected": "likely_adequate"
+                        },
+                        {
+                            "op": "all",
+                            "path": "$",
+                            "field": null,
+                            "value": "true",
+                            "actual": null,
+                            "expected": null
+                        }
+                    ],
+                    "value": "true"
+                },
+                "candidateIngredients": [
+                    {
+                        "ingredientId": "plant-protein-blend",
+                        "matchesUserDiet": true
+                    },
+                    {
+                        "ingredientId": "whey-protein",
+                        "matchesUserDiet": true
+                    }
+                ]
+            }
+        ],
+        "budgetOutcome": {
+            "funded": [
+                {
+                    "priceINR": 1999,
+                    "productId": "on-gold-standard-whey-1lb",
+                    "priorityScore": {
+                        "total": 8,
+                        "gapTier": 3,
+                        "evidenceTier": 3,
+                        "goalAlignment": 2
+                    },
+                    "recommendation": {
+                        "why": "has a goal that extra protein supports; trains at least twice a week; is not already getting enough protein from food",
+                        "grade": "Strong",
+                        "dosing": {
+                            "target": {
+                                "max": 2.2,
+                                "min": 1.6,
+                                "unit": "g/kg/day",
+                                "target": 1.8
+                            },
+                            "timing": {
+                                "note": "Total daily intake dominates; the post-workout window is far less important than the meta-analytic evidence is often used to suggest. The routine builder may therefore schedule freely around the user's day.",
+                                "constraint": "any",
+                                "citesClaims": [
+                                    "protein-lean-mass-resistance-trained"
+                                ],
+                                "separateFromCompoundIds": []
+                            },
+                            "policyId": "dose-protein-resistance-training",
+                            "gapAmount": 40,
+                            "gapIsQuantified": true,
+                            "resolvedTargetAmount": 130
+                        },
+                        "status": "recommended",
+                        "policyId": "elig-protein-complete",
+                        "compoundId": "protein-complete",
+                        "servingPlan": {
+                            "raw": 1.667,
+                            "unit": "g",
+                            "servings": 1.5,
+                            "delivered": 36,
+                            "increment": 0.5,
+                            "productId": "on-gold-standard-whey-1lb",
+                            "compoundId": "protein-complete",
+                            "targetAmount": 40,
+                            "amountPerServing": 24,
+                            "flooredUpToMinEffective": false
+                        },
+                        "priorityScore": {
+                            "total": 8,
+                            "gapTier": 3,
+                            "evidenceTier": 3,
+                            "goalAlignment": 2
+                        },
+                        "eligibilityTrace": {
+                            "trace": [
+                                {
+                                    "op": "contains_any",
+                                    "path": "$.all[0]",
+                                    "field": "primaryGoals",
+                                    "label": "has a goal that extra protein supports",
+                                    "value": "true",
+                                    "actual": [
+                                        "muscle_gain",
+                                        "general_wellness"
+                                    ],
+                                    "expected": [
+                                        "muscle_gain",
+                                        "strength_performance",
+                                        "general_fitness",
+                                        "weight_loss"
+                                    ]
+                                },
+                                {
+                                    "op": "gte",
+                                    "path": "$.all[1]",
+                                    "field": "exerciseFrequencyPerWeek",
+                                    "label": "trains at least twice a week",
+                                    "value": "true",
+                                    "actual": 4,
+                                    "expected": 2
+                                },
+                                {
+                                    "op": "neq",
+                                    "path": "$.all[2]",
+                                    "field": "dietaryProteinAdequacy",
+                                    "label": "is not already getting enough protein from food",
+                                    "value": "true",
+                                    "actual": "likely_inadequate",
+                                    "expected": "likely_adequate"
+                                },
+                                {
+                                    "op": "all",
+                                    "path": "$",
+                                    "field": null,
+                                    "value": "true",
+                                    "actual": null,
+                                    "expected": null
+                                }
+                            ],
+                            "value": "true"
+                        },
+                        "candidateIngredients": [
+                            {
+                                "ingredientId": "plant-protein-blend",
+                                "matchesUserDiet": true
+                            },
+                            {
+                                "ingredientId": "whey-protein",
+                                "matchesUserDiet": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "priceINR": 799,
+                    "productId": "muscleblaze-creatine-100g",
+                    "priorityScore": {
+                        "total": 7,
+                        "gapTier": 2,
+                        "evidenceTier": 3,
+                        "goalAlignment": 2
+                    },
+                    "recommendation": {
+                        "why": "has a strength, muscle or power goal; trains at least twice a week",
+                        "grade": "Strong",
+                        "dosing": {
+                            "target": {
+                                "max": 5,
+                                "min": 3,
+                                "unit": "g/day",
+                                "target": 5
+                            },
+                            "timing": {
+                                "note": "Day-to-day consistency matters; timing relative to the workout does not. Recorded explicitly BECAUSE it is folklore - if the field were absent the routine builder would be free to invent a post-workout rule that the evidence does not support.",
+                                "constraint": "any",
+                                "citesClaims": [
+                                    "creatine-strength-power-resistance-trained"
+                                ],
+                                "separateFromCompoundIds": []
+                            },
+                            "policyId": "dose-creatine-maintenance",
+                            "gapAmount": 5,
+                            "gapIsQuantified": false,
+                            "resolvedTargetAmount": 5
+                        },
+                        "status": "recommended",
+                        "policyId": "elig-creatine-monohydrate",
+                        "compoundId": "creatine-monohydrate",
+                        "servingPlan": {
+                            "raw": 1,
+                            "unit": "g",
+                            "servings": 1,
+                            "delivered": 5,
+                            "increment": 0.5,
+                            "productId": "muscleblaze-creatine-100g",
+                            "compoundId": "creatine-monohydrate",
+                            "targetAmount": 5,
+                            "amountPerServing": 5,
+                            "flooredUpToMinEffective": false
+                        },
+                        "priorityScore": {
+                            "total": 7,
+                            "gapTier": 2,
+                            "evidenceTier": 3,
+                            "goalAlignment": 2
+                        },
+                        "eligibilityTrace": {
+                            "trace": [
+                                {
+                                    "op": "contains_any",
+                                    "path": "$.all[0]",
+                                    "field": "primaryGoals",
+                                    "label": "has a strength, muscle or power goal",
+                                    "value": "true",
+                                    "actual": [
+                                        "muscle_gain",
+                                        "general_wellness"
+                                    ],
+                                    "expected": [
+                                        "muscle_gain",
+                                        "strength_performance",
+                                        "endurance_performance"
+                                    ]
+                                },
+                                {
+                                    "op": "gte",
+                                    "path": "$.all[1]",
+                                    "field": "exerciseFrequencyPerWeek",
+                                    "label": "trains at least twice a week",
+                                    "value": "true",
+                                    "actual": 4,
+                                    "expected": 2
+                                },
+                                {
+                                    "op": "all",
+                                    "path": "$",
+                                    "field": null,
+                                    "value": "true",
+                                    "actual": null,
+                                    "expected": null
+                                }
+                            ],
+                            "value": "true"
+                        },
+                        "candidateIngredients": [
+                            {
+                                "ingredientId": "creatine-monohydrate",
+                                "matchesUserDiet": true
+                            }
+                        ]
+                    }
+                }
+            ],
+            "deferred": [
+                {
+                    "priceINR": 1200,
+                    "productId": "algal-omega3-vegan-60",
+                    "priorityScore": {
+                        "total": 4,
+                        "gapTier": 2,
+                        "evidenceTier": 1,
+                        "goalAlignment": 1
+                    },
+                    "recommendation": {
+                        "why": "eats oily fish less than twice a week; has a general wellness or joint goal",
+                        "grade": "Limited",
+                        "dosing": {
+                            "target": {
+                                "max": 2000,
+                                "min": 250,
+                                "unit": "mg/day",
+                                "target": 500
+                            },
+                            "timing": {
+                                "note": "Taken with a meal containing fat to aid absorption. This is an absorption constraint, not a clinical-interaction one - the routine builder may pick which meal.",
+                                "constraint": "with_food",
+                                "citesClaims": [],
+                                "separateFromCompoundIds": []
+                            },
+                            "policyId": "dose-epa-dha-general-health",
+                            "gapAmount": 500,
+                            "gapIsQuantified": false,
+                            "resolvedTargetAmount": 500
+                        },
+                        "status": "potentially_useful",
+                        "policyId": "elig-epa-dha-general",
+                        "compoundId": "epa-dha",
+                        "servingPlan": {
+                            "raw": 1.667,
+                            "unit": "mg",
+                            "servings": 2,
+                            "delivered": 600,
+                            "increment": 1,
+                            "productId": "algal-omega3-vegan-60",
+                            "compoundId": "epa-dha",
+                            "targetAmount": 500,
+                            "amountPerServing": 300,
+                            "flooredUpToMinEffective": false
+                        },
+                        "priorityScore": {
+                            "total": 4,
+                            "gapTier": 2,
+                            "evidenceTier": 1,
+                            "goalAlignment": 1
+                        },
+                        "eligibilityTrace": {
+                            "trace": [
+                                {
+                                    "op": "lt",
+                                    "path": "$.all[0]",
+                                    "field": "dietaryOilyFishServingsPerWeek",
+                                    "label": "eats oily fish less than twice a week",
+                                    "value": "true",
+                                    "actual": 0,
+                                    "expected": 2
+                                },
+                                {
+                                    "op": "contains_any",
+                                    "path": "$.all[1]",
+                                    "field": "primaryGoals",
+                                    "label": "has a general wellness or joint goal",
+                                    "value": "true",
+                                    "actual": [
+                                        "muscle_gain",
+                                        "general_wellness"
+                                    ],
+                                    "expected": [
+                                        "general_wellness",
+                                        "joint_health",
+                                        "immunity"
+                                    ]
+                                },
+                                {
+                                    "op": "all",
+                                    "path": "$",
+                                    "field": null,
+                                    "value": "true",
+                                    "actual": null,
+                                    "expected": null
+                                }
+                            ],
+                            "value": "true"
+                        },
+                        "candidateIngredients": [
+                            {
+                                "ingredientId": "algal-oil",
+                                "matchesUserDiet": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "priceINR": 525,
+                    "productId": "hkvitals-multivitamin-men-60",
+                    "priorityScore": {
+                        "total": 4,
+                        "gapTier": 2,
+                        "evidenceTier": 1,
+                        "goalAlignment": 1
+                    },
+                    "recommendation": {
+                        "why": "has a general wellness, energy or immunity goal; follows a restricted diet where gaps are more likely",
+                        "grade": "Limited",
+                        "status": "potentially_useful",
+                        "policyId": "elig-multivitamin",
+                        "ingredientId": "multivitamin",
+                        "priorityScore": {
+                            "total": 4,
+                            "gapTier": 2,
+                            "evidenceTier": 1,
+                            "goalAlignment": 1
+                        },
+                        "eligibilityTrace": {
+                            "trace": [
+                                {
+                                    "op": "contains_any",
+                                    "path": "$.all[0]",
+                                    "field": "primaryGoals",
+                                    "label": "has a general wellness, energy or immunity goal",
+                                    "value": "true",
+                                    "actual": [
+                                        "muscle_gain",
+                                        "general_wellness"
+                                    ],
+                                    "expected": [
+                                        "general_wellness",
+                                        "energy_fatigue",
+                                        "immunity"
+                                    ]
+                                },
+                                {
+                                    "op": "in",
+                                    "path": "$.all[1]",
+                                    "field": "dietaryPattern",
+                                    "label": "follows a restricted diet where gaps are more likely",
+                                    "value": "true",
+                                    "actual": "vegetarian",
+                                    "expected": [
+                                        "vegan",
+                                        "vegetarian"
+                                    ]
+                                },
+                                {
+                                    "op": "all",
+                                    "path": "$",
+                                    "field": null,
+                                    "value": "true",
+                                    "actual": null,
+                                    "expected": null
+                                }
+                            ],
+                            "value": "true"
+                        }
+                    }
+                }
+            ],
+            "budgetINR": 3000,
+            "totalFundedCostINR": 2798,
+            "totalDeferredCostINR": 1725,
+            "budgetIsHardConstraint": true
+        },
+        "escalations": []
+    }
+}

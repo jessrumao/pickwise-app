@@ -36,7 +36,6 @@ import {
 } from "@/lib/intake/assemble-profile";
 import { intakeFormSchema, STEP_FIELDS, TOTAL_STEPS, type IntakeFormValues } from "@/lib/intake/schema";
 import { parseFreeText, submitProfile } from "@/lib/intake/submit-profile";
-import { saveProfileForResults } from "@/lib/results/session-handoff";
 import type { UserProfile } from "@/types/engine";
 
 const PRIMARY_GOAL_OPTIONS: { value: IntakeFormValues["primaryGoals"][number]; label: string }[] = [
@@ -153,7 +152,6 @@ export function IntakeFlow() {
     setSubmitState({ status: "submitting", profile });
     try {
       const { profileVersionId } = await submitProfile(profile);
-      saveProfileForResults(profile);
       setSubmitState({ status: "done", profile, profileVersionId });
     } catch (error) {
       setSubmitState({
@@ -186,7 +184,9 @@ export function IntakeFlow() {
             Your profile was recorded (version <code>{submitState.profileVersionId}</code>).
           </p>
           <Button asChild>
-            <Link href="/results">See your recommendations</Link>
+            <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
+              See your recommendations
+            </Link>
           </Button>
           <pre className="max-h-96 overflow-auto rounded-md bg-muted p-3 text-xs">
             {JSON.stringify(submitState.profile, null, 2)}

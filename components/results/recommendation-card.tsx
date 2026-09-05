@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProductDisplay, productsForIngredient } from "@/lib/results/product-lookup";
 import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
+import { findMatchingEscalation } from "@/lib/results/trace-match";
 import { knowledgeBase } from "@/lib/engine";
 import type { Recommendation, SafetyEscalation } from "@/types/engine";
 
@@ -28,10 +29,7 @@ export function RecommendationCard({
   if (!display) return null; // not_shown: engine deliberately didn't surface this
 
   const policy = knowledgeBase.eligibilityPolicyById.get(rec.policyId);
-  const escalation =
-    rec.status === "escalate"
-      ? safetyEscalations.find((e) => e.trace === rec.safetyTrace)
-      : undefined;
+  const escalation = rec.status === "escalate" ? findMatchingEscalation(rec, safetyEscalations) : undefined;
 
   const chosenProduct = rec.servingPlan ? getProductDisplay(rec.servingPlan.productId) : undefined;
   const otherProducts = (rec.candidateIngredients ?? [])

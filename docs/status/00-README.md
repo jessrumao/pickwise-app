@@ -35,8 +35,13 @@ Read in this order:
    integrating (most severe: every non-female intake submission was hitting
    a global pregnancy-escalation false positive). Originally handed off
    from intake via `sessionStorage` since Package C hadn't landed yet — see
-   `e2-wired-to-persistence-status.md` for the swap to the real
-   `/api/decisions` once it did.
+   the next entry for the swap to the real `/api/decisions` once it did.
+8. `e2-wired-to-persistence-status.md` — the swap of the item above onto
+   Package C's real `/api/profile`/`/api/decisions`, plus a real bug found
+   while doing it: matching a recommendation to its safety escalation by
+   object reference silently breaks once data round-trips through Postgres
+   `jsonb`. Verified against the live database directly (curl + a real
+   cookie jar), reproducing every check from Package C's own note.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

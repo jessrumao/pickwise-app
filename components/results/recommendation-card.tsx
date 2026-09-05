@@ -1,0 +1,144 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getProductDisplay, productsForIngredient } from "@/lib/results/product-lookup";
+import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
+import { knowledgeBase } from "@/lib/engine";
+import type { Recommendation, SafetyEscalation } from "@/types/engine";
+
+function itemName(rec: Recommendation): string {
+  if (rec.compoundId) return knowledgeBase.compoundById.get(rec.compoundId)?.name ?? rec.compoundId;
+  if (rec.ingredientId) return knowledgeBase.ingredientById.get(rec.ingredientId)?.name ?? rec.ingredientId;
+  return "Unknown item";
+}
+
+export function RecommendationCard({
+  rec,
+  safetyEscalations,
+}: {
+  rec: Recommendation;
+  safetyEscalations: SafetyEscalation[];
+}) {
+  const display = statusDisplay(rec.status);
+  if (!display) return null; // not_shown: engine deliberately didn't surface this
+
+  const policy = knowledgeBase.eligibilityPolicyById.get(rec.policyId);
+  const escalation =
+    rec.status === "escalate"
+      ? safetyEscalations.find((e) => e.trace === rec.safetyTrace)
+      : undefined;
+
+  const chosenProduct = rec.servingPlan ? getProductDisplay(rec.servingPlan.productId) : undefined;
+  const otherProducts = (rec.candidateIngredients ?? [])
+    .flatMap((c) => productsForIngredient(c.ingredientId))
+    .filter((p) => p.productId !== chosenProduct?.productId);
+
+  return (
+    <Card>
+      <CardHeader className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>{itemName(rec)}</CardTitle>
+          <Badge variant="outline" className={TONE_BADGE_CLASSES[display.tone]}>
+            {display.label}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">{display.framing}</p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {rec.status === "escalate" ? (
+          <p className="text-sm">
+            {escalation?.userMessage ??
+              "A safety rule matched for this item — please check with a medical professional before starting it."}
+          </p>
+        ) : (
+          <>
+            {display.tone !== "escalate" && (
+              <Badge variant="outline" className="text-xs">
+                Evidence: {rec.grade}
+              </Badge>
+            )}
+            <p className="text-sm">{rec.why}</p>
+          </>
+        )}
+
+        {rec.servingPlan && (
+          <p className="text-sm font-medium">
+            {rec.servingPlan.servings} serving{rec.servingPlan.servings === 1 ? "" : "s"} (
+            {rec.servingPlan.delivered}
+            {rec.servingPlan.unit}) per day
+            {rec.servingPlan.flooredUpToMinEffective && " — rounded up to the minimum effective dose"}
+          </p>
+        )}
+
+        {chosenProduct && (
+          <div className="rounded-md border p-3 text-sm">
+            <p className="font-medium">
+              {chosenProduct.brand} — {chosenProduct.productName}
+            </p>
+            <div className="mt-1 flex items-center gap-2 text-muted-foreground">
+              {chosenProduct.priceINR != null && <span>₹{chosenProduct.priceINR}</span>}
+              {chosenProduct.marketplaceUrl ? (
+                <a
+                  href={chosenProduct.marketplaceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  View product
+                </a>
+              ) : (
+                <span>Link coming soon</span>
+              )}
+            </div>
+            {chosenProduct.compositionIsPlaceholder && (
+              <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                This product&apos;s exact composition is still pending expert review — treat the
+                numbers above as indicative, not final.
+              </p>
+            )}
+            {otherProducts.length > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Other options: {otherProducts.map((p) => p.productName).join(", ")}
+              </p>
+            )}
+          </div>
+        )}
+
+        {policy && policy.citesClaims.length > 0 && rec.status !== "escalate" && (
+          <Accordion type="single" collapsible>
+            <AccordionItem value="why">
+              <AccordionTrigger className="text-sm">Why? (evidence)</AccordionTrigger>
+              <AccordionContent className="space-y-3">
+                {policy.citesClaims.map((claimId) => {
+                  const claim = knowledgeBase.claimById.get(claimId);
+                  if (!claim) return null;
+                  return (
+                    <div key={claimId} className="space-y-1">
+                      <p className="text-sm">{claim.statement}</p>
+                      <ul className="space-y-0.5 text-xs text-muted-foreground">
+                        {claim.citations.map((c, i) => (
+                          <li key={i}>
+                            <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline">
+                              {c.title}
+                            </a>{" "}
+                            — {c.source}
+                            {c.year ? `, ${c.year}` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

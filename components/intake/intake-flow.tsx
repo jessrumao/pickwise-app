@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -35,6 +36,7 @@ import {
 } from "@/lib/intake/assemble-profile";
 import { intakeFormSchema, STEP_FIELDS, TOTAL_STEPS, type IntakeFormValues } from "@/lib/intake/schema";
 import { parseFreeText, submitProfile } from "@/lib/intake/submit-profile";
+import { saveProfileForResults } from "@/lib/results/session-handoff";
 import type { UserProfile } from "@/types/engine";
 
 const PRIMARY_GOAL_OPTIONS: { value: IntakeFormValues["primaryGoals"][number]; label: string }[] = [
@@ -151,6 +153,7 @@ export function IntakeFlow() {
     setSubmitState({ status: "submitting", profile });
     try {
       const { profileVersionId } = await submitProfile(profile);
+      saveProfileForResults(profile);
       setSubmitState({ status: "done", profile, profileVersionId });
     } catch (error) {
       setSubmitState({
@@ -181,9 +184,10 @@ export function IntakeFlow() {
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
             Your profile was recorded (version <code>{submitState.profileVersionId}</code>).
-            Recommendations will render here once the results screen (Package E) is wired up
-            to <code>lib/engine</code>.
           </p>
+          <Button asChild>
+            <Link href="/results">See your recommendations</Link>
+          </Button>
           <pre className="max-h-96 overflow-auto rounded-md bg-muted p-3 text-xs">
             {JSON.stringify(submitState.profile, null, 2)}
           </pre>

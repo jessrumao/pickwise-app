@@ -13,6 +13,7 @@ import path from "node:path";
 import { userProfileSchema, type UserProfile } from "@/types/engine";
 import { assembleUserProfile, fieldsNeedingConfirmation } from "@/lib/intake/assemble-profile";
 import type { IntakeFormValues } from "@/lib/intake/schema";
+import { generateRecommendations } from "@/lib/engine";
 
 const SAMPLES_DIR = path.join(process.cwd(), "data/tools/samples");
 
@@ -108,5 +109,61 @@ describe("fieldsNeedingConfirmation", () => {
       medicationsParseConfidence: 0.35,
     });
     expect(flagged).toContain("medicationsOrConditionsFlag.freeText");
+  });
+});
+
+// Regression test for a real bug found via manual Package E browser testing:
+// leaving the two optional free-text questions blank (relevantHealthContext,
+// medicationsFreeText when hasAny is false) used to OMIT those fields from
+// the assembled profile rather than sending "". predicate.ts's evaluator
+// treats a genuinely MISSING field as UNKNOWN and fails closed to escalate,
+// but treats an empty string as a definite non-match — so a routine "no,
+// nothing else to report" answer was making five unrelated safety policies
+// (kidney/renal, anticoagulant, immunocompromised, iron) all escalate for
+// every such user. Verified end-to-end through the real engine, not just
+// against the assembled object shape, since that's how the bug surfaced.
+describe("blank optional free-text fields must not read as UNKNOWN to the safety gate", () => {
+  const blankOptionalFieldsForm: IntakeFormValues = {
+    age: 29,
+    sex: "male",
+    isPregnantOrBreastfeeding: undefined,
+    bodyWeightKg: 72,
+    heightCm: undefined,
+    dietaryPattern: "vegetarian",
+    exerciseFrequencyPerWeek: 4,
+    exerciseType: ["resistance_training"],
+    primaryGoals: ["muscle_gain"],
+    monthlyBudgetINR: undefined,
+    budgetIsHardConstraint: true,
+    sleepHoursTypical: 7,
+    existingSupplementUseText: "",
+    dietaryProteinAdequacy: "likely_inadequate",
+    estimatedDailyProteinG: 90,
+    dietaryOilyFishServingsPerWeek: 0,
+    allergiesText: "",
+    relevantHealthContext: undefined, // left blank, as most users will
+    medicationsHasAny: false,
+    medicationsFreeText: "", // "No" answer's default
+  };
+  const noOpParsed = {
+    existingSupplementUse: [],
+    existingSupplementUseConfidence: 1,
+    allergies: [],
+    allergiesConfidence: 1,
+    medicationsParseConfidence: 1,
+  };
+
+  it("assembles relevantHealthContext and medicationsOrConditionsFlag.freeText as empty strings, not undefined", () => {
+    const profile = assembleUserProfile(blankOptionalFieldsForm, noOpParsed);
+    expect(profile.relevantHealthContext).toBe("");
+    expect(profile.medicationsOrConditionsFlag.freeText).toBe("");
+  });
+
+  it("produces no safety escalation of any kind for a profile with nothing to report", () => {
+    const profile = assembleUserProfile(blankOptionalFieldsForm, noOpParsed);
+    const result = generateRecommendations(profile);
+    expect(result.globalEscalation).toBeUndefined();
+    const escalated = result.recommendations.filter((r) => r.status === "escalate");
+    expect(escalated).toEqual([]);
   });
 });

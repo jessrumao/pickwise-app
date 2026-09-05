@@ -39,9 +39,15 @@ export function assembleUserProfile(
     existingSupplementUse: parsed.existingSupplementUse,
     dietaryProteinAdequacy: form.dietaryProteinAdequacy,
     allergies: parsed.allergies,
+    // freeText deliberately defaults to "" rather than being omitted: the
+    // predicate evaluator treats a MISSING field as UNKNOWN (fails closed to
+    // escalate, per predicate.ts's "fail-closed hinge"), but treats an empty
+    // string as a definite no-match. Omitting this when the user answers "No"
+    // to medications — the common case — was making several unrelated safety
+    // policies escalate that check this field via `matches`.
     medicationsOrConditionsFlag: {
       hasAny: form.medicationsHasAny,
-      freeText: form.medicationsFreeText || undefined,
+      freeText: form.medicationsFreeText || "",
       parseConfidence: parsed.medicationsParseConfidence,
     },
     _meta: {
@@ -53,9 +59,14 @@ export function assembleUserProfile(
   if (form.heightCm !== undefined) profile.heightCm = form.heightCm;
   if (form.monthlyBudgetINR !== undefined) profile.monthlyBudgetINR = form.monthlyBudgetINR;
   profile.budgetIsHardConstraint = form.budgetIsHardConstraint;
-  if (form.sex === "female") {
-    profile.isPregnantOrBreastfeeding = form.isPregnantOrBreastfeeding ?? false;
-  }
+  // Always set, never omitted: user-profile.schema.json's own notes say this
+  // "defaults to false otherwise" for non-female users — omitting it here
+  // instead made it UNKNOWN, which fails closed to a GLOBAL escalation on
+  // safety-global-pregnancy for every non-female submission (its onUnknown
+  // is "true"). Caught via generateRecommendations() in the regression test
+  // below, not by inspecting the assembled shape alone.
+  profile.isPregnantOrBreastfeeding =
+    form.sex === "female" ? (form.isPregnantOrBreastfeeding ?? false) : false;
   if (form.exerciseType && form.exerciseType.length > 0) {
     profile.exerciseType = form.exerciseType;
   }
@@ -65,9 +76,11 @@ export function assembleUserProfile(
   if (form.dietaryOilyFishServingsPerWeek !== undefined) {
     profile.dietaryOilyFishServingsPerWeek = form.dietaryOilyFishServingsPerWeek;
   }
-  if (form.relevantHealthContext) {
-    profile.relevantHealthContext = form.relevantHealthContext;
-  }
+  // Same fail-closed trap as medicationsOrConditionsFlag.freeText above:
+  // always set this (default ""), never omit it, or a blank answer to this
+  // optional question reads as UNKNOWN instead of "nothing to report" to any
+  // safety policy's `matches` check on this field.
+  profile.relevantHealthContext = form.relevantHealthContext ?? "";
 
   return profile;
 }

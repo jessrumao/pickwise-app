@@ -29,6 +29,14 @@ Read in this order:
    — a class-submission constraint superseded the original Auth.js plan;
    identity is now an anonymous cookie (`lib/anon-session.ts`), not an
    authenticated account. Verified end-to-end against a live Neon database.
+7. `e-results-basket-ui-status.md` — the `/results` page: recommendation
+   cards for all 5 visible statuses, the funded/deferred basket, and three
+   real bugs in Package D's `assemble-profile.ts` found and fixed while
+   integrating (most severe: every non-female intake submission was hitting
+   a global pregnancy-escalation false positive). Originally handed off
+   from intake via `sessionStorage` since Package C hadn't landed yet — see
+   `e2-wired-to-persistence-status.md` for the swap to the real
+   `/api/decisions` once it did.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

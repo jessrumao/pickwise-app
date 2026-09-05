@@ -135,7 +135,11 @@ export function buildServingPlan(
     productId: product.id,
     targetAmount: gapAmount,
     amountPerServing,
-    unit: product.deliversPerServing.find((d) => d.compoundId === compoundId)?.unit ?? "",
+    // The compound's own declared unit, not a deliversPerServing lookup: a
+    // group compound (epa-dha) never has an entry keyed by its own id, only
+    // by its members (epa, dha) — see amountPerServingFor above — so that
+    // lookup silently produced "" for every group-compound serving plan.
+    unit: compoundById.get(compoundId)?.unit ?? "",
     ...calc,
   };
 }

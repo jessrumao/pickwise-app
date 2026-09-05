@@ -2,13 +2,16 @@
 -- Runs on Vercel Postgres / Neon. L0-L4 live in git and ship in the build;
 -- only runtime writes belong here.
 
+-- No login (2026-09-06 decision, class-submission constraint -- see
+-- docs/status/c-auth-persistence-status.md): a user row is just an
+-- anonymous id, minted silently and identified by a cookie
+-- (lib/anon-session.ts), not an authenticated account. No email, no auth
+-- provider tables -- if real login comes back later, re-add an identity
+-- provider's required columns/tables then rather than carrying them now.
 create table users (
   id          uuid primary key default gen_random_uuid(),
-  email       text not null unique,
   created_at  timestamptz not null default now()
 );
--- Auth.js (NextAuth) also creates accounts / sessions / verification_tokens.
--- Use the official Postgres adapter migration for those rather than hand-rolling them.
 
 -- Snapshot per edit, never update in place. A profile row is immutable once written:
 -- that is the entire reason a six-month-old recommendation stays reproducible.

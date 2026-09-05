@@ -1,33 +1,45 @@
-// STUB for Package C (auth & persistence), which owns the real
-// `profile_versions` table (see data/db/schema.sql). Package D needs
-// somewhere to submit to now, so this validates the shape and hands back a
-// fake version id without persisting anything. Package C should replace this
-// handler's body with a real insert — the client contract (POST a
-// UserProfile, get back { profileVersionId }) should not need to change.
+// Profile API surface -- Package C. Replaces Package D's stub of this same
+// route (app/api/profile/route.ts on main before this commit) -- the
+// response shape below is deliberately unchanged from that stub
+// ({ profileVersionId }) since lib/intake/submit-profile.ts and
+// intake-flow.tsx already destructure exactly that field; only the
+// `profileVersion` field is new, additive. No login: see
+// lib/anon-session.ts for how "user" is identified here.
+import { resolveAnonUserId, withAnonCookie } from "@/lib/anon-session";
+import { createProfileVersion, getCurrentProfileVersion } from "@/lib/profile";
 import { userProfileSchema } from "@/types/engine";
 
-function jsonError(message: string, status: number) {
-  return Response.json({ error: message }, { status });
+export async function GET(req: Request) {
+  const { userId, isNew } = await resolveAnonUserId(req);
+  const current = await getCurrentProfileVersion(userId);
+  const response = Response.json({ profileVersion: current });
+  return isNew ? withAnonCookie(response, userId) : response;
 }
 
 export async function POST(req: Request) {
+  const { userId, isNew } = await resolveAnonUserId(req);
+
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return jsonError("Invalid JSON in request body.", 400);
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const parsed = userProfileSchema.safeParse(body);
-  if (!parsed.success) {
-    return jsonError("Profile does not match the expected shape.", 400);
+  const result = userProfileSchema.safeParse(body);
+  if (!result.success) {
+    return Response.json(
+      { error: "Invalid profile data", issues: result.error.issues },
+      { status: 400 }
+    );
   }
 
-  console.warn(
-    "TODO(Package C): /api/profile is a stub — this profile was validated but not persisted."
+  // Always a new row -- never an update in place, per
+  // data-layer-decisions-v2.md's profile-versioning decision.
+  const stored = await createProfileVersion(userId, result.data);
+  const response = Response.json(
+    { profileVersionId: stored.id, profileVersion: stored },
+    { status: 201 }
   );
-
-  return Response.json({
-    profileVersionId: `stub-${crypto.randomUUID()}`,
-  });
+  return isNew ? withAnonCookie(response, userId) : response;
 }

@@ -22,7 +22,7 @@ I  (regulatory & writeup)     ─── independent, run anytime, low code
 B0 (bootstrap app + types)    ─── START FIRST. ~half day. Blocks D, E, G's real integration
   │                                (they can start against mocked types, but should sync
   │                                once B0 lands).
-  ├── C (auth & persistence)  ─── independent of B0's *types*, just needs the app repo to exist
+  ├── C (persistence, no login) ─ DONE. independent of B0's *types*, just needs the app repo to exist
   ├── F (Pinecone ingestion)  ─── independent of B0's *types*, just needs the app repo to exist
   ├── B (recommendation       ─── logic can be ported from data/tools/predicate.mjs immediately;
   │      engine)                  needs B0's types to compile against by the end

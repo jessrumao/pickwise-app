@@ -8,7 +8,7 @@ Wiring the independently-built pieces into one working end-to-end flow, then pro
 
 ## Integration checklist
 
-1. Profile intake (D) → writes via auth/persistence (C) → engine (B) evaluates → results/basket UI (E) renders → citations resolve via Pinecone retrieval (F) → routine text generates (G) where applicable.
+1. Profile intake (D) → writes via persistence (C, no login — anonymous cookie identity) → engine (B) evaluates → results/basket UI (E) renders → citations resolve via Pinecone retrieval (F) → routine text generates (G) where applicable.
 2. Confirm every hop uses B0's published types with no ad-hoc reshaping in between — if you find a package invented its own shape instead of using the shared contract, fix the integration point, don't paper over it with a converter function.
 3. Confirm decision records (C) are actually written on every completed run, with the correct `profile_version_id`, `kb_sha`, and `ruleset_sha`.
 

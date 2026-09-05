@@ -1,40 +1,66 @@
-# Package C — Auth & Persistence
+# Package C — Persistence, No Login — DONE (2026-09-06)
 
-**Owner:** Sanket. **Independent of B0's types** — only needs the app repo to exist (Package B0's Part 1). Can run fully in parallel with B, D, E, F, G once that's true.
+**Status: built and verified against a live database.** See
+`docs/status/c-auth-persistence-status.md` for the full account — this
+file is kept as the historical brief plus a summary of what actually
+shipped, in case anything here needs revisiting.
 
-## Why this exists
+## Scope change from the original plan
 
-Per `data-layer-decisions-v2.md`: user accounts and persistence are **real and built for the MVP, not faked, not deferred** — the point is a user can create a profile, leave, and come back to find it and their past recommendations still there. This is also what makes the recommendation reproducible: a decision record pins the exact profile version and knowledge-base version that produced it.
+The original version of this brief called for Auth.js (NextAuth) with
+email magic-link sign-in. That was built, then **removed**: a
+class-submission constraint means the app cannot ask the user to log in.
+Everything else below — profile versioning, decision records, the
+reproducibility guarantees — is unchanged; only the identity mechanism is
+different.
 
-## Auth
+## What actually exists now
 
-**Auth.js (NextAuth), email magic link only.** No Google OAuth, no password, for this build — chosen because it's Next.js/Vercel-native (no new vendor beyond the Postgres DB you're setting up below), has no per-message cost (unlike phone OTP), and is low build effort before the deadline. Leave it structured so Google can be added later as an additional provider without rework, but don't build that now.
+- **Identity**: `lib/anon-session.ts` — no login, no email. A random
+  `users` row is minted and its id stored in a long-lived httpOnly cookie
+  the first time a browser calls `/api/profile` or `/api/decisions`. Every
+  later request from that browser reuses it. Not a verified identity —
+  fine for a class project, would need real auth again before this handles
+  anything sensitive or must survive a device switch.
+- **Database**: Postgres via Neon (provisioned through Vercel's Storage
+  integration). `data/db/schema.sql` — three tables: `users` (just `id` +
+  `created_at` now), `profile_versions`, `decision_records`, exactly as
+  originally designed.
+- **API routes**: `app/api/profile/route.ts` (GET current version, POST new
+  version — always inserts, never updates in place) and
+  `app/api/decisions/route.ts` (GET history, POST re-runs
+  `generateRecommendations()` server-side against a profile version and
+  persists the result — never trusts a client-supplied result).
+- **Guard rail**: a decision record can never point at another identity's
+  profile version — enforced atomically in `lib/decisions.ts`.
 
-## Database
+Verified end-to-end against the live database: first visit -> cookie
+issued, no profile; profile submitted -> new `profile_versions` row; same
+cookie -> sees that same version; decision triggered -> engine runs for
+real, record persisted; a second, cookie-less session sees nothing (identity
+isolation confirmed).
 
-**Postgres — Vercel Postgres or Neon** (not git; git can't hold runtime writes from a serverless function, which is why L5 lives here and L0–L4 don't). Schema already drafted: `data/db/schema.sql` in this repo — use it as the starting point, adjust only if you find a concrete reason to.
+## For whoever builds D/E/G against this
 
-Three tables, per the settled design:
+No auth step to wire up at all. Call `/api/profile` and `/api/decisions`
+with same-origin defaults (cookies ride along automatically) — no session
+check, no login redirect, nothing to handle if "not authenticated."
 
-- **`users`** — identity, managed by Auth.js (id, email, created_at).
-- **`profile_versions`** — **one row per edit, never an overwrite.** (id, user_id, created_at, body_weight_kg, goals, diet, medications, monthly_budget_inr, …). "Current profile" = latest row for that `user_id`. This is deliberate: it's what makes a 6-month-old recommendation reproducible instead of silently mutated by a later profile edit. Every profile change — including a weight or budget change — creates a new snapshot.
-- **`decision_records`** — (id, user_id, `profile_version_id` FK, created_at, `kb_sha`, `ruleset_sha`, trace jsonb, recommendation jsonb, budget_outcome jsonb, adherence/outcome fields to be appended later — don't build the feedback loop itself, just leave the columns room to grow). `kb_sha`/`ruleset_sha` should be the git SHA of the `data/` directory state at decision time — that's the KB version pin.
+- `POST /api/profile` (body: a `UserProfile`) -> new `profile_versions` row.
+- `GET /api/profile` -> current version, or `{ profileVersion: null }` for
+  a first-time visitor.
+- `POST /api/decisions` (body: `{ profileVersionId }`) -> runs the engine,
+  persists, returns the decision record.
+- `GET /api/decisions` -> this browser's history, newest first.
 
-## What to build
+---
 
-1. Provision the Postgres instance (Vercel Postgres or Neon — check which the team's Vercel project already has access to).
-2. Run/adapt `data/db/schema.sql` as the initial migration.
-3. Wire Auth.js with the email-magic-link provider.
-4. API routes (or server actions, matching the app's pattern):
-   - Create/update profile → writes a new `profile_versions` row (never updates in place).
-   - Fetch current profile for a logged-in user → latest `profile_versions` row.
-   - Write a decision record → called by whatever wires up the engine (Package B's output) + the profile version used.
-   - Fetch a user's past decision records (for "come back and see your history").
+## Original brief (superseded, kept for context)
 
-## Out of scope
-
-Don't build the profile intake *form* (Package D) or the results UI (Package E) — just the auth flow and the API surface they'll call. Don't implement the adherence/outcome feedback loop itself, just leave room for it in the schema (already true of `data/db/schema.sql` — confirm rather than redesign).
-
-## Deliverable / done-when
-
-A logged-in user can: sign in via magic link, have a `users` row created, submit a profile and see a new `profile_versions` row appear (not an overwrite of the last one), and a decision record can be written and read back tied to the right profile version. Test this with a fake/manual profile payload if Package D/B aren't ready yet — you don't need to wait on them.
+**Auth.js (NextAuth), email magic link only** was the original plan — no
+Google OAuth, no password, chosen for being Next.js/Vercel-native, no
+per-message cost, low build effort. This is what got replaced by the
+anonymous-cookie approach above once the no-login constraint came in; the
+database design itself (Postgres, the three tables, snapshot-per-edit
+versioning, immutable decision records) was never in question and is
+unchanged.

@@ -21,8 +21,14 @@ Read in this order:
    issues flagged for Package A (the domain expert).
 5. `d-profile-intake-ui-status.md` — the `/intake` questionnaire UI: the
    17-step flow, the AI free-text normalization step (and only that step),
-   the stub `/api/profile` Package C will replace, and a known gap (no real
-   `ANTHROPIC_API_KEY` configured yet in this dev environment).
+   and a known gap (no real `ANTHROPIC_API_KEY` configured yet in this dev
+   environment). Its stub `/api/profile` has since been replaced by
+   Package C — see the next entry.
+6. `c-auth-persistence-status.md` — Postgres API surface (`/api/profile`,
+   `/api/decisions`), profile versioning, and decision records. **No login**
+   — a class-submission constraint superseded the original Auth.js plan;
+   identity is now an anonymous cookie (`lib/anon-session.ts`), not an
+   authenticated account. Verified end-to-end against a live Neon database.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

@@ -7,25 +7,63 @@
     ]
   },
   "trigger": {
-    "contains_any": {
-      "field": "allergies",
-      "values": [
-        "milk",
-        "milk protein",
-        "dairy",
-        "casein"
-      ]
-    },
-    "label": "reports a milk or dairy allergy"
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "milk allergy",
+            "milk protein allergy",
+            "cow.?s? milk allergy",
+            "casein allergy"
+          ]
+        }
+      },
+      {
+        "contains_any": {
+          "field": "allergies",
+          "values": [
+            "milk",
+            "milk protein",
+            "casein"
+          ]
+        },
+        "label": "reports a milk-protein or casein allergy"
+      },
+      {
+        "all": [
+          {
+            "contains_any": {
+              "field": "allergies",
+              "values": [
+                "dairy"
+              ]
+            },
+            "label": "reports a dairy allergy tag"
+          },
+          {
+            "contains_none": {
+              "field": "allergies",
+              "values": [
+                "lactose",
+                "lactose intolerance"
+              ]
+            },
+            "label": "and has not separately flagged lactose intolerance"
+          }
+        ],
+        "label": "reports dairy allergy without a lactose-intolerance signal, treated as a likely true allergy"
+      }
+    ]
   },
   "action": "escalate",
   "severity": "high",
   "onUnknown": "true",
-  "userMessage": "Whey is milk-derived. We'll route you to a plant-based protein instead - and if this is a true milk-protein allergy rather than lactose intolerance, please confirm with a clinician.",
+  "userMessage": "Whey is milk-derived. If this is a true milk-protein or casein allergy, please confirm with a clinician before use - we'll route you to a plant-based protein instead. (Lactose intolerance alone is a different, non-allergic issue and does not need medical escalation - whey isolate or plant protein are reasonable alternatives.)",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
-    "note": "Milk-protein allergy and lactose intolerance are different things with different consequences. Lactose intolerance should route to isolate or plant protein without escalation; true milk-protein allergy escalates. The current trigger conflates them and needs expert splitting."
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Split resolved: escalation now requires an explicit milk-protein/casein allergy signal, or a bare \"dairy\" tag with no accompanying \"lactose\"/\"lactose intolerance\" tag (the sample profile in data/tools/samples already uses \"lactose\" as a distinct tag from \"milk\"/\"dairy\"/\"casein\", which this fix relies on). Lactose intolerance alone no longer triggers a medical escalation - it should route to whey isolate or plant protein instead, which is a substitution/product-selection concern outside this safety record's scope. Reviewed and approved 2026-09-05."
   }
 }

@@ -1,0 +1,39 @@
+{
+  "id": "creatine-memory-healthy-adults",
+  "subject": {
+    "type": "compound",
+    "id": "creatine-monohydrate"
+  },
+  "outcomeId": "cognitive_function",
+  "population": {
+    "description": "Healthy adults (not specific to resistance training)"
+  },
+  "direction": "increases",
+  "magnitude": "small_to_moderate",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts"
+    ],
+    "consistency": "mixed",
+    "directness": "direct",
+    "note": "Moderate-certainty (GRADE) benefit specifically on MEMORY. No significant effect was found on overall cognitive function or executive function in the same meta-analysis - the statement below is deliberately scoped to memory only, not \"brain function\" broadly. A 2026 corrigendum/commentary on this same source found the originally-reported attention benefit became non-significant after correcting a statistical double-counting error, which is why attention is not claimed here either."
+  },
+  "statement": "Creatine supplementation improves memory specifically in healthy adults; it does not show a significant effect on overall cognitive function or executive function in the same evidence base.",
+  "citations": [
+    {
+      "title": "The effects of creatine supplementation on cognitive function in adults: systematic review and meta-analysis",
+      "source": "Systematic review and meta-analysis (16 RCTs, 492 participants)",
+      "year": 2024,
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11275561/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "New evidence domain drafted from master research list v2 (2026-09-05). This required adding a new outcome entity (cognitive_function) since no existing outcome fit memory specifically. Not yet wired into any goal or eligibility policy - there is no current user goal (e.g. a \"memory/cognitive support\" goal) that this outcome maps to, so this claim currently sits as evidence only and cannot yet surface a recommendation. Whether to add such a goal is a product decision, not made here. The hydration/water-retention angle from the same source review (Ziegenfuss et al., 2003) was deliberately NOT turned into a formal claim - it corrects a misconception (creatine's water retention is intracellular, not subcutaneous bloat) rather than describing a scored, recommendable benefit, so it is better used as explainer copy than as a claim record."
+  },
+  "version": 1
+}

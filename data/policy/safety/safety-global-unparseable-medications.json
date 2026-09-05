@@ -27,9 +27,9 @@
   "onUnknown": "true",
   "userMessage": "We couldn't confidently read the medications or conditions you listed, and we won't guess. Please speak with a medical professional before starting anything.",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
     "note": "THE fail-closed rule. An unparseable medication list must escalate rather than fall through to 'no contraindication found'. onUnknown: true means a missing parseConfidence field also escalates."
   }
 }

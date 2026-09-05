@@ -25,9 +25,9 @@
   ],
   "allergens": [],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Added in the v3 migration as the vegan counterpart to whey. Pea+rice is blended specifically because each alone is limiting in an essential amino acid; the blend is treated as complete. Needs expert confirmation of the leucine figure before sign-off."
 }

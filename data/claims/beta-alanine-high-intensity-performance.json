@@ -1,0 +1,39 @@
+{
+  "id": "beta-alanine-high-intensity-performance",
+  "subject": {
+    "type": "compound",
+    "id": "beta-alanine"
+  },
+  "outcomeId": "endurance_capacity",
+  "population": {
+    "description": "Adults performing high-intensity exercise lasting roughly 60-240 seconds"
+  },
+  "direction": "increases",
+  "magnitude": "small",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts"
+    ],
+    "consistency": "mostly_consistent",
+    "directness": "indirect",
+    "note": "Directness marked INDIRECT: the repo does not currently model a dedicated \"anaerobic capacity / high-intensity effort\" outcome, so this is filed under endurance_capacity as the closest existing fit. The original 2012 meta-analysis is broad; a 2024 meta-analysis narrows the real effect to efforts of 60-240 seconds specifically, not general performance across all durations - reviewer should confirm whether a more precise outcome entity is worth adding."
+  },
+  "statement": "Beta-alanine improves exercise performance specifically in high-intensity efforts lasting roughly 60-240 seconds; it is not established as a general performance enhancer across all exercise durations.",
+  "citations": [
+    {
+      "title": "Effects of β-alanine supplementation on exercise performance: a meta-analysis",
+      "source": "Amino Acids (meta-analysis)",
+      "year": 2012,
+      "url": "https://link.springer.com/article/10.1007/s00726-011-1200-z"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05). Known benign side effect (paresthesia/skin tingling) at higher single doses is a dosing/timing consideration (split doses), not modeled as a safety escalation."
+  },
+  "version": 1
+}

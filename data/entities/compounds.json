@@ -225,6 +225,39 @@
         "s boulardii",
         "saccharomyces boulardii"
       ]
+    },
+    {
+      "id": "beta-alanine",
+      "name": "Beta-alanine",
+      "unit": "g",
+      "class": "amino_acid",
+      "aliases": [
+        "beta alanine",
+        "beta-alanine",
+        "carnosine precursor"
+      ]
+    },
+    {
+      "id": "caffeine",
+      "name": "Caffeine (anhydrous)",
+      "unit": "mg",
+      "class": "ergogenic",
+      "aliases": [
+        "caffeine",
+        "caffeine anhydrous"
+      ]
+    },
+    {
+      "id": "collagen-peptides",
+      "name": "Hydrolyzed collagen peptides",
+      "unit": "g",
+      "class": "macronutrient",
+      "aliases": [
+        "collagen",
+        "collagen peptides",
+        "hydrolyzed collagen",
+        "collagen hydrolysate"
+      ]
     }
   ]
 }

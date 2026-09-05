@@ -1,0 +1,47 @@
+{
+  "id": "elig-caffeine",
+  "kind": "eligibility",
+  "compoundId": "caffeine",
+  "citesClaims": [
+    "caffeine-aerobic-performance"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "endurance_performance",
+            "general_fitness"
+          ]
+        },
+        "label": "has an endurance or general fitness goal"
+      },
+      {
+        "gte": {
+          "field": "exerciseFrequencyPerWeek",
+          "value": 2
+        },
+        "label": "trains at least twice a week"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "caffeine"
+      ]
+    },
+    "label": "already takes a caffeine supplement"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Known limitation accepted by reviewer 2026-09-05: this rule does not subtract existing dietary caffeine (coffee/tea) since no profile field exists for it. A daily coffee drinker may be recommended an additional caffeine supplement on top of dietary intake - acceptable for now, revisit if a dietary-caffeine field is ever added to the profile schema."
+  }
+}

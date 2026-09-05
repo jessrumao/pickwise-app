@@ -1,0 +1,39 @@
+{
+  "id": "caffeine-aerobic-performance",
+  "subject": {
+    "type": "compound",
+    "id": "caffeine"
+  },
+  "outcomeId": "endurance_capacity",
+  "population": {
+    "description": "Adults performing aerobic/endurance exercise, at low-to-moderate doses (1.3-3 mg/kg)"
+  },
+  "direction": "increases",
+  "magnitude": "small_to_moderate",
+  "grade": "Strong",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts"
+    ],
+    "consistency": "consistent",
+    "directness": "direct",
+    "note": "Dose-response relationship is well established at low-to-moderate doses; doses above 6 mg/kg are understudied with an unclear risk-benefit profile and are deliberately excluded from what this claim supports."
+  },
+  "statement": "Low-to-moderate doses of caffeine (roughly 1.3-3 mg/kg) reliably improve aerobic time-trial exercise performance; higher doses are not well studied and are not supported by this evidence.",
+  "citations": [
+    {
+      "title": "Dose-Response Effect of Oral Caffeine Use on Aerobic Exercise Performance: Systematic Review and Meta-Analysis",
+      "source": "Nutrients",
+      "year": 2026,
+      "url": "https://doi.org/10.3390/nu18121989"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05). Stimulant with known caution areas (cardiac arrhythmia, anxiety disorders, pregnancy) - see safety-caffeine-cardiac-anxiety.json draft and the existing global pregnancy rule."
+  },
+  "version": 1
+}

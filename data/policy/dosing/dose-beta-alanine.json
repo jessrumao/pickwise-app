@@ -1,0 +1,50 @@
+{
+  "id": "dose-beta-alanine",
+  "kind": "dosing",
+  "compoundId": "beta-alanine",
+  "citesClaims": [
+    "beta-alanine-high-intensity-performance"
+  ],
+  "appliesWhen": {
+    "gte": {
+      "field": "exerciseFrequencyPerWeek",
+      "value": 3
+    },
+    "label": "trains at least three times a week"
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 3.2,
+    "target": 4,
+    "max": 6.4,
+    "unit": "g/day"
+  },
+  "subtractDietaryIntake": false,
+  "minEffectiveDose": {
+    "amount": 3.2,
+    "unit": "g"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "any",
+    "separateFromCompoundIds": [],
+    "split": {
+      "maxPerServing": 1.6,
+      "unit": "g"
+    },
+    "note": "Split into smaller doses across the day (commonly ~1.6 g per serving) to reduce paresthesia (skin tingling) - a tolerability note, not a claim about efficacy timing.",
+    "citesClaims": [
+      "beta-alanine-high-intensity-performance"
+    ]
+  },
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Target range is a placeholder drawn from typical published dosing (3.2-6.4 g/day loading over weeks) - reviewer should confirm against the source meta-analyses directly rather than the master list summary alone. Reviewer confirmed 2026-09-05 the source papers backing this dose range are documented in the master ingredient research list; dosing target approved on that basis."
+  }
+}

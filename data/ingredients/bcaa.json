@@ -30,9 +30,9 @@
   ],
   "allergens": [],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Kept in the catalogue precisely so the engine can show an explicit 'not recommended, and here is the citation' card. Its eligibility policy is a literal false."
 }

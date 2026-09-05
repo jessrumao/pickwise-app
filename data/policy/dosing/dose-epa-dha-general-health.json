@@ -36,9 +36,9 @@
     "citesClaims": []
   },
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
     "note": "max is the FDA supplemental ceiling from reference/nutrient-requirements.json, not a therapeutic target. The ~4 g/day triglyceride regime is a medical use case and is out of automated scope."
   }
 }

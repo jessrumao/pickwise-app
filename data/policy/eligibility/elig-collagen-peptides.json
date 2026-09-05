@@ -1,0 +1,35 @@
+{
+  "id": "elig-collagen-peptides",
+  "kind": "eligibility",
+  "compoundId": "collagen-peptides",
+  "citesClaims": [
+    "collagen-joint-comfort"
+  ],
+  "recommendWhen": {
+    "contains_any": {
+      "field": "primaryGoals",
+      "values": [
+        "joint_health"
+      ]
+    },
+    "label": "has a joint comfort goal"
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "collagen-peptides"
+      ]
+    },
+    "label": "already takes collagen"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed."
+  }
+}

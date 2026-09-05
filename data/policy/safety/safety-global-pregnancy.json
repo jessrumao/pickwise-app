@@ -16,8 +16,8 @@
   "onUnknown": "true",
   "userMessage": "Nutrient needs in pregnancy and breastfeeding are different enough that we won't make an automated recommendation. We'd like you to speak with a medical professional first.",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "id": "beta-alanine",
+  "name": "Beta-alanine",
+  "category": "performance",
+  "forms": [
+    "powder",
+    "capsule"
+  ],
+  "delivers": [
+    {
+      "compoundId": "beta-alanine"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
+  },
+  "notes": "Candidate ingredient drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Evidence base concentrates on high-intensity efforts lasting 60-240s (Hobson 2012; refined by a 2024 IJSNEM meta-analysis) - population/effect mapping onto the endurance_capacity outcome is an approximation and should be checked by the reviewer. Known benign side effect: paresthesia (skin tingling) at higher single doses, not modeled as a safety escalation here."
+}

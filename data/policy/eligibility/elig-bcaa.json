@@ -23,9 +23,9 @@
   "onUnknown": "false",
   "showWhenSuppressed": true,
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
     "note": "The canonical visible no. recommendWhen is a literal false; suppressWhen is scoped so the 'not recommended, and here is why' card appears to people who would actually have considered BCAAs rather than to everyone."
   }
 }

@@ -29,15 +29,18 @@ describe("generateRecommendations: reproduce demo.mjs exactly across the 5 sampl
     expect(byCompound["lgg"].status).toBe("not_shown");
   });
 
-  it("vegan-endurance: omega-3 resolves to algal-oil only, protein still gapped (known issue)", () => {
+  it("vegan-endurance: omega-3 resolves to algal-oil only, protein now recommended (gap fixed)", () => {
     const result = generateRecommendations(P(veganEndurance));
     const byCompound = Object.fromEntries(result.recommendations.map((r) => [r.compoundId ?? r.ingredientId, r]));
     expect(byCompound["epa-dha"].candidateIngredients?.map((c: { ingredientId: string }) => c.ingredientId)).toEqual(["algal-oil"]);
     expect(byCompound["creatine-monohydrate"].status).toBe("recommended");
-    // Known data gap (data/README.md finding #1): endurance training isn't in
-    // elig-protein-complete's goal list, so protein doesn't fire even though
-    // this profile trains 5x/week. Reproduced, not silently fixed.
-    expect(byCompound["protein-complete"].status).toBe("not_shown");
+    // Was a known data gap (data/README.md finding #1): endurance training
+    // wasn't in elig-protein-complete's goal list, so protein didn't fire
+    // even though this profile trains 5x/week. Fixed intentionally as part
+    // of the Package A expert review (endurance_performance added to both
+    // elig-protein-complete and dose-protein-resistance-training), so this
+    // profile now correctly gets a protein recommendation.
+    expect(byCompound["protein-complete"].status).toBe("recommended");
   });
 
   it("unparseable-medications: global escalation, no recommendations at all", () => {

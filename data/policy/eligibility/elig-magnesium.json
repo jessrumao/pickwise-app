@@ -1,0 +1,77 @@
+{
+  "id": "elig-magnesium",
+  "kind": "eligibility",
+  "compoundId": "magnesium",
+  "citesClaims": [
+    "magnesium-exercise-soreness",
+    "magnesium-sleep-quality"
+  ],
+  "recommendWhen": {
+    "any": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "sleep_quality"
+          ]
+        },
+        "label": "has a sleep quality goal"
+      },
+      {
+        "all": [
+          {
+            "contains_any": {
+              "field": "primaryGoals",
+              "values": [
+                "muscle_gain",
+                "strength_performance",
+                "endurance_performance",
+                "general_fitness"
+              ]
+            },
+            "label": "has an exercise-related goal"
+          },
+          {
+            "gte": {
+              "field": "exerciseFrequencyPerWeek",
+              "value": 4
+            },
+            "label": "trains at least four times a week"
+          }
+        ],
+        "label": "trains intensely enough for elevated magnesium needs"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "any": [
+      {
+        "contains_any": {
+          "field": "existingSupplementUse",
+          "values": [
+            "magnesium"
+          ]
+        },
+        "label": "already takes standalone magnesium"
+      },
+      {
+        "contains_any": {
+          "field": "existingSupplementUse",
+          "values": [
+            "multivitamin"
+          ]
+        },
+        "label": "already takes a multivitamin (may already supply magnesium)"
+      }
+    ]
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. The multivitamin suppression clause is a conservative placeholder (a multivitamin does not guarantee a meaningful magnesium dose) - reviewer should decide whether to gate on actual multivitamin magnesium content instead of presence/absence of multivitamin use."
+  }
+}

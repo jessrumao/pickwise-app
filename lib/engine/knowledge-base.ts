@@ -55,6 +55,10 @@ import multivitaminIngredient from "@/data/ingredients/multivitamin.json";
 import plantProteinBlend from "@/data/ingredients/plant-protein-blend.json";
 import probioticLgg from "@/data/ingredients/probiotic-lgg.json";
 import wheyProtein from "@/data/ingredients/whey-protein.json";
+import betaAlanineIngredient from "@/data/ingredients/beta-alanine.json";
+import caffeineIngredient from "@/data/ingredients/caffeine.json";
+import collagenPeptidesIngredient from "@/data/ingredients/collagen-peptides.json";
+import magnesiumIngredient from "@/data/ingredients/magnesium.json";
 
 export const ingredients: Ingredient[] = [
   algalOil,
@@ -65,6 +69,10 @@ export const ingredients: Ingredient[] = [
   plantProteinBlend,
   probioticLgg,
   wheyProtein,
+  betaAlanineIngredient,
+  caffeineIngredient,
+  collagenPeptidesIngredient,
+  magnesiumIngredient,
 ] as Ingredient[];
 
 // ---------------------------------------------------------------------------
@@ -81,6 +89,13 @@ import multivitaminCvdCancer from "@/data/claims/multivitamin-cvd-cancer-prevent
 import multivitaminMicronutrientAdequacy from "@/data/claims/multivitamin-micronutrient-adequacy-restricted-diets.json";
 import proteinLeanMass from "@/data/claims/protein-lean-mass-resistance-trained.json";
 import proteinStrength from "@/data/claims/protein-strength-resistance-trained.json";
+import betaAlanineHighIntensity from "@/data/claims/beta-alanine-high-intensity-performance.json";
+import caffeineAerobicPerformance from "@/data/claims/caffeine-aerobic-performance.json";
+import collagenJointComfort from "@/data/claims/collagen-joint-comfort.json";
+import creatineMemoryHealthyAdults from "@/data/claims/creatine-memory-healthy-adults.json";
+import epaDhaExerciseRecoveryInflammation from "@/data/claims/epa-dha-exercise-recovery-inflammation.json";
+import magnesiumExerciseSoreness from "@/data/claims/magnesium-exercise-soreness.json";
+import magnesiumSleepQuality from "@/data/claims/magnesium-sleep-quality.json";
 
 export const claims: Claim[] = [
   bcaaNoIncrementalBenefit,
@@ -93,6 +108,13 @@ export const claims: Claim[] = [
   multivitaminMicronutrientAdequacy,
   proteinLeanMass,
   proteinStrength,
+  betaAlanineHighIntensity,
+  caffeineAerobicPerformance,
+  collagenJointComfort,
+  creatineMemoryHealthyAdults,
+  epaDhaExerciseRecoveryInflammation,
+  magnesiumExerciseSoreness,
+  magnesiumSleepQuality,
 ] as unknown as Claim[];
 
 // ---------------------------------------------------------------------------
@@ -105,6 +127,10 @@ import eligEpaDhaGeneral from "@/data/policy/eligibility/elig-epa-dha-general.js
 import eligLgg from "@/data/policy/eligibility/elig-lgg.json";
 import eligMultivitamin from "@/data/policy/eligibility/elig-multivitamin.json";
 import eligProteinComplete from "@/data/policy/eligibility/elig-protein-complete.json";
+import eligBetaAlanine from "@/data/policy/eligibility/elig-beta-alanine.json";
+import eligCaffeine from "@/data/policy/eligibility/elig-caffeine.json";
+import eligCollagenPeptides from "@/data/policy/eligibility/elig-collagen-peptides.json";
+import eligMagnesium from "@/data/policy/eligibility/elig-magnesium.json";
 
 export const eligibilityPolicies: EligibilityPolicy[] = [
   eligBcaa,
@@ -113,6 +139,10 @@ export const eligibilityPolicies: EligibilityPolicy[] = [
   eligLgg,
   eligMultivitamin,
   eligProteinComplete,
+  eligBetaAlanine,
+  eligCaffeine,
+  eligCollagenPeptides,
+  eligMagnesium,
 ] as unknown as EligibilityPolicy[];
 
 import doseCreatineMaintenance from "@/data/policy/dosing/dose-creatine-maintenance.json";
@@ -120,6 +150,10 @@ import doseEpaDhaGeneralHealth from "@/data/policy/dosing/dose-epa-dha-general-h
 import doseLggGeneral from "@/data/policy/dosing/dose-lgg-general.json";
 import doseMultivitaminRda from "@/data/policy/dosing/dose-multivitamin-rda.json";
 import doseProteinResistanceTraining from "@/data/policy/dosing/dose-protein-resistance-training.json";
+import doseBetaAlanine from "@/data/policy/dosing/dose-beta-alanine.json";
+import doseCaffeine from "@/data/policy/dosing/dose-caffeine.json";
+import doseCollagenPeptides from "@/data/policy/dosing/dose-collagen-peptides.json";
+import doseMagnesium from "@/data/policy/dosing/dose-magnesium.json";
 
 export const dosingPolicies: DosingPolicy[] = [
   doseCreatineMaintenance,
@@ -127,6 +161,10 @@ export const dosingPolicies: DosingPolicy[] = [
   doseLggGeneral,
   doseMultivitaminRda,
   doseProteinResistanceTraining,
+  doseBetaAlanine,
+  doseCaffeine,
+  doseCollagenPeptides,
+  doseMagnesium,
 ] as unknown as DosingPolicy[];
 
 import safetyCreatineRenal from "@/data/policy/safety/safety-creatine-renal.json";
@@ -137,6 +175,9 @@ import safetyMultivitaminIronOverload from "@/data/policy/safety/safety-multivit
 import safetyProbioticImmunocompromised from "@/data/policy/safety/safety-probiotic-immunocompromised.json";
 import safetyProteinRenal from "@/data/policy/safety/safety-protein-renal.json";
 import safetyWheyMilkAllergy from "@/data/policy/safety/safety-whey-milk-allergy.json";
+import safetyCaffeineCardiacAnxiety from "@/data/policy/safety/safety-caffeine-cardiac-anxiety.json";
+import safetyMagnesiumRenal from "@/data/policy/safety/safety-magnesium-renal.json";
+import safetyMultivitaminAmdRisk from "@/data/policy/safety/safety-multivitamin-amd-risk.json";
 
 export const safetyPolicies: SafetyPolicy[] = [
   safetyCreatineRenal,
@@ -147,6 +188,9 @@ export const safetyPolicies: SafetyPolicy[] = [
   safetyProbioticImmunocompromised,
   safetyProteinRenal,
   safetyWheyMilkAllergy,
+  safetyCaffeineCardiacAnxiety,
+  safetyMagnesiumRenal,
+  safetyMultivitaminAmdRisk,
 ] as unknown as SafetyPolicy[];
 
 export const policies: Policy[] = [...eligibilityPolicies, ...dosingPolicies, ...safetyPolicies];

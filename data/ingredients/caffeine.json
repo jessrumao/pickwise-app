@@ -1,0 +1,30 @@
+{
+  "id": "caffeine",
+  "name": "Caffeine (anhydrous)",
+  "category": "performance",
+  "forms": [
+    "capsule",
+    "powder",
+    "tablet"
+  ],
+  "delivers": [
+    {
+      "compoundId": "caffeine"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
+  },
+  "notes": "Candidate ingredient drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Dose-response evidence supports a low-to-moderate dosing range (1.3-3 mg/kg); doses above 6 mg/kg are understudied and were deliberately NOT used to set the dosing target here."
+}

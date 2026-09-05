@@ -1,0 +1,44 @@
+{
+  "id": "dose-caffeine",
+  "kind": "dosing",
+  "compoundId": "caffeine",
+  "citesClaims": [
+    "caffeine-aerobic-performance"
+  ],
+  "appliesWhen": {
+    "gte": {
+      "field": "exerciseFrequencyPerWeek",
+      "value": 2
+    },
+    "label": "trains at least twice a week"
+  },
+  "basis": "per_kg_bodyweight",
+  "target": {
+    "min": 1.3,
+    "target": 2,
+    "max": 3,
+    "unit": "mg/kg"
+  },
+  "subtractDietaryIntake": false,
+  "minEffectiveDose": {
+    "amount": 1.3,
+    "unit": "mg/kg"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "any",
+    "separateFromCompoundIds": [],
+    "note": "Typically taken 30-60 minutes pre-exercise in sports nutrition practice; the cited evidence establishes the effective dose range, not a specific timing window, so this note should not be read as claim-backed.",
+    "citesClaims": []
+  },
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Deliberately caps the target range at 3 mg/kg, well under the 6 mg/kg ceiling the source paper calls understudied - reviewer should sanity-check against a typical adult bodyweight range for what this produces in absolute mg, since caffeine dosing is usually communicated to consumers in mg, not mg/kg. Reviewer confirmed 2026-09-05 the source papers backing this dose range are documented in the master ingredient research list; dosing target approved on that basis."
+  }
+}

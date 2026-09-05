@@ -43,8 +43,8 @@
   "onUnknown": "true",
   "userMessage": "Creatine has not been shown to harm healthy kidneys, but existing renal impairment warrants medical guidance first.",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   }
 }

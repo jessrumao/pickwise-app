@@ -1,0 +1,40 @@
+{
+  "id": "dose-collagen-peptides",
+  "kind": "dosing",
+  "compoundId": "collagen-peptides",
+  "citesClaims": [
+    "collagen-joint-comfort"
+  ],
+  "appliesWhen": {
+    "const": true
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 5,
+    "target": 10,
+    "max": 15,
+    "unit": "g/day"
+  },
+  "subtractDietaryIntake": false,
+  "minEffectiveDose": {
+    "amount": 5,
+    "unit": "g"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "any",
+    "separateFromCompoundIds": [],
+    "note": "No strong timing dependency established in the cited evidence.",
+    "citesClaims": []
+  },
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Target range is a placeholder from typical published dosing, not derived from the master list (which did not supply a specific dose) - reviewer should source the actual effective-dose range from the cited systematic review directly. Reviewer confirmed 2026-09-05 the source papers backing this dose range are documented in the master ingredient research list; dosing target approved on that basis."
+  }
+}

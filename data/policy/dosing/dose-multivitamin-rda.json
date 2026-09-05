@@ -34,9 +34,9 @@
     "citesClaims": []
   },
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
     "note": "compoundId is a placeholder here - a multivitamin is a bundle, not a compound, and this is the one dosing record that is genuinely ingredient-scoped. Flagged rather than hidden: if a second bundle product appears, this needs a proper bundle-dosing shape."
   }
 }

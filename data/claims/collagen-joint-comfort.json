@@ -1,0 +1,39 @@
+{
+  "id": "collagen-joint-comfort",
+  "subject": {
+    "type": "compound",
+    "id": "collagen-peptides"
+  },
+  "outcomeId": "joint_comfort",
+  "population": {
+    "description": "Adults with joint discomfort or engaged in regular exercise"
+  },
+  "direction": "increases",
+  "magnitude": "moderate",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review"
+    ],
+    "consistency": "mostly_consistent",
+    "directness": "direct",
+    "note": "Of four outcome categories studied (body composition, collagen synthesis, exercise recovery, joint pain/function), joint pain/functionality was the most consistent finding - the basis for grading Moderate here rather than Limited."
+  },
+  "statement": "Collagen peptide supplementation improves joint pain and functionality, the most consistent benefit found across the outcomes this evidence base examined.",
+  "citations": [
+    {
+      "title": "The effects of collagen peptide supplementation on body composition, collagen synthesis, and recovery from joint injury and exercise: a systematic review",
+      "source": "Systematic review (15 RCTs)",
+      "year": 2021,
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8521576/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05)."
+  },
+  "version": 1
+}

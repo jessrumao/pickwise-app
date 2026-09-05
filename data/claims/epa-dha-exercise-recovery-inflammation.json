@@ -1,0 +1,40 @@
+{
+  "id": "epa-dha-exercise-recovery-inflammation",
+  "subject": {
+    "type": "compound",
+    "id": "epa-dha"
+  },
+  "outcomeId": "exercise_recovery",
+  "population": {
+    "description": "Adults engaged in regular structured exercise/training"
+  },
+  "direction": "increases",
+  "magnitude": "small_to_moderate",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review",
+      "rct"
+    ],
+    "consistency": "mostly_consistent",
+    "directness": "indirect",
+    "note": "Directness is INDIRECT: the measured outcomes are inflammatory/muscle-damage biomarkers (CK, LDH), not directly-measured recovery or next-session performance, which the same body of evidence does not establish. Kept as a separate claim rather than folded into the existing CV-prevention or triglyceride claims, which describe different outcomes and populations entirely - see epa-dha-general-population-cv-prevention and epa-dha-triglyceride-lowering."
+  },
+  "statement": "In adults who train regularly, omega-3 (EPA/DHA) supplementation reduces post-exercise inflammatory and muscle-damage biomarkers, though a direct benefit to exercise performance itself is not well established by the same studies.",
+  "citations": [
+    {
+      "title": "Omega-3 Fatty Acid Supplementation on Post-Exercise Inflammation, Muscle Damage, Oxidative Response, and Sports Performance: Systematic Review of RCTs",
+      "source": "PMC (systematic review of RCTs)",
+      "year": 2024,
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11243702/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "New evidence domain drafted from master research list v2 (2026-09-05). Not yet cited by any eligibility/dosing policy - elig-epa-dha-general.json currently only fires for general_wellness/joint_health/immunity goals, so wiring this claim in to also cover muscle_gain/strength_performance/endurance_performance goals is a deliberate eligibility-scope decision left for the reviewer/product owner, not made unilaterally here."
+  },
+  "version": 1
+}

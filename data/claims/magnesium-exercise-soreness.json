@@ -1,0 +1,39 @@
+{
+  "id": "magnesium-exercise-soreness",
+  "subject": {
+    "type": "compound",
+    "id": "magnesium"
+  },
+  "outcomeId": "exercise_recovery",
+  "population": {
+    "description": "Adults doing intense or frequent physical activity"
+  },
+  "direction": "increases",
+  "magnitude": "small",
+  "grade": "Limited",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review"
+    ],
+    "consistency": "mixed",
+    "directness": "direct",
+    "note": "Source recommends magnesium requirements run 10-20% higher for people doing intense exercise vs. sedentary individuals - supports scaling a dosing target by activity_level, but the underlying soreness-outcome evidence itself is not strong enough to grade above Limited."
+  },
+  "statement": "People doing intense or frequent exercise have higher magnesium requirements than sedentary individuals, and closing that gap is associated with reduced muscle soreness; this is a requirements/adequacy argument more than a strong standalone ergogenic claim.",
+  "citations": [
+    {
+      "title": "Effects of magnesium supplementation on muscle soreness in different types of physical activities: systematic review",
+      "source": "Systematic review",
+      "year": 2024,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38970118/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05). Magnesium ingredient is standalone; dose ledger must be summed against magnesium already delivered by the multivitamin ingredient (see magnesium.json note)."
+  },
+  "version": 1
+}

@@ -101,7 +101,7 @@
         },
         {
           "compoundId": "leucine",
-          "amount": 2.0,
+          "amount": 2,
           "unit": "g"
         }
       ],
@@ -239,6 +239,33 @@
         "pescatarian",
         "other"
       ]
+    },
+    {
+      "id": "hkvitals-magnesium-glycinate-120tab",
+      "ingredientId": "magnesium",
+      "productName": "HK Vitals 100% Magnesium Glycinate, 120 Tablets",
+      "brand": "HealthKart (HK Vitals)",
+      "form": "tablet",
+      "servingSize": {
+        "amount": 2,
+        "unit": "tablet"
+      },
+      "servingsPerPack": 60,
+      "deliversPerServing": [
+        {
+          "compoundId": "magnesium",
+          "amount": 220,
+          "unit": "mg"
+        }
+      ],
+      "splittable": true,
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Verified via live product page 2026-09-05: label states \"220 mg magnesium\" per 2-tablet serving, 120-tablet pack. The page did not separately break out elemental magnesium vs magnesium glycinate compound weight - 220 mg is assumed to be ELEMENTAL magnesium (a plausible therapeutic dose consistent with dose-magnesium.json's 200-350 mg/day target) but this assumption is NOT confirmed and must be checked against the physical label before this SKU is trusted for the UL ledger, exactly the kind of error the domain-governance brief warned about for the multivitamin composition record."
+      }
     },
     {
       "id": "hkvitals-multivitamin-men-60",
@@ -387,6 +414,87 @@
         "reviewedBy": null,
         "reviewedOn": null,
         "note": "Present so the catalogue can hold data for an ingredient the engine deliberately does not surface. The 'not recommended' decision lives in policy, never in the absence of a product."
+      }
+    },
+    {
+      "id": "nutrabay-beta-alanine-250g",
+      "ingredientId": "beta-alanine",
+      "productName": "Pure Beta Alanine Amino Acid Powder",
+      "brand": "Nutrabay",
+      "form": "powder",
+      "servingSize": {
+        "amount": 5,
+        "unit": "g"
+      },
+      "servingsPerPack": 50,
+      "deliversPerServing": [
+        {
+          "compoundId": "beta-alanine",
+          "amount": 5,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Verified via live product page 2026-09-05: single-ingredient powder, 5 g beta-alanine per 5 g scoop, 250 g pack = 50 servings. Note the dosing target (dose-beta-alanine.json) recommends 3.2-6.4 g/day, so a full 5 g scoop is within range but not splittable to a lower dose on this SKU alone - reviewer should sanity-check against the split-dosing tolerability note."
+      }
+    },
+    {
+      "id": "hkvitals-caffeine-200mg-90cap",
+      "ingredientId": "caffeine",
+      "productName": "HK Vitals Caffeine 200 mg, 90 Capsules",
+      "brand": "HealthKart (HK Vitals)",
+      "form": "capsule",
+      "servingSize": {
+        "amount": 1,
+        "unit": "capsule"
+      },
+      "servingsPerPack": 90,
+      "deliversPerServing": [
+        {
+          "compoundId": "caffeine",
+          "amount": 200,
+          "unit": "mg"
+        }
+      ],
+      "splittable": false,
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Verified via live product page 2026-09-05: 200 mg caffeine per capsule, 90-capsule pack. Recommended serving size (capsules/day) was not stated on the page - assumed 1 capsule/serving here, which reviewer should confirm against the actual label. Product showed as currently unavailable for purchase at verification time (see pricing.inStock)."
+      }
+    },
+    {
+      "id": "inlife-collagen-peptides-200g",
+      "ingredientId": "collagen-peptides",
+      "productName": "INLIFE Hydrolyzed Collagen Peptides",
+      "brand": "INLIFE",
+      "form": "powder",
+      "servingSize": {
+        "amount": 12.5,
+        "unit": "g"
+      },
+      "servingsPerPack": 16,
+      "deliversPerServing": [
+        {
+          "compoundId": "collagen-peptides",
+          "amount": 10,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Verified via live product page 2026-09-05: 10 g hydrolyzed collagen peptides per 12.5 g (2-scoop) serving, 200 g pack = 16 servings, in stock. This SKU is a blend also containing glucosamine HCl, hyaluronic acid, vitamin C and biotin - only the collagen-peptides amount is modeled here since those are the only compounds this catalog tracks; reviewer should decide whether the extra actives are worth modeling separately. Collagen source (marine vs bovine) was not stated on the page - the ingredient record's marine/fish-allergen assumption has not been confirmed against this specific SKU."
       }
     }
   ]

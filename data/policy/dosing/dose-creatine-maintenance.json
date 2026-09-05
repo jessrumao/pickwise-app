@@ -38,9 +38,9 @@
     ]
   },
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
     "note": "Loading phase (20 g/day for 5-7 days) deliberately NOT implemented for the MVP: it is a second dosing regime with its own timing split, and the maintenance dose reaches the same saturation within about four weeks."
   }
 }

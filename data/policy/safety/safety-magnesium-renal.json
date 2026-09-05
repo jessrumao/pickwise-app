@@ -1,9 +1,9 @@
 {
-  "id": "safety-protein-renal",
+  "id": "safety-magnesium-renal",
   "kind": "safety",
   "appliesTo": {
     "compoundIds": [
-      "protein-complete"
+      "magnesium"
     ]
   },
   "trigger": {
@@ -41,10 +41,11 @@
   "action": "escalate",
   "severity": "high",
   "onUnknown": "true",
-  "userMessage": "Higher protein intake needs medical guidance when there's existing kidney impairment.",
+  "userMessage": "Impaired kidneys cannot clear excess magnesium efficiently, so oral magnesium supplementation needs medical guidance if you have kidney disease.",
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",
-    "reviewedOn": "2026-09-05"
+    "reviewedOn": "2026-09-05",
+    "note": "Added 2026-09-05, mirroring the existing renal safety pattern used for creatine and protein - orally administered magnesium can still accumulate to dangerous levels in renal impairment even though the route is just oral, since the kidney is what clears the excess. Reviewer confirmed this addition given magnesium glycinate is taken orally."
   }
 }

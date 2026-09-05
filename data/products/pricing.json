@@ -83,6 +83,42 @@
       "marketplaceUrl": "https://www.amazon.in/s?k=muscleblaze+bcaa+pro",
       "urlVerified": false,
       "inStock": null
+    },
+    {
+      "productId": "nutrabay-beta-alanine-250g",
+      "priceINR": 599,
+      "priceIsIndicative": true,
+      "marketplace": "HealthKart",
+      "marketplaceUrl": "https://www.healthkart.com/sv/nutrabay-pure-beta-alanine-amino-acid/SP-98330",
+      "urlVerified": true,
+      "inStock": true
+    },
+    {
+      "productId": "hkvitals-caffeine-200mg-90cap",
+      "priceINR": 599,
+      "priceIsIndicative": true,
+      "marketplace": "HealthKart",
+      "marketplaceUrl": "https://www.healthkart.com/sv/healthkart-hk-vitals-caffeine-200-mg/SP-50193",
+      "urlVerified": true,
+      "inStock": false
+    },
+    {
+      "productId": "inlife-collagen-peptides-200g",
+      "priceINR": 899,
+      "priceIsIndicative": true,
+      "marketplace": "HealthKart",
+      "marketplaceUrl": "https://www.healthkart.com/sv/inlife-hydrolyzed-collagen-peptides/SP-70259",
+      "urlVerified": true,
+      "inStock": true
+    },
+    {
+      "productId": "hkvitals-magnesium-glycinate-120tab",
+      "priceINR": 789,
+      "priceIsIndicative": true,
+      "marketplace": "HealthKart",
+      "marketplaceUrl": "https://www.healthkart.com/sv/healthkart-hk-vitals-100-magnesium-glycinate/SP-128849",
+      "urlVerified": true,
+      "inStock": true
     }
   ]
 }

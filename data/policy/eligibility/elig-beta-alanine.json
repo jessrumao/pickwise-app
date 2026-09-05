@@ -1,0 +1,47 @@
+{
+  "id": "elig-beta-alanine",
+  "kind": "eligibility",
+  "compoundId": "beta-alanine",
+  "citesClaims": [
+    "beta-alanine-high-intensity-performance"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "endurance_performance",
+            "strength_performance"
+          ]
+        },
+        "label": "has an endurance or high-intensity performance goal"
+      },
+      {
+        "gte": {
+          "field": "exerciseFrequencyPerWeek",
+          "value": 3
+        },
+        "label": "trains at least three times a week"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "beta-alanine"
+      ]
+    },
+    "label": "already takes beta-alanine"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Gated to endurance_performance/strength_performance goals as the closest fit for \"high-intensity efforts lasting 60-240 seconds\" - reviewer should confirm this is the right goal gate given the repo has no dedicated short-duration/anaerobic goal."
+  }
+}

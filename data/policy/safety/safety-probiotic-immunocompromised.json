@@ -48,8 +48,8 @@
   "onUnknown": "true",
   "userMessage": "Live cultures carry a rare but real infection risk where immunity is suppressed, so this needs a clinician's view.",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   }
 }

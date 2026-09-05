@@ -45,9 +45,9 @@
   ],
   "allergens": [],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Delivers many compounds at once, which is exactly why the dose ledger matters here: a user on a multivitamin who is also recommended a standalone D3 or iron needs the totals summed against the UL. Per-product amounts vary enormously, so the ingredient declares WHICH compounds without concentrations - the product record carries the numbers."
 }

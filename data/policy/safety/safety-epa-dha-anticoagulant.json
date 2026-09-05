@@ -49,8 +49,8 @@
   "onUnknown": "true",
   "userMessage": "Omega-3 at higher doses can have a mild antiplatelet effect, so it needs a clinician's view alongside blood-thinning medication.",
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   }
 }

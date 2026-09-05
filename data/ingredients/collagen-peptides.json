@@ -1,0 +1,28 @@
+{
+  "id": "collagen-peptides",
+  "name": "Collagen peptides (hydrolyzed)",
+  "category": "recovery_joint",
+  "forms": [
+    "powder"
+  ],
+  "delivers": [
+    {
+      "compoundId": "collagen-peptides",
+      "typicalConcentration": 0.9
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "pescatarian"
+  ],
+  "allergens": [
+    "fish"
+  ],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Marine (fish-derived) collagen is the assumed default source since bovine collagen is a separate sourcing/suitability question (halal/kosher/vegetarian status) not yet resolved - reviewer should confirm which source(s) this record should represent, and whether bovine collagen needs its own ingredient record instead of an allergen-only distinction."
+  },
+  "notes": "Candidate ingredient drafted from master research list v2 (2026-09-05), not yet expert-reviewed. Of the outcome domains studied (body composition, collagen synthesis, muscle soreness, joint pain/function), joint pain/functionality was the most consistent finding - evidence tier modeled here as Moderate rather than Limited on that basis."
+}

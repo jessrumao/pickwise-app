@@ -1,0 +1,51 @@
+{
+  "id": "safety-caffeine-cardiac-anxiety",
+  "kind": "safety",
+  "appliesTo": {
+    "compoundIds": [
+      "caffeine"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "arrhythmia",
+            "atrial fibrillation",
+            "heart palpitations",
+            "anxiety disorder",
+            "panic disorder",
+            "hypertension",
+            "high blood pressure"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "arrhythmia",
+            "atrial fibrillation",
+            "heart palpitations",
+            "anxiety disorder",
+            "panic disorder",
+            "hypertension",
+            "high blood pressure"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "moderate",
+  "onUnknown": "true",
+  "userMessage": "Caffeine can worsen heart-rhythm issues, anxiety, or blood pressure control, so this needs a clinician's view before starting.",
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Standard caffeine caution list confirmed by reviewer 2026-09-05. Pregnancy is already covered by safety-global-pregnancy (full escalation via appliesTo: all); reviewer accepted this rather than introducing a separate caffeine-specific dose-ceiling exception for pregnancy."
+  }
+}

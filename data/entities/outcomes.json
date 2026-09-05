@@ -64,6 +64,10 @@
     {
       "id": "subjective_energy",
       "label": "Subjective energy / fatigue"
+    },
+    {
+      "id": "cognitive_function",
+      "label": "Memory and cognitive function"
     }
   ]
 }

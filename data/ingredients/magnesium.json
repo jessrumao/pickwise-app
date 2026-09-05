@@ -1,0 +1,29 @@
+{
+  "id": "magnesium",
+  "name": "Magnesium (glycinate/bisglycinate)",
+  "category": "micronutrient",
+  "forms": [
+    "capsule",
+    "powder"
+  ],
+  "delivers": [
+    {
+      "compoundId": "magnesium"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
+  },
+  "notes": "Candidate standalone magnesium ingredient drafted from master research list v2 (2026-09-05), not yet expert-reviewed - same compound (magnesium) already delivered in bundled form by the multivitamin ingredient, so the dose ledger must sum standalone + multivitamin magnesium against the existing supplemental UL. Two distinct evidence angles: exercise-related soreness (dose scales with activity level per source) and sleep quality (small effect, concentrated in people with lower baseline dietary intake)."
+}

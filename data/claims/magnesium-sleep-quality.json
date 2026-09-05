@@ -1,0 +1,39 @@
+{
+  "id": "magnesium-sleep-quality",
+  "subject": {
+    "type": "compound",
+    "id": "magnesium"
+  },
+  "outcomeId": "sleep_quality",
+  "population": {
+    "description": "Healthy adults reporting poor sleep, particularly those with lower baseline dietary magnesium intake"
+  },
+  "direction": "increases",
+  "magnitude": "small",
+  "grade": "Limited",
+  "gradeRationale": {
+    "designs": [
+      "rct"
+    ],
+    "consistency": "consistent",
+    "directness": "direct",
+    "note": "Single RCT, small effect size (Cohen's d = 0.2) - real but modest. Exploratory subgroup analysis (not the primary endpoint) suggested people with lower baseline dietary magnesium intake responded most, which is why the population description carries that caveat rather than presenting this as a universal sleep aid."
+  },
+  "statement": "Magnesium (glycinate) supplementation modestly improves sleep quality in healthy adults reporting poor sleep, with the clearest benefit in people whose dietary magnesium intake is already low.",
+  "citations": [
+    {
+      "title": "Magnesium Bisglycinate Supplementation in Healthy Adults Reporting Poor Sleep: RCT",
+      "source": "Randomized controlled trial",
+      "year": 2025,
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12412596/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05)."
+  },
+  "version": 1
+}

@@ -1,0 +1,43 @@
+{
+  "id": "dose-magnesium",
+  "kind": "dosing",
+  "compoundId": "magnesium",
+  "citesClaims": [
+    "magnesium-exercise-soreness",
+    "magnesium-sleep-quality"
+  ],
+  "appliesWhen": {
+    "const": true
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 200,
+    "target": 300,
+    "max": 350,
+    "unit": "mg/day"
+  },
+  "subtractDietaryIntake": true,
+  "minEffectiveDose": {
+    "amount": 200,
+    "unit": "mg"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "evening",
+    "separateFromCompoundIds": [],
+    "note": "Evening timing is a reasonable default given the sleep-quality use case, but is not independently claim-backed for the exercise-soreness use case.",
+    "citesClaims": [
+      "magnesium-sleep-quality"
+    ]
+  },
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. subtractDietaryIntake is set true and MUST be checked against the supplemental-only UL noted on the magnesium compound record, and summed against any magnesium already delivered by a multivitamin the user takes - this is exactly the dose-ledger scenario the ingredient record flags. Target range is a placeholder pending real ICMR-NIN RDA sourcing (see the open nutrient-requirements.json gap) rather than the master list, which did not supply a specific mg target. Reviewer confirmed 2026-09-05 the source papers backing this dose range are documented in the master ingredient research list; dosing target approved on that basis."
+  }
+}

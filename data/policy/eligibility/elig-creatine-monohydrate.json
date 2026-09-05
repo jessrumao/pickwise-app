@@ -41,8 +41,8 @@
   "onUnknown": "false",
   "showWhenSuppressed": true,
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   }
 }

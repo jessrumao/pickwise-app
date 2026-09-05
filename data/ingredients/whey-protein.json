@@ -27,9 +27,9 @@
     "milk"
   ],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Not vegan: whey is milk-derived. A vegan user asking for protein resolves through the same compound (protein-complete) to a plant-protein ingredient instead - the substitution is a query over `delivers` + `suitableFor`, not a branch in the rule."
 }

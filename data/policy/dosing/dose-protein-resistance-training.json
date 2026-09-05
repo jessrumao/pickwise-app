@@ -22,7 +22,8 @@
             "muscle_gain",
             "strength_performance",
             "general_fitness",
-            "weight_loss"
+            "weight_loss",
+            "endurance_performance"
           ]
         },
         "label": "has a goal that extra protein supports"
@@ -59,9 +60,9 @@
     ]
   },
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null,
-    "note": "Target band is ISSN policy, NOT the ICMR-NIN population requirement (0.83 g/kg/day) in reference/. Two different kinds of number, deliberately kept in different layers. Worked example: 72 kg x 1.8 = 130 g/day target, minus ~90 g from food = 40 g gap; at 24 g per scoop that is 1.67 servings, which rounds to 1.5."
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Endurance_performance added to match the eligibility fix. Same ISSN 1.6-2.2 g/kg/day target applied - reviewer did not specify a different band for endurance athletes specifically, so the general performance-population target stands pending any future refinement."
   }
 }

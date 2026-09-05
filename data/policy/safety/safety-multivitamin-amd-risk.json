@@ -1,0 +1,43 @@
+{
+  "id": "safety-multivitamin-amd-risk",
+  "kind": "safety",
+  "appliesTo": {
+    "ingredientIds": [
+      "multivitamin"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "macular degeneration",
+            "age-related macular degeneration",
+            "\\bamd\\b"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "macular degeneration",
+            "age-related macular degeneration",
+            "\\bamd\\b"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "moderate",
+  "onUnknown": "true",
+  "userMessage": "Some research has linked multivitamin/mineral use with faster progression of age-related macular degeneration (AMD). If you have AMD or a related eye condition, please check with an eye specialist before starting a multivitamin.",
+  "review": {
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Severity confirmed as moderate (not high) by reviewer 2026-09-05 - consistent with this being a progression-risk association from one review rather than an acute contraindication, and with multivitamins already being sold over-the-counter in e-commerce without prescription. Source: https://www.sciencedirect.com/science/article/pii/S1568163725003113"
+  }
+}

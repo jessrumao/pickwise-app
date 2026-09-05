@@ -22,9 +22,9 @@
     "fish"
   ],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Split out from the old combined omega-3 record. Fish oil and algal oil are now two ingredients delivering the same compound group, which is what makes the vegan path a lookup rather than a special case."
 }

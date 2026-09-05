@@ -10,7 +10,7 @@
   "delivers": [
     {
       "compoundId": "creatine-monohydrate",
-      "typicalConcentration": 1.0
+      "typicalConcentration": 1
     }
   ],
   "suitableFor": [
@@ -23,9 +23,9 @@
   ],
   "allergens": [],
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05"
   },
   "notes": "Synthetically produced, so vegan-suitable despite being found mainly in meat in the diet. Worth surfacing in the UI: vegetarians and vegans typically start from lower muscle creatine stores."
 }

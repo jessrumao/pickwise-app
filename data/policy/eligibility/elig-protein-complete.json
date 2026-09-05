@@ -15,7 +15,8 @@
             "muscle_gain",
             "strength_performance",
             "general_fitness",
-            "weight_loss"
+            "weight_loss",
+            "endurance_performance"
           ]
         },
         "label": "has a goal that extra protein supports"
@@ -60,8 +61,9 @@
   "onUnknown": "false",
   "showWhenSuppressed": true,
   "review": {
-    "status": "draft_needs_expert_review",
-    "reviewedBy": null,
-    "reviewedOn": null
+    "status": "expert_reviewed",
+    "reviewedBy": "Jess",
+    "reviewedOn": "2026-09-05",
+    "note": "Endurance-athlete gap from the original domain-governance brief fixed: endurance_performance added to the goal list, so an endurance athlete unsure about protein intake now gets a recommendation instead of falling through with nothing. Approved by reviewer 2026-09-05."
   }
 }

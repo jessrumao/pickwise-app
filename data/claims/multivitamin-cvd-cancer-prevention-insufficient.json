@@ -1,0 +1,38 @@
+{
+  "id": "multivitamin-cvd-cancer-prevention-insufficient",
+  "subject": {
+    "type": "ingredient",
+    "id": "multivitamin"
+  },
+  "outcomeId": "cardiovascular_events",
+  "population": {
+    "description": "Generally healthy, non-pregnant adults"
+  },
+  "direction": "unclear",
+  "magnitude": "trivial",
+  "grade": "Insufficient",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review",
+      "guideline"
+    ],
+    "consistency": "mixed",
+    "directness": "direct"
+  },
+  "statement": "The USPSTF found insufficient evidence that multivitamin supplementation prevents cardiovascular disease or cancer in generally healthy non-pregnant adults.",
+  "citations": [
+    {
+      "title": "Vitamin, Mineral, and Multivitamin Supplementation to Prevent Cardiovascular Disease and Cancer: US Preventive Services Task Force Recommendation Statement",
+      "source": "US Preventive Services Task Force / JAMA",
+      "year": 2022,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35727271/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

@@ -1,0 +1,28 @@
+{
+  "_note": "The differentiator case. Expect almost everything suppressed - this profile should mostly get told it needs nothing.",
+  "age": 34,
+  "sex": "female",
+  "bodyWeightKg": 58,
+  "dietaryPattern": "omnivore",
+  "exerciseFrequencyPerWeek": 1,
+  "exerciseType": [
+    "yoga_mobility"
+  ],
+  "primaryGoals": [
+    "general_wellness"
+  ],
+  "sleepHoursTypical": 7.5,
+  "existingSupplementUse": [],
+  "dietaryProteinAdequacy": "likely_adequate",
+  "dietaryOilyFishServingsPerWeek": 3,
+  "allergies": [],
+  "relevantHealthContext": "",
+  "isPregnantOrBreastfeeding": false,
+  "monthlyBudgetINR": 2000,
+  "budgetIsHardConstraint": true,
+  "medicationsOrConditionsFlag": {
+    "hasAny": false,
+    "freeText": "",
+    "parseConfidence": 1.0
+  }
+}

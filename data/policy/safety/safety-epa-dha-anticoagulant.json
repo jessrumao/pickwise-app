@@ -1,0 +1,56 @@
+{
+  "id": "safety-epa-dha-anticoagulant",
+  "kind": "safety",
+  "appliesTo": {
+    "compoundIds": [
+      "epa-dha",
+      "epa",
+      "dha"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "warfarin",
+            "anticoagulant",
+            "blood thinner",
+            "clopidogrel",
+            "apixaban",
+            "rivaroxaban",
+            "aspirin",
+            "antiplatelet",
+            "dabigatran"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "warfarin",
+            "anticoagulant",
+            "blood thinner",
+            "clopidogrel",
+            "apixaban",
+            "rivaroxaban",
+            "aspirin",
+            "antiplatelet",
+            "dabigatran"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Omega-3 at higher doses can have a mild antiplatelet effect, so it needs a clinician's view alongside blood-thinning medication.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

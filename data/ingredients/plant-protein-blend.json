@@ -1,0 +1,33 @@
+{
+  "id": "plant-protein-blend",
+  "name": "Plant protein blend (pea + rice)",
+  "category": "protein",
+  "forms": [
+    "powder"
+  ],
+  "delivers": [
+    {
+      "compoundId": "protein-complete",
+      "typicalConcentration": 0.75
+    },
+    {
+      "compoundId": "leucine",
+      "typicalConcentration": 0.07
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Added in the v3 migration as the vegan counterpart to whey. Pea+rice is blended specifically because each alone is limiting in an essential amino acid; the blend is treated as complete. Needs expert confirmation of the leucine figure before sign-off."
+}

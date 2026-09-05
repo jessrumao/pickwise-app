@@ -1,0 +1,31 @@
+{
+  "id": "safety-whey-milk-allergy",
+  "kind": "safety",
+  "appliesTo": {
+    "ingredientIds": [
+      "whey-protein"
+    ]
+  },
+  "trigger": {
+    "contains_any": {
+      "field": "allergies",
+      "values": [
+        "milk",
+        "milk protein",
+        "dairy",
+        "casein"
+      ]
+    },
+    "label": "reports a milk or dairy allergy"
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Whey is milk-derived. We'll route you to a plant-based protein instead - and if this is a true milk-protein allergy rather than lactose intolerance, please confirm with a clinician.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Milk-protein allergy and lactose intolerance are different things with different consequences. Lactose intolerance should route to isolate or plant protein without escalation; true milk-protein allergy escalates. The current trigger conflates them and needs expert splitting."
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "product.schema.json",
+  "title": "Product (L4, stable half)",
+  "description": "Identity and composition. Price, stock and marketplace URL live in pricing.json so that a price refresh never dirties a composition record. Composition is NUMERIC in compound units — that is what makes the UL ledger and cost-per-effective-dose computable.",
+  "type": "object",
+  "required": [
+    "id",
+    "ingredientId",
+    "productName",
+    "brand",
+    "servingSize",
+    "servingsPerPack",
+    "deliversPerServing",
+    "splittable",
+    "review"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "ingredientId": {
+      "type": "string"
+    },
+    "productName": {
+      "type": "string"
+    },
+    "brand": {
+      "type": "string"
+    },
+    "form": {
+      "type": "string"
+    },
+    "servingSize": {
+      "type": "object",
+      "required": [
+        "amount",
+        "unit"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "g",
+            "ml",
+            "scoop",
+            "capsule",
+            "tablet",
+            "softgel",
+            "sachet"
+          ]
+        }
+      }
+    },
+    "servingsPerPack": {
+      "type": "number"
+    },
+    "deliversPerServing": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "compoundId",
+          "amount",
+          "unit"
+        ],
+        "properties": {
+          "compoundId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "strain": {
+            "type": "string",
+            "description": "Required where the compound is strainSpecific."
+          }
+        }
+      }
+    },
+    "splittable": {
+      "type": "boolean",
+      "description": "Can one serving be halved in practice? A scoop with a half-mark or a scored tablet can; a softgel, sealed capsule or gummy cannot. The nearest-half rounding rule falls back to whole units when this is false — without this flag the rounding rule can silently prescribe half a capsule."
+    },
+    "qualitySignal": {
+      "type": "object",
+      "properties": {
+        "thirdPartyTested": {
+          "type": "boolean"
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "description": "NOT a gate in the MVP — the quality floor is effective-dose-met only. Displayed to the user and available for a future verified-dose floor."
+    },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "suitableFor": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Overrides the ingredient's list where a specific SKU differs (e.g. a gelatin capsule on an otherwise vegan ingredient)."
+    },
+    "review": {
+      "$ref": "review.schema.json"
+    }
+  }
+}

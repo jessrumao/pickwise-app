@@ -1,0 +1,88 @@
+{
+  "checkedOn": "2026-09-05",
+  "source": "manual",
+  "$comment": "Split out of products.json in the v3 migration. urlVerified: false marks a link that has NOT been confirmed to resolve to this specific product - three Day-1 entries were Amazon search pages rather than listings. The UI must not present an unverified link as a product page, and validate.mjs reports the count.",
+  "entries": [
+    {
+      "productId": "on-gold-standard-whey-1lb",
+      "priceINR": 1999,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/Optimum-Nutrition-Standard-Protein-Powder/dp/B019T0K1S2",
+      "urlVerified": true,
+      "inStock": null
+    },
+    {
+      "productId": "muscleblaze-biozyme-whey-1kg",
+      "priceINR": 1799,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/s?k=muscleblaze+biozyme+performance+whey",
+      "urlVerified": false,
+      "inStock": null
+    },
+    {
+      "productId": "oziva-plant-protein-500g",
+      "priceINR": 1299,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/s?k=oziva+organic+plant+protein",
+      "urlVerified": false,
+      "inStock": null
+    },
+    {
+      "productId": "muscleblaze-creatine-100g",
+      "priceINR": 799,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/MuscleBlaze-Creatine-Monohydrate-Powder-100/dp/B00LLZ82O4",
+      "urlVerified": true,
+      "inStock": null
+    },
+    {
+      "productId": "hkvitals-omega3-1000mg",
+      "priceINR": 425,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/HealthKart-Vitals-Capsule-Capsules-1000mg/dp/B0757MM647",
+      "urlVerified": true,
+      "inStock": null
+    },
+    {
+      "productId": "algal-omega3-vegan-60",
+      "priceINR": 1200,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/s?k=vegan+algal+omega+3",
+      "urlVerified": false,
+      "inStock": null
+    },
+    {
+      "productId": "hkvitals-multivitamin-men-60",
+      "priceINR": 525,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/HealthKart-Multivitamin-Tablets-Stamina-Immunity/dp/B0CL6HCHB4",
+      "urlVerified": true,
+      "inStock": null
+    },
+    {
+      "productId": "hkvitals-pre-probiotic-60",
+      "priceINR": 475,
+      "priceIsIndicative": true,
+      "marketplace": "1mg",
+      "marketplaceUrl": "https://www.1mg.com/otc/healthkart-hk-vitals-pre-probiotic-capsule-for-gut-health-digestion-immunity-otc632488",
+      "urlVerified": true,
+      "inStock": null
+    },
+    {
+      "productId": "muscleblaze-bcaa-pro",
+      "priceINR": 1050,
+      "priceIsIndicative": true,
+      "marketplace": "Amazon.in",
+      "marketplaceUrl": "https://www.amazon.in/s?k=muscleblaze+bcaa+pro",
+      "urlVerified": false,
+      "inStock": null
+    }
+  ]
+}

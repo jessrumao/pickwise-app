@@ -1,0 +1,55 @@
+{
+  "id": "safety-probiotic-immunocompromised",
+  "kind": "safety",
+  "appliesTo": {
+    "compoundIds": [
+      "lgg",
+      "s-boulardii"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "immunocompromised",
+            "immunosuppress",
+            "chemotherapy",
+            "transplant",
+            "hiv",
+            "steroid",
+            "corticosteroid",
+            "central line",
+            "neutropenia"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "immunocompromised",
+            "immunosuppress",
+            "chemotherapy",
+            "transplant",
+            "hiv",
+            "steroid",
+            "corticosteroid",
+            "central line",
+            "neutropenia"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Live cultures carry a rare but real infection risk where immunity is suppressed, so this needs a clinician's view.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

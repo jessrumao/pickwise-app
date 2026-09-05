@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "predicate.schema.json",
+  "title": "Predicate AST",
+  "description": "Boolean expression over a UserProfile, stored as data rather than as an eval'd string. Evaluated with THREE-VALUED (Kleene) logic: true / false / unknown. A node whose referenced field is absent or null evaluates to `unknown` and propagates: `all` is false if any child is false, unknown if any child is unknown and none are false, else true; `any` is true if any child is true, unknown if any child is unknown and none are true, else false; `not` negates true/false and leaves unknown alone. Each policy record declares what `unknown` means for it via `onUnknown` — eligibility rules treat it as false (do not recommend), safety rules treat it as true (escalate). That is what 'fail closed' means concretely.",
+  "$defs": {
+    "fieldPath": {
+      "type": "string",
+      "description": "Dot path into the UserProfile, e.g. 'primaryGoals' or 'medicationsOrConditionsFlag.hasAny'. Validated against user-profile.schema.json at build time by tools/validate.mjs.",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$"
+    },
+    "predicate": {
+      "type": "object",
+      "description": "Exactly one operator key, plus an optional `label`.",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Human-readable phrase for this clause, e.g. 'trains at least twice a week'. Used to render the rule in English for expert sign-off and to build the user-facing explanation from the evaluation trace. If omitted the renderer falls back to a generated phrase."
+        },
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/predicate"
+          },
+          "minItems": 1
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/predicate"
+          },
+          "minItems": 1
+        },
+        "not": {
+          "$ref": "#/$defs/predicate"
+        },
+        "const": {
+          "type": "boolean",
+          "description": "Literal true/false. Used by bcaa, whose eligibility rule is deliberately false."
+        },
+        "eq": {
+          "$ref": "#/$defs/fieldValue"
+        },
+        "neq": {
+          "$ref": "#/$defs/fieldValue"
+        },
+        "lt": {
+          "$ref": "#/$defs/fieldNumber"
+        },
+        "lte": {
+          "$ref": "#/$defs/fieldNumber"
+        },
+        "gt": {
+          "$ref": "#/$defs/fieldNumber"
+        },
+        "gte": {
+          "$ref": "#/$defs/fieldNumber"
+        },
+        "in": {
+          "$ref": "#/$defs/fieldValues",
+          "description": "Scalar field's value is one of `values`."
+        },
+        "contains_any": {
+          "$ref": "#/$defs/fieldValues",
+          "description": "Array field intersects `values`."
+        },
+        "contains_all": {
+          "$ref": "#/$defs/fieldValues",
+          "description": "Array field contains every entry in `values`."
+        },
+        "contains_none": {
+          "$ref": "#/$defs/fieldValues",
+          "description": "Array field is disjoint from `values`."
+        },
+        "exists": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "$ref": "#/$defs/fieldPath"
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        },
+        "matches": {
+          "type": "object",
+          "description": "Case-insensitive substring match of any pattern against a free-text field. Used ONLY by safety rules; never by eligibility rules, because free-text matching is too blunt to justify a positive recommendation but is exactly the right blunt instrument for escalation.",
+          "properties": {
+            "field": {
+              "$ref": "#/$defs/fieldPath"
+            },
+            "patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "field",
+            "patterns"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "fieldValue": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/fieldPath"
+        },
+        "value": {}
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "fieldNumber": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/fieldPath"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "fieldValues": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/fieldPath"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1
+        }
+      },
+      "required": [
+        "field",
+        "values"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/$defs/predicate"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "elig-multivitamin",
+  "kind": "eligibility",
+  "ingredientId": "multivitamin",
+  "citesClaims": [
+    "multivitamin-micronutrient-adequacy-restricted-diets",
+    "multivitamin-cvd-cancer-prevention-insufficient"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "general_wellness",
+            "energy_fatigue",
+            "immunity"
+          ]
+        },
+        "label": "has a general wellness, energy or immunity goal"
+      },
+      {
+        "in": {
+          "field": "dietaryPattern",
+          "values": [
+            "vegan",
+            "vegetarian"
+          ]
+        },
+        "label": "follows a restricted diet where gaps are more likely"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "multivitamin"
+      ]
+    },
+    "label": "already takes a multivitamin"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Deliberately narrow and deliberately cites the Insufficient USPSTF claim alongside the Limited adequacy claim - the negative evidence is the reason for the diet gate, so it belongs in the citation list rather than being quietly omitted. Ceiling is 'potentially useful'."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "creatine-strength-power-resistance-trained",
+  "subject": {
+    "type": "compound",
+    "id": "creatine-monohydrate"
+  },
+  "outcomeId": "muscle_strength",
+  "population": {
+    "description": "Healthy adults undertaking resistance or high-intensity intermittent training",
+    "predicate": {
+      "all": [
+        {
+          "gte": {
+            "field": "exerciseFrequencyPerWeek",
+            "value": 2
+          },
+          "label": "trains at least twice a week"
+        },
+        {
+          "contains_any": {
+            "field": "exerciseType",
+            "values": [
+              "resistance_training",
+              "mixed",
+              "sport_specific"
+            ]
+          },
+          "label": "does resistance or mixed training"
+        }
+      ]
+    }
+  },
+  "direction": "increases",
+  "magnitude": "moderate",
+  "grade": "Strong",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "guideline"
+    ],
+    "consistency": "consistent",
+    "directness": "direct"
+  },
+  "statement": "Creatine monohydrate increases high-intensity exercise capacity and strength gains when combined with resistance training; it is among the most extensively studied ergogenic aids and shows no consistent evidence of harm to kidney or liver function in healthy adults at recommended doses.",
+  "citations": [
+    {
+      "title": "International Society of Sports Nutrition position stand: safety and efficacy of creatine supplementation in exercise, sport, and medicine",
+      "source": "Journal of the International Society of Sports Nutrition",
+      "year": 2017,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28615996/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1,
+  "doseResponse": {
+    "summary": "3-5 g/day maintenance saturates muscle stores within about four weeks; an optional 20 g/day loading phase for 5-7 days reaches saturation faster but is not required.",
+    "threshold": {
+      "amount": 3,
+      "unit": "g/day"
+    }
+  }
+}

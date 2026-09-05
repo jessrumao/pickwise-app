@@ -1,0 +1,44 @@
+{
+  "id": "multivitamin-micronutrient-adequacy-restricted-diets",
+  "subject": {
+    "type": "ingredient",
+    "id": "multivitamin"
+  },
+  "outcomeId": "micronutrient_adequacy",
+  "population": {
+    "description": "Adults with restricted or low-variety diets"
+  },
+  "direction": "increases",
+  "magnitude": "small",
+  "grade": "Limited",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review"
+    ],
+    "consistency": "mostly_consistent",
+    "directness": "indirect",
+    "note": "Directness is INDIRECT: the measured outcome is intake adequacy, not health. That is exactly why the eligibility rule is diet-gated and the ceiling is 'potentially useful'."
+  },
+  "statement": "A broad-spectrum multivitamin raises measured micronutrient intake in people whose diets are restricted or low in variety; whether that translates into clinical benefit in an otherwise healthy adult is not established.",
+  "citations": [
+    {
+      "title": "Multivitamin/mineral Supplements - Health Professional Fact Sheet",
+      "source": "NIH Office of Dietary Supplements",
+      "year": 2021,
+      "url": "https://ods.od.nih.gov/factsheets/MVMS-HealthProfessional/"
+    },
+    {
+      "title": "Vitamin, Mineral, and Multivitamin Supplementation to Prevent Cardiovascular Disease and Cancer: US Preventive Services Task Force Recommendation Statement",
+      "source": "US Preventive Services Task Force / JAMA",
+      "year": 2022,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35727271/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

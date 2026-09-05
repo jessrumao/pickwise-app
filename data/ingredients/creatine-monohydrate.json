@@ -1,0 +1,31 @@
+{
+  "id": "creatine-monohydrate",
+  "name": "Creatine monohydrate",
+  "category": "performance",
+  "forms": [
+    "powder",
+    "micronized powder",
+    "capsule"
+  ],
+  "delivers": [
+    {
+      "compoundId": "creatine-monohydrate",
+      "typicalConcentration": 1.0
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Synthetically produced, so vegan-suitable despite being found mainly in meat in the diet. Worth surfacing in the UI: vegetarians and vegans typically start from lower muscle creatine stores."
+}

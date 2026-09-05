@@ -1,0 +1,50 @@
+{
+  "id": "safety-protein-renal",
+  "kind": "safety",
+  "appliesTo": {
+    "compoundIds": [
+      "protein-complete"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "kidney disease",
+            "chronic kidney",
+            "renal impairment",
+            "renal failure",
+            "ckd",
+            "dialysis",
+            "nephropathy"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "kidney disease",
+            "chronic kidney",
+            "renal impairment",
+            "renal failure",
+            "ckd",
+            "dialysis",
+            "nephropathy"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Higher protein intake needs medical guidance when there's existing kidney impairment.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

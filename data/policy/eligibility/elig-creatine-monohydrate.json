@@ -1,0 +1,48 @@
+{
+  "id": "elig-creatine-monohydrate",
+  "kind": "eligibility",
+  "compoundId": "creatine-monohydrate",
+  "citesClaims": [
+    "creatine-strength-power-resistance-trained",
+    "creatine-lean-mass-resistance-trained"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "muscle_gain",
+            "strength_performance",
+            "endurance_performance"
+          ]
+        },
+        "label": "has a strength, muscle or power goal"
+      },
+      {
+        "gte": {
+          "field": "exerciseFrequencyPerWeek",
+          "value": 2
+        },
+        "label": "trains at least twice a week"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "creatine-monohydrate"
+      ]
+    },
+    "label": "already takes creatine"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

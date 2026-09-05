@@ -1,0 +1,51 @@
+{
+  "id": "safety-multivitamin-iron-overload",
+  "kind": "safety",
+  "appliesTo": {
+    "ingredientIds": [
+      "multivitamin"
+    ],
+    "compoundIds": [
+      "iron"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "haemochromatosis",
+            "hemochromatosis",
+            "iron overload",
+            "thalassaemia",
+            "thalassemia",
+            "polycythaemia"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "haemochromatosis",
+            "hemochromatosis",
+            "iron overload",
+            "thalassaemia",
+            "thalassemia",
+            "polycythaemia"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Iron-containing formulations aren't appropriate without medical guidance in conditions that raise iron levels.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

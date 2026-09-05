@@ -1,0 +1,66 @@
+{
+  "id": "protein-strength-resistance-trained",
+  "subject": {
+    "type": "compound",
+    "id": "protein-complete"
+  },
+  "outcomeId": "muscle_strength",
+  "population": {
+    "description": "Healthy adults undertaking resistance training, aged 18-70",
+    "predicate": {
+      "all": [
+        {
+          "gte": {
+            "field": "exerciseFrequencyPerWeek",
+            "value": 2
+          },
+          "label": "trains at least twice a week"
+        },
+        {
+          "contains_any": {
+            "field": "exerciseType",
+            "values": [
+              "resistance_training",
+              "mixed",
+              "sport_specific"
+            ]
+          },
+          "label": "does resistance or mixed training"
+        }
+      ]
+    }
+  },
+  "direction": "increases",
+  "magnitude": "small",
+  "grade": "Strong",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "guideline"
+    ],
+    "consistency": "consistent",
+    "directness": "direct"
+  },
+  "statement": "Protein supplementation produces a small but consistent additional gain in one-repetition-maximum strength during resistance training, again mediated by total daily intake.",
+  "citations": [
+    {
+      "title": "A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults",
+      "source": "British Journal of Sports Medicine",
+      "year": 2018,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28698222/"
+    },
+    {
+      "title": "International Society of Sports Nutrition Position Stand: protein and exercise",
+      "source": "Journal of the International Society of Sports Nutrition",
+      "year": 2017,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

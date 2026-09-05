@@ -1,0 +1,5 @@
+{
+  "DEPRECATED": true,
+  "supersededBy": "ingredients/fish-oil.json + ingredients/algal-oil.json",
+  "note": "Split during the v3 compound-tier migration. Evidence moved to claims/, rules and dosing moved to policy/."
+}

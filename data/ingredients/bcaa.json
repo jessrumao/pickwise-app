@@ -1,0 +1,38 @@
+{
+  "id": "bcaa",
+  "name": "BCAA (branched-chain amino acids)",
+  "category": "performance",
+  "forms": [
+    "powder",
+    "capsule"
+  ],
+  "delivers": [
+    {
+      "compoundId": "bcaa"
+    },
+    {
+      "compoundId": "leucine"
+    },
+    {
+      "compoundId": "isoleucine"
+    },
+    {
+      "compoundId": "valine"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Kept in the catalogue precisely so the engine can show an explicit 'not recommended, and here is the citation' card. Its eligibility policy is a literal false."
+}

@@ -1,0 +1,30 @@
+{
+  "_note": "The substitution case. Protein must resolve to plant-protein-blend not whey; omega-3 to algal-oil not fish-oil. No rule mentions veganism - it falls out of suitableFor.",
+  "age": 26,
+  "sex": "female",
+  "bodyWeightKg": 61,
+  "dietaryPattern": "vegan",
+  "exerciseFrequencyPerWeek": 5,
+  "exerciseType": [
+    "cardio_endurance",
+    "resistance_training"
+  ],
+  "primaryGoals": [
+    "endurance_performance",
+    "general_wellness"
+  ],
+  "sleepHoursTypical": 8,
+  "existingSupplementUse": [],
+  "dietaryProteinAdequacy": "unsure",
+  "dietaryOilyFishServingsPerWeek": 0,
+  "allergies": [],
+  "relevantHealthContext": "",
+  "isPregnantOrBreastfeeding": false,
+  "monthlyBudgetINR": 2500,
+  "budgetIsHardConstraint": true,
+  "medicationsOrConditionsFlag": {
+    "hasAny": false,
+    "freeText": "",
+    "parseConfidence": 1.0
+  }
+}

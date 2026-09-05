@@ -1,0 +1,45 @@
+{
+  "id": "epa-dha-general-population-cv-prevention",
+  "subject": {
+    "type": "compound",
+    "id": "epa-dha"
+  },
+  "outcomeId": "cardiovascular_events",
+  "population": {
+    "description": "Generally healthy adults without elevated triglycerides or established cardiovascular disease, at typical supplement doses"
+  },
+  "direction": "unclear",
+  "magnitude": "trivial",
+  "grade": "Limited",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "rct"
+    ],
+    "consistency": "mixed",
+    "directness": "direct",
+    "note": "This is the claim the general-wellness eligibility rule actually cites - grade Limited, so the outcome is 'potentially useful', never 'recommended'. Pairing it with the Strong triglyceride claim in the same file is the guard against grade laundering."
+  },
+  "statement": "For generally healthy adults without elevated triglycerides, evidence that low-dose EPA/DHA supplements reduce cardiovascular events is mixed and largely null in the major trials; benefit is more clearly associated with regular oily-fish consumption than with supplementation.",
+  "citations": [
+    {
+      "title": "Omega-3 Fatty Acids - Health Professional Fact Sheet",
+      "source": "NIH Office of Dietary Supplements",
+      "year": 2023,
+      "url": "https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/"
+    },
+    {
+      "title": "Omega-3 Fatty Acids for the Management of Hypertriglyceridemia: A Science Advisory From the American Heart Association",
+      "source": "Circulation (American Heart Association)",
+      "year": 2019,
+      "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000000709"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

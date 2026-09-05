@@ -1,0 +1,35 @@
+{
+  "id": "whey-protein",
+  "name": "Whey protein",
+  "category": "protein",
+  "forms": [
+    "concentrate",
+    "isolate",
+    "hydrolysate"
+  ],
+  "delivers": [
+    {
+      "compoundId": "protein-complete",
+      "typicalConcentration": 0.78
+    },
+    {
+      "compoundId": "leucine",
+      "typicalConcentration": 0.085
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "pescatarian"
+  ],
+  "allergens": [
+    "milk"
+  ],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Not vegan: whey is milk-derived. A vegan user asking for protein resolves through the same compound (protein-complete) to a plant-protein ingredient instead - the substitution is a query over `delivers` + `suitableFor`, not a branch in the rule."
+}

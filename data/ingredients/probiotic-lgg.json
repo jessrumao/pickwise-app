@@ -1,0 +1,29 @@
+{
+  "id": "probiotic-lgg",
+  "name": "Probiotic - L. rhamnosus GG",
+  "category": "gut_health",
+  "forms": [
+    "capsule",
+    "sachet"
+  ],
+  "delivers": [
+    {
+      "compoundId": "lgg"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Renamed from the generic 'probiotics' record. The handoff doc's critique - that 'probiotic' is not a precise enough category - is now structural rather than a caveat in prose: the ingredient is named for its strain, and a product that does not declare that strain cannot satisfy it."
+}

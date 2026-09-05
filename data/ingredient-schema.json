@@ -1,0 +1,5 @@
+{
+  "DEPRECATED": true,
+  "supersededBy": "schema/ingredient.schema.json (identity), schema/claim.schema.json (evidence), schema/policy.schema.json (rules, dosing, safety)",
+  "note": "Superseded in the v3 data-layer refactor. The single bundled ingredient record was split into identity (L1), evidence claims (L2) and expert-signed policy (L3) so each can be reviewed and versioned on its own clock. Do not read this file; it is kept only so git history shows the migration."
+}

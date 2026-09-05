@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "policy.schema.json",
+  "title": "Policy records (L3)",
+  "description": "Expert-governed decisions, separate from the evidence they cite. Three kinds: eligibility (should we surface this at all), dosing (how much, how split, when), safety (what forces escalation). Every record carries its own review block, because these are three independent sign-offs.",
+  "$defs": {
+    "eligibility": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "citesClaims",
+        "recommendWhen",
+        "onUnknown",
+        "review"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "eligibility"
+        },
+        "ingredientId": {
+          "type": "string",
+          "description": "Use only where the policy is genuinely about the vehicle rather than a compound - a multivitamin bundle, or a named probiotic product."
+        },
+        "citesClaims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "FKs into claims/. A policy that cites no claim is an opinion, and validate.mjs rejects it."
+        },
+        "recommendWhen": {
+          "$ref": "predicate.schema.json"
+        },
+        "suppressWhen": {
+          "$ref": "predicate.schema.json",
+          "description": "Wins over recommendWhen. This is what implements 'the engine visibly does not recommend things'."
+        },
+        "suppressOutcome": {
+          "type": "string",
+          "enum": [
+            "not_needed",
+            "already_covered"
+          ],
+          "default": "not_needed"
+        },
+        "onUnknown": {
+          "const": "false",
+          "description": "Eligibility fails closed towards NOT recommending."
+        },
+        "showWhenSuppressed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render an explicit 'not recommended, here's why' card rather than silently omitting. Trust comes from the visible no."
+        },
+        "review": {
+          "$ref": "review.schema.json"
+        },
+        "compoundId": {
+          "type": "string",
+          "description": "Preferred key. Eligibility answers 'does this person need this COMPOUND', and which ingredient delivers it is then a query over delivers[] + suitableFor - which is why there is one protein rule rather than a whey rule and a plant-protein rule."
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "compoundId"
+          ]
+        },
+        {
+          "required": [
+            "ingredientId"
+          ]
+        }
+      ],
+      "description": "Grade derivation: the engine takes the HIGHEST grade among citesClaims. Cite only the claims whose population and dose actually match this rule - citing a Strong claim from a different dose regime to justify a low-dose recommendation is grade laundering, and validate.mjs flags any rule citing claims whose populations conflict."
+    },
+    "dosing": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "compoundId",
+        "appliesWhen",
+        "basis",
+        "target",
+        "rounding",
+        "timing",
+        "review"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "dosing"
+        },
+        "compoundId": {
+          "type": "string"
+        },
+        "citesClaims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "appliesWhen": {
+          "$ref": "predicate.schema.json"
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "absolute",
+            "per_kg_bodyweight",
+            "rda_multiple"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "required": [
+            "target",
+            "unit"
+          ],
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "target": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string"
+            }
+          }
+        },
+        "subtractDietaryIntake": {
+          "type": "boolean",
+          "default": false,
+          "description": "True where the supplement closes a gap against food intake (protein, EPA+DHA). False where the target is the supplement dose itself (creatine)."
+        },
+        "minEffectiveDose": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string"
+            }
+          },
+          "description": "Floor below which the supplement is not worth taking. Guards the rounding rule from rounding DOWN past usefulness, and guards the budget allocator from funding a token dose."
+        },
+        "split": {
+          "type": "object",
+          "properties": {
+            "maxPerServing": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string"
+            }
+          }
+        },
+        "rounding": {
+          "type": "object",
+          "required": [
+            "mode",
+            "increment"
+          ],
+          "properties": {
+            "mode": {
+              "const": "nearest",
+              "description": "Settled: round to the closest increment. 1.67 -> 1.5; 1.89 -> 2."
+            },
+            "increment": {
+              "type": "number",
+              "enum": [
+                0.5
+              ],
+              "description": "Half-servings, where the product is splittable. Non-splittable products fall back to increment 1."
+            },
+            "fallbackIncrementIfNotSplittable": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "timing": {
+          "type": "object",
+          "required": [
+            "constraint"
+          ],
+          "properties": {
+            "constraint": {
+              "type": "string",
+              "enum": [
+                "any",
+                "with_food",
+                "empty_stomach",
+                "post_exercise_2h",
+                "evening",
+                "morning"
+              ]
+            },
+            "separateFromCompoundIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hard separation, e.g. iron away from calcium. The routine builder must route around these; it may not invent or relax them."
+            },
+            "separationHours": {
+              "type": "number"
+            },
+            "note": {
+              "type": "string"
+            },
+            "citesClaims": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "THE FENCE. The LLM writes the routine sentence, but only inside this constraint. Timing that is clinically real and timing that is folklore both have to be recorded here, because the LLM cannot tell them apart."
+        },
+        "review": {
+          "$ref": "review.schema.json"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "appliesTo",
+        "trigger",
+        "action",
+        "onUnknown",
+        "review"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "safety"
+        },
+        "appliesTo": {
+          "type": "object",
+          "properties": {
+            "compoundIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ingredientIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "all": {
+              "type": "boolean",
+              "description": "Global rule, e.g. pregnancy."
+            }
+          }
+        },
+        "trigger": {
+          "$ref": "predicate.schema.json"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "escalate"
+          ],
+          "description": "MVP implements escalate only. The 4-tier model would add caution/avoid here without changing the record shape."
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "high",
+            "moderate"
+          ]
+        },
+        "onUnknown": {
+          "const": "true",
+          "description": "Safety fails closed towards escalation. An unparseable medication list escalates; it is never skipped."
+        },
+        "userMessage": {
+          "type": "string"
+        },
+        "review": {
+          "$ref": "review.schema.json"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/eligibility"
+    },
+    {
+      "$ref": "#/$defs/dosing"
+    },
+    {
+      "$ref": "#/$defs/safety"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "_note": "The handoff doc's own worked example. Expect: protein recommended (1.5 scoops), creatine recommended, BCAA shown as an explicit no, multivitamin potentially useful (vegetarian).",
+  "age": 29,
+  "sex": "male",
+  "bodyWeightKg": 72,
+  "dietaryPattern": "vegetarian",
+  "exerciseFrequencyPerWeek": 4,
+  "exerciseType": [
+    "resistance_training"
+  ],
+  "primaryGoals": [
+    "muscle_gain",
+    "general_wellness"
+  ],
+  "sleepHoursTypical": 7,
+  "existingSupplementUse": [],
+  "dietaryProteinAdequacy": "likely_inadequate",
+  "estimatedDailyProteinG": 90,
+  "dietaryOilyFishServingsPerWeek": 0,
+  "allergies": [],
+  "relevantHealthContext": "",
+  "isPregnantOrBreastfeeding": false,
+  "monthlyBudgetINR": 3000,
+  "budgetIsHardConstraint": true,
+  "medicationsOrConditionsFlag": {
+    "hasAny": false,
+    "freeText": "",
+    "parseConfidence": 1.0
+  }
+}

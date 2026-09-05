@@ -1,0 +1,35 @@
+{
+  "id": "elig-lgg",
+  "kind": "eligibility",
+  "compoundId": "lgg",
+  "citesClaims": [
+    "lgg-antibiotic-associated-diarrhoea"
+  ],
+  "recommendWhen": {
+    "contains_any": {
+      "field": "primaryGoals",
+      "values": [
+        "digestive_health"
+      ]
+    },
+    "label": "has digestive health as a goal"
+  },
+  "suppressWhen": {
+    "contains_any": {
+      "field": "existingSupplementUse",
+      "values": [
+        "lgg"
+      ]
+    },
+    "label": "already takes this strain"
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "DIRECTNESS CHECK REQUIRED. The cited claim's population is 'adults taking antibiotics'; a user whose only signal is a digestive_health goal is outside it. The engine must compare the profile against the claim's population predicate and downgrade the outcome to 'potentially useful' when it does not match. Without that check this rule over-promises - which is precisely the failure the handoff doc calls out for probiotics."
+  }
+}

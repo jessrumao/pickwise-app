@@ -1,0 +1,230 @@
+{
+  "$comment": "L1 entity layer. Upper limits are NOT here - they live in reference/nutrient-requirements.json, because a UL is a sourced reference value rather than a property of the molecule.",
+  "compounds": [
+    {
+      "id": "protein-complete",
+      "name": "Complete dietary protein",
+      "unit": "g",
+      "class": "macronutrient",
+      "aliases": [
+        "protein",
+        "whey",
+        "whey protein",
+        "casein",
+        "soy protein",
+        "pea protein"
+      ],
+      "notes": "Modelled as one compound because the evidence and the dosing target are both about total high-quality protein intake, not about whey specifically. Whey, casein and soy are ingredients that deliver it."
+    },
+    {
+      "id": "leucine",
+      "name": "L-Leucine",
+      "unit": "g",
+      "class": "amino_acid",
+      "aliases": [
+        "leucine"
+      ]
+    },
+    {
+      "id": "isoleucine",
+      "name": "L-Isoleucine",
+      "unit": "g",
+      "class": "amino_acid",
+      "aliases": [
+        "isoleucine"
+      ]
+    },
+    {
+      "id": "valine",
+      "name": "L-Valine",
+      "unit": "g",
+      "class": "amino_acid",
+      "aliases": [
+        "valine"
+      ]
+    },
+    {
+      "id": "bcaa",
+      "name": "Branched-chain amino acids",
+      "unit": "g",
+      "class": "amino_acid",
+      "members": [
+        "leucine",
+        "isoleucine",
+        "valine"
+      ],
+      "aliases": [
+        "bcaa",
+        "branched chain amino acids"
+      ],
+      "notes": "A group compound. Modelling it as a group is what lets the engine state the actual finding: BCAAs are a subset of what complete protein already supplies, so the incremental benefit question is arithmetic, not opinion."
+    },
+    {
+      "id": "creatine-monohydrate",
+      "name": "Creatine monohydrate",
+      "unit": "g",
+      "class": "ergogenic",
+      "aliases": [
+        "creatine",
+        "creatine monohydrate",
+        "micronized creatine"
+      ]
+    },
+    {
+      "id": "epa",
+      "name": "Eicosapentaenoic acid (EPA)",
+      "unit": "mg",
+      "class": "fatty_acid",
+      "aliases": [
+        "epa"
+      ]
+    },
+    {
+      "id": "dha",
+      "name": "Docosahexaenoic acid (DHA)",
+      "unit": "mg",
+      "class": "fatty_acid",
+      "aliases": [
+        "dha"
+      ]
+    },
+    {
+      "id": "epa-dha",
+      "name": "Combined EPA + DHA",
+      "unit": "mg",
+      "class": "fatty_acid",
+      "members": [
+        "epa",
+        "dha"
+      ],
+      "aliases": [
+        "omega 3",
+        "omega-3",
+        "fish oil",
+        "algal oil"
+      ],
+      "notes": "Dosing targets and the FDA supplemental ceiling are both stated for the combined amount, so the group is the unit of prescription. Products declare EPA and DHA separately because that is how labels are printed; the loader sums them."
+    },
+    {
+      "id": "vitamin-d3",
+      "name": "Vitamin D3 (cholecalciferol)",
+      "unit": "mcg",
+      "class": "vitamin",
+      "aliases": [
+        "vitamin d",
+        "vitamin d3",
+        "cholecalciferol"
+      ],
+      "conversions": {
+        "iu": 0.025
+      },
+      "notes": "Canonical unit is mcg; Indian labels almost always print IU. 1 mcg = 40 IU."
+    },
+    {
+      "id": "vitamin-b12",
+      "name": "Vitamin B12 (cobalamin)",
+      "unit": "mcg",
+      "class": "vitamin",
+      "aliases": [
+        "b12",
+        "vitamin b12",
+        "cobalamin",
+        "methylcobalamin",
+        "cyanocobalamin"
+      ]
+    },
+    {
+      "id": "vitamin-c",
+      "name": "Vitamin C (ascorbic acid)",
+      "unit": "mg",
+      "class": "vitamin",
+      "aliases": [
+        "vitamin c",
+        "ascorbic acid"
+      ]
+    },
+    {
+      "id": "vitamin-a",
+      "name": "Vitamin A (preformed retinol)",
+      "unit": "mcg_rae",
+      "class": "vitamin",
+      "aliases": [
+        "vitamin a",
+        "retinol"
+      ],
+      "notes": "The UL applies to PREFORMED retinol only, not to beta-carotene. A product declaring vitamin A must say which - a stacking check that treats them alike will produce false alarms."
+    },
+    {
+      "id": "folate",
+      "name": "Folate / folic acid",
+      "unit": "mcg_dfe",
+      "class": "vitamin",
+      "aliases": [
+        "folate",
+        "folic acid"
+      ]
+    },
+    {
+      "id": "iron",
+      "name": "Iron",
+      "unit": "mg",
+      "class": "mineral",
+      "aliases": [
+        "iron",
+        "ferrous sulphate",
+        "ferrous fumarate"
+      ]
+    },
+    {
+      "id": "zinc",
+      "name": "Zinc",
+      "unit": "mg",
+      "class": "mineral",
+      "aliases": [
+        "zinc"
+      ]
+    },
+    {
+      "id": "calcium",
+      "name": "Calcium",
+      "unit": "mg",
+      "class": "mineral",
+      "aliases": [
+        "calcium"
+      ]
+    },
+    {
+      "id": "magnesium",
+      "name": "Magnesium",
+      "unit": "mg",
+      "class": "mineral",
+      "aliases": [
+        "magnesium"
+      ],
+      "notes": "The UL is for SUPPLEMENTAL magnesium only; food magnesium is not counted against it."
+    },
+    {
+      "id": "lgg",
+      "name": "Lacticaseibacillus rhamnosus GG",
+      "unit": "cfu",
+      "class": "probiotic_strain",
+      "strainSpecific": true,
+      "aliases": [
+        "lgg",
+        "lactobacillus rhamnosus gg"
+      ],
+      "notes": "Strain-specific by design. This is the handoff doc's point made structural: 'probiotic' is not a unit of recommendation, a named strain is."
+    },
+    {
+      "id": "s-boulardii",
+      "name": "Saccharomyces boulardii CNCM I-745",
+      "unit": "cfu",
+      "class": "probiotic_strain",
+      "strainSpecific": true,
+      "aliases": [
+        "s boulardii",
+        "saccharomyces boulardii"
+      ]
+    }
+  ]
+}

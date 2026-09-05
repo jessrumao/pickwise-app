@@ -1,0 +1,67 @@
+{
+  "id": "elig-protein-complete",
+  "kind": "eligibility",
+  "compoundId": "protein-complete",
+  "citesClaims": [
+    "protein-lean-mass-resistance-trained",
+    "protein-strength-resistance-trained"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "muscle_gain",
+            "strength_performance",
+            "general_fitness",
+            "weight_loss"
+          ]
+        },
+        "label": "has a goal that extra protein supports"
+      },
+      {
+        "gte": {
+          "field": "exerciseFrequencyPerWeek",
+          "value": 2
+        },
+        "label": "trains at least twice a week"
+      },
+      {
+        "neq": {
+          "field": "dietaryProteinAdequacy",
+          "value": "likely_adequate"
+        },
+        "label": "is not already getting enough protein from food"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "any": [
+      {
+        "eq": {
+          "field": "dietaryProteinAdequacy",
+          "value": "likely_adequate"
+        },
+        "label": "already gets enough protein from food"
+      },
+      {
+        "contains_any": {
+          "field": "existingSupplementUse",
+          "values": [
+            "protein-complete"
+          ]
+        },
+        "label": "already takes a protein supplement"
+      }
+    ]
+  },
+  "suppressOutcome": "already_covered",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

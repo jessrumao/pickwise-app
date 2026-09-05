@@ -1,0 +1,5 @@
+{
+  "DEPRECATED": true,
+  "supersededBy": "ingredients/probiotic-lgg.json",
+  "note": "Split during the v3 compound-tier migration. Evidence moved to claims/, rules and dosing moved to policy/."
+}

@@ -1,0 +1,35 @@
+{
+  "id": "safety-global-unparseable-medications",
+  "kind": "safety",
+  "appliesTo": {
+    "all": true
+  },
+  "trigger": {
+    "all": [
+      {
+        "eq": {
+          "field": "medicationsOrConditionsFlag.hasAny",
+          "value": true
+        },
+        "label": "reports medication or a diagnosed condition"
+      },
+      {
+        "lt": {
+          "field": "medicationsOrConditionsFlag.parseConfidence",
+          "value": 0.8
+        },
+        "label": "but we could not reliably read what they listed"
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "We couldn't confidently read the medications or conditions you listed, and we won't guess. Please speak with a medical professional before starting anything.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "THE fail-closed rule. An unparseable medication list must escalate rather than fall through to 'no contraindication found'. onUnknown: true means a missing parseConfidence field also escalates."
+  }
+}

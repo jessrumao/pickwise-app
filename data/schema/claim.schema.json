@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claim.schema.json",
+  "title": "Evidence Claim (L2)",
+  "description": "One claim = one (subject x outcome x population) finding, with its grade and citations. Claims are what policy cites; policy is not stated here. A claim may legitimately say a compound does NOT work (direction: no_effect) — bcaa is exactly that case.",
+  "type": "object",
+  "required": [
+    "id",
+    "subject",
+    "outcomeId",
+    "population",
+    "direction",
+    "grade",
+    "statement",
+    "citations",
+    "review"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "compound",
+            "ingredient"
+          ]
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "description": "Prefer compound. Use ingredient only where the evidence is genuinely about the whole vehicle rather than an isolable compound (e.g. a specific multi-strain product)."
+    },
+    "outcomeId": {
+      "type": "string",
+      "description": "FK to entities/outcomes.json"
+    },
+    "population": {
+      "type": "object",
+      "required": [
+        "description"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "predicate": {
+          "$ref": "predicate.schema.json",
+          "description": "Optional machine-readable description of the studied population. Lets the engine check whether THIS user is inside the population the evidence was drawn from — a directness check, not an eligibility rule."
+        }
+      }
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "increases",
+        "decreases",
+        "no_effect",
+        "unclear"
+      ]
+    },
+    "magnitude": {
+      "type": "string",
+      "enum": [
+        "trivial",
+        "small",
+        "small_to_moderate",
+        "moderate",
+        "large",
+        "not_applicable"
+      ]
+    },
+    "grade": {
+      "type": "string",
+      "enum": [
+        "Strong",
+        "Moderate",
+        "Limited",
+        "Insufficient"
+      ]
+    },
+    "gradeRationale": {
+      "type": "object",
+      "description": "Why this grade. Recorded so the grade is auditable rather than asserted.",
+      "properties": {
+        "designs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "meta_analysis_of_rcts",
+              "systematic_review",
+              "rct",
+              "cohort",
+              "case_control",
+              "mechanistic",
+              "expert_consensus",
+              "guideline"
+            ]
+          }
+        },
+        "consistency": {
+          "type": "string",
+          "enum": [
+            "consistent",
+            "mostly_consistent",
+            "mixed",
+            "inconsistent"
+          ]
+        },
+        "directness": {
+          "type": "string",
+          "enum": [
+            "direct",
+            "indirect"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "doseResponse": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string"
+            }
+          }
+        },
+        "plateau": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "statement": {
+      "type": "string",
+      "description": "One sentence, plain language. This is the sentence shown under 'Why am I seeing this'."
+    },
+    "citations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "source",
+          "url"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "pinnedQuote": {
+            "type": "string",
+            "description": "Optional exact span from the source that supports the statement. When present, this is what the UI shows rather than a semantically-retrieved chunk."
+          }
+        }
+      }
+    },
+    "vectorRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Pinecone chunk ids carrying this claim's supporting text. Populated by the ingestion pipeline. Retrieval for display is a metadata filter on claim id, never an open semantic search."
+    },
+    "review": {
+      "$ref": "review.schema.json"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "fish-oil",
+  "name": "Fish oil (EPA/DHA)",
+  "category": "micronutrient",
+  "forms": [
+    "softgel",
+    "liquid"
+  ],
+  "delivers": [
+    {
+      "compoundId": "epa"
+    },
+    {
+      "compoundId": "dha"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "pescatarian"
+  ],
+  "allergens": [
+    "fish"
+  ],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "Split out from the old combined omega-3 record. Fish oil and algal oil are now two ingredients delivering the same compound group, which is what makes the vegan path a lookup rather than a special case."
+}

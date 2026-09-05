@@ -1,0 +1,67 @@
+{
+  "id": "dose-protein-resistance-training",
+  "kind": "dosing",
+  "compoundId": "protein-complete",
+  "citesClaims": [
+    "protein-lean-mass-resistance-trained",
+    "protein-strength-resistance-trained"
+  ],
+  "appliesWhen": {
+    "all": [
+      {
+        "gte": {
+          "field": "exerciseFrequencyPerWeek",
+          "value": 2
+        },
+        "label": "trains at least twice a week"
+      },
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "muscle_gain",
+            "strength_performance",
+            "general_fitness",
+            "weight_loss"
+          ]
+        },
+        "label": "has a goal that extra protein supports"
+      }
+    ]
+  },
+  "basis": "per_kg_bodyweight",
+  "target": {
+    "min": 1.6,
+    "target": 1.8,
+    "max": 2.2,
+    "unit": "g/kg/day"
+  },
+  "subtractDietaryIntake": true,
+  "minEffectiveDose": {
+    "amount": 15,
+    "unit": "g"
+  },
+  "split": {
+    "maxPerServing": 40,
+    "unit": "g"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "any",
+    "separateFromCompoundIds": [],
+    "note": "Total daily intake dominates; the post-workout window is far less important than the meta-analytic evidence is often used to suggest. The routine builder may therefore schedule freely around the user's day.",
+    "citesClaims": [
+      "protein-lean-mass-resistance-trained"
+    ]
+  },
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Target band is ISSN policy, NOT the ICMR-NIN population requirement (0.83 g/kg/day) in reference/. Two different kinds of number, deliberately kept in different layers. Worked example: 72 kg x 1.8 = 130 g/day target, minus ~90 g from food = 40 g gap; at 24 g per scoop that is 1.67 servings, which rounds to 1.5."
+  }
+}

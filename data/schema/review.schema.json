@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "review.schema.json",
+  "title": "Expert review block",
+  "description": "Attached to every individually reviewable judgment — not to whole files. An evidence grade, a dosing target and a contraindication are three separate judgments with three separate sign-offs.",
+  "type": "object",
+  "required": [
+    "status"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft_needs_expert_review",
+        "expert_reviewed"
+      ]
+    },
+    "reviewedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Name + credential of the reviewing expert."
+    },
+    "reviewedOn": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "note": {
+      "type": "string"
+    }
+  }
+}

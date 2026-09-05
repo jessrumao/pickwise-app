@@ -1,0 +1,31 @@
+{
+  "id": "algal-oil",
+  "name": "Algal oil (vegan EPA/DHA)",
+  "category": "micronutrient",
+  "forms": [
+    "softgel"
+  ],
+  "delivers": [
+    {
+      "compoundId": "epa"
+    },
+    {
+      "compoundId": "dha"
+    }
+  ],
+  "suitableFor": [
+    "omnivore",
+    "vegetarian",
+    "eggetarian",
+    "vegan",
+    "pescatarian",
+    "other"
+  ],
+  "allergens": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "notes": "The substitution demo made real. Same compound target, no fish, suitable for every dietary pattern including a fish allergy. Typically lower EPA:DHA ratio and higher cost per mg than fish oil - both of which the product layer captures numerically, so the ranking handles the trade-off without a special rule."
+}

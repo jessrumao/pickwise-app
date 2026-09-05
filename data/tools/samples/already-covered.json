@@ -1,0 +1,34 @@
+{
+  "_note": "Suppression case. Already takes protein and creatine - expect 'already covered', not a second recommendation to buy more.",
+  "age": 31,
+  "sex": "male",
+  "bodyWeightKg": 78,
+  "dietaryPattern": "omnivore",
+  "exerciseFrequencyPerWeek": 5,
+  "exerciseType": [
+    "resistance_training"
+  ],
+  "primaryGoals": [
+    "strength_performance",
+    "muscle_gain"
+  ],
+  "sleepHoursTypical": 7,
+  "existingSupplementUse": [
+    "protein-complete",
+    "creatine-monohydrate"
+  ],
+  "dietaryProteinAdequacy": "likely_inadequate",
+  "dietaryOilyFishServingsPerWeek": 2,
+  "allergies": [
+    "lactose"
+  ],
+  "relevantHealthContext": "mild lactose intolerance",
+  "isPregnantOrBreastfeeding": false,
+  "monthlyBudgetINR": 4000,
+  "budgetIsHardConstraint": true,
+  "medicationsOrConditionsFlag": {
+    "hasAny": false,
+    "freeText": "",
+    "parseConfidence": 1.0
+  }
+}

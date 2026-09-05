@@ -1,0 +1,46 @@
+{
+  "id": "dose-lgg-general",
+  "kind": "dosing",
+  "compoundId": "lgg",
+  "citesClaims": [
+    "lgg-antibiotic-associated-diarrhoea"
+  ],
+  "appliesWhen": {
+    "contains_any": {
+      "field": "primaryGoals",
+      "values": [
+        "digestive_health"
+      ]
+    },
+    "label": "has digestive health as a goal"
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 1000000000,
+    "target": 10000000000,
+    "max": 20000000000,
+    "unit": "cfu/day"
+  },
+  "subtractDietaryIntake": false,
+  "minEffectiveDose": {
+    "amount": 1000000000,
+    "unit": "cfu"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "with_food",
+    "separateFromCompoundIds": [],
+    "note": "With or shortly before a meal, per product label.",
+    "citesClaims": []
+  },
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Doses studied for antibiotic-associated diarrhoea are strain- and trial-specific; this band is a general-use approximation and needs expert confirmation before any product is ranked on it."
+  }
+}

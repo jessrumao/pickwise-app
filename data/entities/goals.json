@@ -1,0 +1,173 @@
+{
+  "$comment": "Maps the primaryGoals enum in user-profile.schema.json onto physiological outcomes. Adding a 13th goal is one row here, not an edit to 20 ingredient records. `relation` feeds goal_alignment in the priority score: the user's first-listed goal scores 2 on a primary outcome, 1 on a secondary.",
+  "goals": [
+    {
+      "id": "muscle_gain",
+      "label": "Build muscle",
+      "outcomes": [
+        {
+          "outcomeId": "lean_mass",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "muscle_strength",
+          "relation": "secondary"
+        },
+        {
+          "outcomeId": "exercise_recovery",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "strength_performance",
+      "label": "Get stronger",
+      "outcomes": [
+        {
+          "outcomeId": "muscle_strength",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "lean_mass",
+          "relation": "secondary"
+        },
+        {
+          "outcomeId": "exercise_recovery",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "endurance_performance",
+      "label": "Improve endurance",
+      "outcomes": [
+        {
+          "outcomeId": "endurance_capacity",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "exercise_recovery",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "weight_loss",
+      "label": "Lose fat",
+      "outcomes": [
+        {
+          "outcomeId": "body_fat_reduction",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "lean_mass",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "general_fitness",
+      "label": "General fitness",
+      "outcomes": [
+        {
+          "outcomeId": "lean_mass",
+          "relation": "secondary"
+        },
+        {
+          "outcomeId": "endurance_capacity",
+          "relation": "secondary"
+        },
+        {
+          "outcomeId": "exercise_recovery",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "general_wellness",
+      "label": "General wellness",
+      "outcomes": [
+        {
+          "outcomeId": "micronutrient_adequacy",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "cardiovascular_events",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "energy_fatigue",
+      "label": "More energy, less fatigue",
+      "outcomes": [
+        {
+          "outcomeId": "subjective_energy",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "micronutrient_adequacy",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "digestive_health",
+      "label": "Better digestion",
+      "outcomes": [
+        {
+          "outcomeId": "gi_comfort",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "antibiotic_associated_diarrhoea",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "immunity",
+      "label": "Support immunity",
+      "outcomes": [
+        {
+          "outcomeId": "immune_function",
+          "relation": "primary"
+        },
+        {
+          "outcomeId": "micronutrient_adequacy",
+          "relation": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "sleep_quality",
+      "label": "Sleep better",
+      "outcomes": [
+        {
+          "outcomeId": "sleep_quality",
+          "relation": "primary"
+        }
+      ]
+    },
+    {
+      "id": "joint_health",
+      "label": "Joint comfort",
+      "outcomes": [
+        {
+          "outcomeId": "joint_comfort",
+          "relation": "primary"
+        }
+      ]
+    },
+    {
+      "id": "skin_hair_nails",
+      "label": "Skin, hair and nails",
+      "outcomes": [
+        {
+          "outcomeId": "skin_hair_nail_quality",
+          "relation": "primary"
+        }
+      ]
+    }
+  ]
+}

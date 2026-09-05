@@ -1,0 +1,45 @@
+{
+  "id": "bcaa-no-incremental-benefit-over-complete-protein",
+  "subject": {
+    "type": "compound",
+    "id": "bcaa"
+  },
+  "outcomeId": "lean_mass",
+  "population": {
+    "description": "Healthy adults already consuming adequate complete protein"
+  },
+  "direction": "no_effect",
+  "magnitude": "not_applicable",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "systematic_review",
+      "mechanistic"
+    ],
+    "consistency": "consistent",
+    "directness": "direct",
+    "note": "A negative claim, deliberately recorded with the same rigour as a positive one. This is the record that lets the engine say 'no' with a citation rather than by omission."
+  },
+  "statement": "Branched-chain amino acids alone are an incomplete amino acid profile and cannot maximally stimulate muscle protein synthesis without the other essential amino acids that complete protein already supplies; where total protein intake is adequate, BCAA supplementation shows no consistent additional benefit.",
+  "citations": [
+    {
+      "title": "Branched-chain amino acids and muscle protein synthesis in humans: myth or reality?",
+      "source": "Journal of the International Society of Sports Nutrition",
+      "year": 2017,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28852372/"
+    },
+    {
+      "title": "International Society of Sports Nutrition Position Stand: protein and exercise",
+      "source": "Journal of the International Society of Sports Nutrition",
+      "year": 2017,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

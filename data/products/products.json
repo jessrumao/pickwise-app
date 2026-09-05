@@ -1,0 +1,393 @@
+{
+  "products": [
+    {
+      "id": "on-gold-standard-whey-1lb",
+      "ingredientId": "whey-protein",
+      "productName": "Gold Standard 100% Whey Protein Powder, 1 lb",
+      "brand": "Optimum Nutrition",
+      "form": "concentrate/isolate blend",
+      "servingSize": {
+        "amount": 30,
+        "unit": "g"
+      },
+      "servingsPerPack": 15,
+      "deliversPerServing": [
+        {
+          "compoundId": "protein-complete",
+          "amount": 24,
+          "unit": "g"
+        },
+        {
+          "compoundId": "leucine",
+          "amount": 2.5,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": true,
+        "certifications": [
+          "Informed-Choice (select SKUs)"
+        ],
+        "note": "Certification varies by SKU and batch - verify per listing."
+      },
+      "allergens": [
+        "milk",
+        "soy_lecithin_trace"
+      ],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "servingsPerPack derived from 454 g pack / 30 g scoop. Verify against the current label before this figure is used for cost-per-gram ranking."
+      }
+    },
+    {
+      "id": "muscleblaze-biozyme-whey-1kg",
+      "ingredientId": "whey-protein",
+      "productName": "MuscleBlaze Biozyme Performance Whey, 1 kg",
+      "brand": "MuscleBlaze",
+      "form": "concentrate/isolate blend with added enzymes",
+      "servingSize": {
+        "amount": 33,
+        "unit": "g"
+      },
+      "servingsPerPack": 30,
+      "deliversPerServing": [
+        {
+          "compoundId": "protein-complete",
+          "amount": 25,
+          "unit": "g"
+        },
+        {
+          "compoundId": "leucine",
+          "amount": 2.6,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": true,
+        "certifications": [
+          "Labdoor / Trustified (brand claim - verify current certificate)"
+        ],
+        "note": "Brand-stated certification, not independently confirmed at time of entry."
+      },
+      "allergens": [
+        "milk"
+      ],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null
+      }
+    },
+    {
+      "id": "oziva-plant-protein-500g",
+      "ingredientId": "plant-protein-blend",
+      "productName": "OZiva Organic Plant Protein, 500 g",
+      "brand": "OZiva",
+      "form": "pea + brown rice blend",
+      "servingSize": {
+        "amount": 33,
+        "unit": "g"
+      },
+      "servingsPerPack": 15,
+      "deliversPerServing": [
+        {
+          "compoundId": "protein-complete",
+          "amount": 25,
+          "unit": "g"
+        },
+        {
+          "compoundId": "leucine",
+          "amount": 2.0,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Added in the v3 migration as the vegan protein path. Compound amounts are indicative and MUST be confirmed against the current label before ranking - this record exists to make the substitution query resolvable, not to assert verified figures."
+      },
+      "suitableFor": [
+        "omnivore",
+        "vegetarian",
+        "eggetarian",
+        "vegan",
+        "pescatarian",
+        "other"
+      ]
+    },
+    {
+      "id": "muscleblaze-creatine-100g",
+      "ingredientId": "creatine-monohydrate",
+      "productName": "MuscleBlaze Creatine Monohydrate, Unflavoured, 100 g",
+      "brand": "MuscleBlaze",
+      "form": "micronized monohydrate powder",
+      "servingSize": {
+        "amount": 5,
+        "unit": "g"
+      },
+      "servingsPerPack": 20,
+      "deliversPerServing": [
+        {
+          "compoundId": "creatine-monohydrate",
+          "amount": 5,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": true,
+        "certifications": [
+          "Creapure (select SKUs - verify per listing)"
+        ]
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null
+      }
+    },
+    {
+      "id": "hkvitals-omega3-1000mg",
+      "ingredientId": "fish-oil",
+      "productName": "HK Vitals Omega 3, 1000 mg Fish Oil, 60 capsules",
+      "brand": "HealthKart (HK Vitals)",
+      "form": "fish oil softgel",
+      "servingSize": {
+        "amount": 1,
+        "unit": "softgel"
+      },
+      "servingsPerPack": 60,
+      "deliversPerServing": [
+        {
+          "compoundId": "epa",
+          "amount": 180,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "dha",
+          "amount": 120,
+          "unit": "mg"
+        }
+      ],
+      "splittable": false,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [
+        "fish"
+      ],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "splittable: false - a softgel cannot be halved. This is the record that exercises the rounding fallback: nearest-half would otherwise prescribe 1.5 softgels."
+      }
+    },
+    {
+      "id": "algal-omega3-vegan-60",
+      "ingredientId": "algal-oil",
+      "productName": "Algal Omega-3 Vegan EPA+DHA, 60 capsules",
+      "brand": "PLACEHOLDER - brand to be selected",
+      "form": "algal oil softgel",
+      "servingSize": {
+        "amount": 1,
+        "unit": "softgel"
+      },
+      "servingsPerPack": 60,
+      "deliversPerServing": [
+        {
+          "compoundId": "epa",
+          "amount": 100,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "dha",
+          "amount": 200,
+          "unit": "mg"
+        }
+      ],
+      "splittable": false,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "PLACEHOLDER RECORD. Composition figures are typical of algal oil (DHA-dominant, unlike fish oil) but the brand and SKU have not been chosen. WORK PACKAGE C1: pick a real Indian listing and replace. Kept in the catalogue because without it the vegan omega-3 substitution query returns empty and the flagship demo case cannot run."
+      },
+      "suitableFor": [
+        "omnivore",
+        "vegetarian",
+        "eggetarian",
+        "vegan",
+        "pescatarian",
+        "other"
+      ]
+    },
+    {
+      "id": "hkvitals-multivitamin-men-60",
+      "ingredientId": "multivitamin",
+      "productName": "HK Vitals Multivitamin Plus Men, 60 tablets",
+      "brand": "HealthKart (HK Vitals)",
+      "form": "tablet",
+      "servingSize": {
+        "amount": 1,
+        "unit": "tablet"
+      },
+      "servingsPerPack": 60,
+      "deliversPerServing": [
+        {
+          "compoundId": "vitamin-d3",
+          "amount": 15,
+          "unit": "mcg"
+        },
+        {
+          "compoundId": "vitamin-b12",
+          "amount": 2.4,
+          "unit": "mcg"
+        },
+        {
+          "compoundId": "vitamin-c",
+          "amount": 80,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "vitamin-a",
+          "amount": 800,
+          "unit": "mcg_rae"
+        },
+        {
+          "compoundId": "folate",
+          "amount": 400,
+          "unit": "mcg_dfe"
+        },
+        {
+          "compoundId": "iron",
+          "amount": 14,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "zinc",
+          "amount": 11,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "calcium",
+          "amount": 200,
+          "unit": "mg"
+        },
+        {
+          "compoundId": "magnesium",
+          "amount": 50,
+          "unit": "mg"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "COMPOSITION FIGURES ARE PLACEHOLDERS approximating an RDA-aligned formulation. WORK PACKAGE C1: transcribe the actual label panel. These numbers feed the UL ledger, so wrong figures here produce wrong safety output - this record must not ship unverified."
+      }
+    },
+    {
+      "id": "hkvitals-pre-probiotic-60",
+      "ingredientId": "probiotic-lgg",
+      "productName": "HK Vitals Pre & Probiotics, 60 capsules",
+      "brand": "HealthKart (HK Vitals)",
+      "form": "capsule",
+      "servingSize": {
+        "amount": 1,
+        "unit": "capsule"
+      },
+      "servingsPerPack": 60,
+      "deliversPerServing": [
+        {
+          "compoundId": "lgg",
+          "amount": 1000000000,
+          "unit": "cfu",
+          "strain": "Lacticaseibacillus rhamnosus GG"
+        }
+      ],
+      "splittable": false,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "STRAIN UNCONFIRMED. The ingredient is defined by its strain, so a product that does not declare L. rhamnosus GG on the label cannot satisfy it. WORK PACKAGE C1: confirm the named strains and CFU from the current label, or replace with a product that does declare LGG. Until then validate.mjs will flag this as unverified."
+      }
+    },
+    {
+      "id": "muscleblaze-bcaa-pro",
+      "ingredientId": "bcaa",
+      "productName": "MuscleBlaze BCAA Pro, Unflavoured",
+      "brand": "MuscleBlaze",
+      "form": "powder",
+      "servingSize": {
+        "amount": 6,
+        "unit": "g"
+      },
+      "servingsPerPack": 30,
+      "deliversPerServing": [
+        {
+          "compoundId": "bcaa",
+          "amount": 6,
+          "unit": "g"
+        },
+        {
+          "compoundId": "leucine",
+          "amount": 3,
+          "unit": "g"
+        },
+        {
+          "compoundId": "isoleucine",
+          "amount": 1.5,
+          "unit": "g"
+        },
+        {
+          "compoundId": "valine",
+          "amount": 1.5,
+          "unit": "g"
+        }
+      ],
+      "splittable": true,
+      "qualitySignal": {
+        "thirdPartyTested": false,
+        "certifications": []
+      },
+      "allergens": [],
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null,
+        "note": "Present so the catalogue can hold data for an ingredient the engine deliberately does not surface. The 'not recommended' decision lives in policy, never in the absence of a product."
+      }
+    }
+  ]
+}

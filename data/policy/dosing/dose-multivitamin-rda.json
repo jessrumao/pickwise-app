@@ -1,0 +1,42 @@
+{
+  "id": "dose-multivitamin-rda",
+  "kind": "dosing",
+  "compoundId": "multivitamin",
+  "ingredientScoped": true,
+  "citesClaims": [
+    "multivitamin-micronutrient-adequacy-restricted-diets"
+  ],
+  "appliesWhen": {
+    "in": {
+      "field": "dietaryPattern",
+      "values": [
+        "vegan",
+        "vegetarian"
+      ]
+    },
+    "label": "follows a restricted diet"
+  },
+  "basis": "rda_multiple",
+  "target": {
+    "target": 1,
+    "unit": "x_rda"
+  },
+  "subtractDietaryIntake": false,
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "with_food",
+    "separateFromCompoundIds": [],
+    "note": "With food, for absorption of the fat-soluble vitamins. NOTE FOR THE LEDGER, not the routine: iron absorption from an iron-containing multivitamin is reduced by tea and coffee, and separateFromCompoundIds is the field that will carry that kind of hard separation once standalone iron enters scope. It is empty here because everything in the bundle is taken together by construction.",
+    "citesClaims": []
+  },
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "compoundId is a placeholder here - a multivitamin is a bundle, not a compound, and this is the one dosing record that is genuinely ingredient-scoped. Flagged rather than hidden: if a second bundle product appears, this needs a proper bundle-dosing shape."
+  }
+}

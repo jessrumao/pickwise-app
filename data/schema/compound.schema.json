@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compound.schema.json",
+  "title": "Compound",
+  "description": "The thing with a physiological effect and a dose. Distinct from an ingredient (a delivery vehicle) and a product (a SKU). Upper limits deliberately live in reference/nutrient-requirements.json (L0), not here — a UL is a sourced reference value, not a property of the molecule.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "unit",
+    "class"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "mg",
+        "mcg",
+        "mcg_rae",
+        "mcg_dfe",
+        "iu",
+        "cfu"
+      ]
+    },
+    "class": {
+      "type": "string",
+      "enum": [
+        "macronutrient",
+        "amino_acid",
+        "fatty_acid",
+        "vitamin",
+        "mineral",
+        "ergogenic",
+        "probiotic_strain",
+        "other"
+      ]
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Label synonyms, used when parsing existingSupplementUse free text and product labels."
+    },
+    "conversions": {
+      "type": "object",
+      "description": "Multipliers to this compound's canonical unit, e.g. vitamin D3 IU -> mcg is 0.025.",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Present only on GROUP compounds (e.g. epa-dha, bcaa). A group's amount is the sum of its members. Dosing targets and upper limits may reference a group; products may declare either the group or its members."
+    },
+    "strainSpecific": {
+      "type": "boolean",
+      "description": "True for probiotic strains, where 'the category' is not a valid unit of recommendation. Forces product-level rather than ingredient-level reasoning."
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

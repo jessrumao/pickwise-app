@@ -1,0 +1,46 @@
+{
+  "id": "dose-creatine-maintenance",
+  "kind": "dosing",
+  "compoundId": "creatine-monohydrate",
+  "citesClaims": [
+    "creatine-strength-power-resistance-trained"
+  ],
+  "appliesWhen": {
+    "gte": {
+      "field": "exerciseFrequencyPerWeek",
+      "value": 2
+    },
+    "label": "trains at least twice a week"
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 3,
+    "target": 5,
+    "max": 5,
+    "unit": "g/day"
+  },
+  "subtractDietaryIntake": false,
+  "minEffectiveDose": {
+    "amount": 3,
+    "unit": "g"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "any",
+    "separateFromCompoundIds": [],
+    "note": "Day-to-day consistency matters; timing relative to the workout does not. Recorded explicitly BECAUSE it is folklore - if the field were absent the routine builder would be free to invent a post-workout rule that the evidence does not support.",
+    "citesClaims": [
+      "creatine-strength-power-resistance-trained"
+    ]
+  },
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Loading phase (20 g/day for 5-7 days) deliberately NOT implemented for the MVP: it is a second dosing regime with its own timing split, and the maintenance dose reaches the same saturation within about four weeks."
+  }
+}

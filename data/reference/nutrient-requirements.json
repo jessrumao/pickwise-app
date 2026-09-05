@@ -1,0 +1,149 @@
+{
+  "$comment": "L0 reference layer. Two DIFFERENT kinds of number live here and must not be conflated: (a) population requirements - what an average adult needs to avoid inadequacy, sourced from ICMR-NIN because this is an India-first product; (b) upper limits - the ceiling the dose ledger checks a stacked total against, sourced from IOM/NIH ODS and FDA because ICMR-NIN does not publish a comparable full UL set. Goal-adjusted targets (e.g. 1.6-2.2 g/kg protein for a lifter) are NOT requirements and do not belong here - they are expert policy and live in policy/dosing/.",
+  "sources": [
+    {
+      "key": "ICMR-NIN-2020",
+      "name": "ICMR-NIN, Nutrient Requirements for Indians: Recommended Dietary Allowances and Estimated Average Requirements",
+      "year": 2020,
+      "url": "https://www.nin.res.in/RDA_short_Report_2020.html"
+    },
+    {
+      "key": "IOM-DRI",
+      "name": "Institute of Medicine Dietary Reference Intakes, tolerable upper intake levels (as summarised by NIH Office of Dietary Supplements)",
+      "url": "https://ods.od.nih.gov/HealthInformation/nutrientrecommendations.aspx"
+    },
+    {
+      "key": "FDA-EPA-DHA",
+      "name": "US FDA guidance on EPA and DHA intake from supplements",
+      "url": "https://www.fda.gov/food/cfsan-constituent-updates/fda-announces-new-qualified-health-claims-epa-and-dha-omega-3-consumption-and-risk-hypertension-and"
+    }
+  ],
+  "status": "PARTIAL - upper limits populated, population requirements pending sourcing. See _todo.",
+  "_todo": "WORK PACKAGE A4. The `requirements` array below is intentionally near-empty rather than filled with plausible-looking numbers. Populate it from the ICMR-NIN 2020 report (source key ICMR-NIN-2020), one row per compound per age/sex band, using RDA where published and EAR where the gap assessment needs it. Nothing in the engine reads a requirement row today except protein, so this does not block the build - but every micronutrient gap assessment stays disabled until it is done. Do not substitute US DRI values for Indian RDAs without flagging it: they differ, and the whole point of an India-first product is that this table is Indian.",
+  "requirements": [
+    {
+      "compoundId": "protein-complete",
+      "basis": "ICMR-NIN-2020",
+      "type": "safe_intake",
+      "amount": 0.83,
+      "unit": "g/kg/day",
+      "population": {
+        "ageMin": 18,
+        "ageMax": 100,
+        "sex": "any",
+        "activity": "sedentary"
+      },
+      "note": "Baseline adequacy for a sedentary adult. NOT the target for someone training - that is a goal-adjusted target and lives in policy/dosing/dose-protein-resistance-training.json, sourced from the ISSN position stand. Keeping the two apart is deliberate: one is a population requirement, the other is our expert-signed policy.",
+      "review": {
+        "status": "draft_needs_expert_review",
+        "reviewedBy": null,
+        "reviewedOn": null
+      }
+    }
+  ],
+  "upperLimits": [
+    {
+      "compoundId": "vitamin-d3",
+      "upperLimit": {
+        "amount": 100,
+        "unit": "mcg/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI",
+        "note": "= 4000 IU. Adults 19+, from all sources."
+      }
+    },
+    {
+      "compoundId": "vitamin-a",
+      "upperLimit": {
+        "amount": 3000,
+        "unit": "mcg_rae/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI",
+        "note": "PREFORMED retinol only. Beta-carotene is not counted against this ceiling - a ledger that treats them alike will raise false alarms."
+      }
+    },
+    {
+      "compoundId": "vitamin-c",
+      "upperLimit": {
+        "amount": 2000,
+        "unit": "mg/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI"
+      }
+    },
+    {
+      "compoundId": "folate",
+      "upperLimit": {
+        "amount": 1000,
+        "unit": "mcg/day",
+        "appliesTo": "supplemental",
+        "basis": "IOM-DRI",
+        "note": "Applies to synthetic folic acid from supplements and fortified food, not to food folate."
+      }
+    },
+    {
+      "compoundId": "iron",
+      "upperLimit": {
+        "amount": 45,
+        "unit": "mg/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI",
+        "note": "Adults. Lower thresholds apply in haemochromatosis - handled as a safety escalation, not as a ledger limit."
+      }
+    },
+    {
+      "compoundId": "zinc",
+      "upperLimit": {
+        "amount": 40,
+        "unit": "mg/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI"
+      }
+    },
+    {
+      "compoundId": "calcium",
+      "upperLimit": {
+        "amount": 2500,
+        "unit": "mg/day",
+        "appliesTo": "total",
+        "basis": "IOM-DRI",
+        "note": "Adults 19-50. Drops to 2000 mg/day at 51+ - the ledger must read the age band, not a single figure."
+      }
+    },
+    {
+      "compoundId": "magnesium",
+      "upperLimit": {
+        "amount": 350,
+        "unit": "mg/day",
+        "appliesTo": "supplemental",
+        "basis": "IOM-DRI",
+        "note": "SUPPLEMENTAL magnesium only. Food magnesium is not counted against this."
+      }
+    },
+    {
+      "compoundId": "epa-dha",
+      "upperLimit": {
+        "amount": 2000,
+        "unit": "mg/day",
+        "appliesTo": "supplemental",
+        "basis": "FDA-EPA-DHA",
+        "note": "Conservative engine ceiling. FDA advises no more than 2 g/day from supplements and 3 g/day total; EFSA concluded supplemental intakes up to 5 g/day raise no safety concern. The engine uses the tighter figure and escalates above it rather than picking a side. FLAGGED FOR EXPERT REVIEW - this is a judgment call between two authorities, not a settled number."
+      }
+    },
+    {
+      "compoundId": "vitamin-b12",
+      "upperLimit": null,
+      "note": "No UL established (low toxicity). Absence of a UL is recorded explicitly so the ledger distinguishes 'no limit' from 'limit not yet entered'."
+    },
+    {
+      "compoundId": "creatine-monohydrate",
+      "upperLimit": null,
+      "note": "No UL established. Doses up to 30 g/day have been studied over multi-year periods without evidence of harm in healthy adults; the engine still recommends only the standard 3-5 g/day maintenance dose."
+    },
+    {
+      "compoundId": "protein-complete",
+      "upperLimit": null,
+      "note": "No UL established for healthy adults with normal renal function. Sustained intake above ~2.2 g/kg/day without medical guidance is handled as a caution in dosing policy, not as a hard ceiling."
+    }
+  ]
+}

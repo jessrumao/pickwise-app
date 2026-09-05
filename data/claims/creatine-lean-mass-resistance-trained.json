@@ -1,0 +1,60 @@
+{
+  "id": "creatine-lean-mass-resistance-trained",
+  "subject": {
+    "type": "compound",
+    "id": "creatine-monohydrate"
+  },
+  "outcomeId": "lean_mass",
+  "population": {
+    "description": "Healthy adults undertaking resistance training",
+    "predicate": {
+      "all": [
+        {
+          "gte": {
+            "field": "exerciseFrequencyPerWeek",
+            "value": 2
+          },
+          "label": "trains at least twice a week"
+        },
+        {
+          "contains_any": {
+            "field": "exerciseType",
+            "values": [
+              "resistance_training",
+              "mixed",
+              "sport_specific"
+            ]
+          },
+          "label": "does resistance or mixed training"
+        }
+      ]
+    }
+  },
+  "direction": "increases",
+  "magnitude": "small_to_moderate",
+  "grade": "Strong",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "guideline"
+    ],
+    "consistency": "consistent",
+    "directness": "direct"
+  },
+  "statement": "Creatine supplementation alongside resistance training increases lean body mass relative to training alone.",
+  "citations": [
+    {
+      "title": "International Society of Sports Nutrition position stand: safety and efficacy of creatine supplementation in exercise, sport, and medicine",
+      "source": "Journal of the International Society of Sports Nutrition",
+      "year": 2017,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28615996/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

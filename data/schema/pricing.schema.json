@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pricing.schema.json",
+  "title": "Pricing feed (L4, volatile half)",
+  "description": "Deliberately separate from products.json. Changes daily; products.json changes rarely. Keeping them together would mean every price refresh produces a diff against composition data an expert has signed.",
+  "type": "object",
+  "required": [
+    "checkedOn",
+    "entries"
+  ],
+  "properties": {
+    "checkedOn": {
+      "type": "string",
+      "format": "date"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "scraper"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "productId",
+          "priceINR",
+          "marketplace",
+          "marketplaceUrl",
+          "urlVerified"
+        ],
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "priceINR": {
+            "type": "number"
+          },
+          "priceIsIndicative": {
+            "type": "boolean",
+            "default": true
+          },
+          "marketplace": {
+            "type": "string",
+            "enum": [
+              "Amazon.in",
+              "HealthKart",
+              "Flipkart",
+              "1mg",
+              "PharmEasy"
+            ]
+          },
+          "marketplaceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "urlVerified": {
+            "type": "boolean",
+            "description": "False means the URL has not been confirmed to resolve to THIS product. Several Day-1 URLs were search pages rather than listings; the UI must not present an unverified link as a product page."
+          },
+          "inStock": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

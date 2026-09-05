@@ -1,0 +1,45 @@
+{
+  "id": "lgg-antibiotic-associated-diarrhoea",
+  "subject": {
+    "type": "compound",
+    "id": "lgg"
+  },
+  "outcomeId": "antibiotic_associated_diarrhoea",
+  "population": {
+    "description": "Adults taking antibiotics"
+  },
+  "direction": "decreases",
+  "magnitude": "small_to_moderate",
+  "grade": "Moderate",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "guideline"
+    ],
+    "consistency": "mostly_consistent",
+    "directness": "direct",
+    "note": "The strain, not the category, is the subject. Any policy citing this claim must therefore resolve to products containing THIS strain - which is only possible because probiotic strains are modelled as compounds."
+  },
+  "statement": "Specific probiotic strains including Lacticaseibacillus rhamnosus GG reduce the incidence of antibiotic-associated diarrhoea; the effect is strain-specific and does not generalise to probiotics as a category.",
+  "citations": [
+    {
+      "title": "World Gastroenterology Organisation Global Guideline: Probiotics and Prebiotics",
+      "source": "World Gastroenterology Organisation",
+      "year": 2017,
+      "url": "https://www.worldgastroenterology.org/UserFiles/file/guidelines/probiotics-and-prebiotics-english-2017.pdf"
+    },
+    {
+      "title": "Probiotics - Health Professional Fact Sheet",
+      "source": "NIH Office of Dietary Supplements",
+      "year": 2022,
+      "url": "https://ods.od.nih.gov/factsheets/Probiotics-HealthProfessional/"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1
+}

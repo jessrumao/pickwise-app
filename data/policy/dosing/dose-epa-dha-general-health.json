@@ -1,0 +1,44 @@
+{
+  "id": "dose-epa-dha-general-health",
+  "kind": "dosing",
+  "compoundId": "epa-dha",
+  "citesClaims": [
+    "epa-dha-general-population-cv-prevention"
+  ],
+  "appliesWhen": {
+    "lt": {
+      "field": "dietaryOilyFishServingsPerWeek",
+      "value": 2
+    },
+    "label": "eats oily fish less than twice a week"
+  },
+  "basis": "absolute",
+  "target": {
+    "min": 250,
+    "target": 500,
+    "max": 2000,
+    "unit": "mg/day"
+  },
+  "subtractDietaryIntake": true,
+  "minEffectiveDose": {
+    "amount": 250,
+    "unit": "mg"
+  },
+  "rounding": {
+    "mode": "nearest",
+    "increment": 0.5,
+    "fallbackIncrementIfNotSplittable": 1
+  },
+  "timing": {
+    "constraint": "with_food",
+    "separateFromCompoundIds": [],
+    "note": "Taken with a meal containing fat to aid absorption. This is an absorption constraint, not a clinical-interaction one - the routine builder may pick which meal.",
+    "citesClaims": []
+  },
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "max is the FDA supplemental ceiling from reference/nutrient-requirements.json, not a therapeutic target. The ~4 g/day triglyceride regime is a medical use case and is out of automated scope."
+  }
+}

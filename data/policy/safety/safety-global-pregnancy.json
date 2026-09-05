@@ -1,0 +1,23 @@
+{
+  "id": "safety-global-pregnancy",
+  "kind": "safety",
+  "appliesTo": {
+    "all": true
+  },
+  "trigger": {
+    "eq": {
+      "field": "isPregnantOrBreastfeeding",
+      "value": true
+    },
+    "label": "is pregnant or breastfeeding"
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Nutrient needs in pregnancy and breastfeeding are different enough that we won't make an automated recommendation. We'd like you to speak with a medical professional first.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

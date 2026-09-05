@@ -1,0 +1,28 @@
+{
+  "_note": "The fail-closed case. parseConfidence below 0.8 must escalate globally, NOT fall through to 'no contraindication found'.",
+  "age": 45,
+  "sex": "male",
+  "bodyWeightKg": 80,
+  "dietaryPattern": "omnivore",
+  "exerciseFrequencyPerWeek": 3,
+  "exerciseType": [
+    "mixed"
+  ],
+  "primaryGoals": [
+    "muscle_gain"
+  ],
+  "sleepHoursTypical": 6,
+  "existingSupplementUse": [],
+  "dietaryProteinAdequacy": "likely_inadequate",
+  "dietaryOilyFishServingsPerWeek": 1,
+  "allergies": [],
+  "relevantHealthContext": "",
+  "isPregnantOrBreastfeeding": false,
+  "monthlyBudgetINR": 5000,
+  "budgetIsHardConstraint": true,
+  "medicationsOrConditionsFlag": {
+    "hasAny": true,
+    "freeText": "the small white ones for my heart, and something my doctor added last month",
+    "parseConfidence": 0.35
+  }
+}

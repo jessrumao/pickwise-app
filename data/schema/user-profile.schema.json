@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "user-profile.schema.json",
+  "title": "User Profile",
+  "description": "Structured profile produced by the intake flow. The AI's only job is parsing free text into these fields with a confidence per field; nothing here decides a recommendation. Persisted as an immutable row in profile_versions — every edit writes a new version, so a decision record can foreign-key the exact profile that produced it.",
+  "type": "object",
+  "required": [
+    "age",
+    "sex",
+    "bodyWeightKg",
+    "dietaryPattern",
+    "exerciseFrequencyPerWeek",
+    "primaryGoals",
+    "sleepHoursTypical",
+    "existingSupplementUse",
+    "dietaryProteinAdequacy",
+    "allergies",
+    "medicationsOrConditionsFlag"
+  ],
+  "properties": {
+    "age": {
+      "type": "integer",
+      "minimum": 18,
+      "maximum": 100,
+      "questionnaireText": "What is your age?"
+    },
+    "sex": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "prefer_not_to_say"
+      ],
+      "questionnaireText": "What is your sex? (used for nutrient requirement differences, e.g. iron)"
+    },
+    "bodyWeightKg": {
+      "type": "number",
+      "minimum": 30,
+      "maximum": 250,
+      "questionnaireText": "What is your current body weight, in kilograms?",
+      "notes": "ADDED v3. Required. Protein targets are g/kg/day and creatine loading is weight-scaled — without this, no dose computes at all. If the user declines, the engine must escalate or fall back to an absolute target, never guess."
+    },
+    "heightCm": {
+      "type": "number",
+      "minimum": 100,
+      "maximum": 250,
+      "questionnaireText": "And your height in centimetres? (optional)",
+      "notes": "Not used by any MVP rule. Collected for future energy-requirement estimation."
+    },
+    "monthlyBudgetINR": {
+      "type": "integer",
+      "minimum": 0,
+      "questionnaireText": "Roughly what would you be comfortable spending on supplements per month, in rupees? (optional — leave blank for no limit)",
+      "notes": "ADDED v3. Consumed ONLY by the budget allocator, which runs after the recommendation set is fixed. The rules engine must never read this field — validate.mjs enforces that by rejecting any eligibility or dosing predicate that references it."
+    },
+    "budgetIsHardConstraint": {
+      "type": "boolean",
+      "default": true,
+      "questionnaireText": "Should we stay strictly within that, or show slightly over-budget options too?",
+      "notes": "False lets the allocator show the next item over budget as a near-miss rather than deferring it silently."
+    },
+    "isPregnantOrBreastfeeding": {
+      "type": "boolean",
+      "questionnaireText": "Are you currently pregnant or breastfeeding?",
+      "notes": "Hard global escalation trigger. Only asked when sex = female; defaults to false otherwise."
+    },
+    "dietaryPattern": {
+      "type": "string",
+      "enum": [
+        "omnivore",
+        "vegetarian",
+        "eggetarian",
+        "vegan",
+        "pescatarian",
+        "other"
+      ],
+      "questionnaireText": "Which best describes your diet?",
+      "notes": "Matched against each ingredient's suitableFor to drive substitution."
+    },
+    "exerciseFrequencyPerWeek": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 14,
+      "questionnaireText": "How many days a week do you exercise?"
+    },
+    "exerciseType": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "resistance_training",
+          "cardio_endurance",
+          "mixed",
+          "yoga_mobility",
+          "sport_specific",
+          "none"
+        ]
+      },
+      "questionnaireText": "What kind of exercise, mostly?"
+    },
+    "primaryGoals": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "enum": [
+          "muscle_gain",
+          "strength_performance",
+          "weight_loss",
+          "general_fitness",
+          "general_wellness",
+          "energy_fatigue",
+          "digestive_health",
+          "immunity",
+          "sleep_quality",
+          "joint_health",
+          "skin_hair_nails",
+          "endurance_performance"
+        ]
+      },
+      "questionnaireText": "What are you mainly trying to achieve right now? (up to 3)",
+      "notes": "Order matters: index 0 is the primary goal and scores 2 in goal_alignment; the rest score 1. Mapped to physiological outcomes via entities/goals.json so that adding a goal is one row, not an edit to every ingredient."
+    },
+    "sleepHoursTypical": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 14,
+      "questionnaireText": "On a typical night, how many hours do you sleep?"
+    },
+    "existingSupplementUse": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "questionnaireText": "Are you taking any supplements now? List them.",
+      "notes": "Free text normalised by the AI layer to compound ids using compounds.json aliases. Feeds both the duplicate suppression and the dose ledger — anything already being taken counts towards the UL."
+    },
+    "dietaryProteinAdequacy": {
+      "type": "string",
+      "enum": [
+        "likely_adequate",
+        "likely_inadequate",
+        "unsure"
+      ],
+      "questionnaireText": "Do you feel you consistently get enough protein from food?",
+      "notes": "Rough self-assessment, not a diet log. 'unsure' evaluates to unknown in three-valued logic, which fails closed to not recommending."
+    },
+    "estimatedDailyProteinG": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 400,
+      "questionnaireText": "If you have a rough idea, about how many grams of protein a day do you get from food? (optional)",
+      "notes": "When present, the gap is computed numerically instead of from the adequacy enum. This is what turns 'you may need protein' into 'you need ~130 g/day and you're getting ~90'."
+    },
+    "dietaryOilyFishServingsPerWeek": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 21,
+      "questionnaireText": "How many servings of oily fish do you eat per week?"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "questionnaireText": "Any food allergies or intolerances?"
+    },
+    "relevantHealthContext": {
+      "type": "string",
+      "questionnaireText": "Anything else about your health or lifestyle we should know? (optional)"
+    },
+    "medicationsOrConditionsFlag": {
+      "type": "object",
+      "required": [
+        "hasAny"
+      ],
+      "properties": {
+        "hasAny": {
+          "type": "boolean",
+          "questionnaireText": "Are you taking any prescription medication, or do you have a diagnosed condition?"
+        },
+        "freeText": {
+          "type": "string",
+          "questionnaireText": "If yes, please list them."
+        },
+        "parseConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "notes": "Set by the AI parser. Below the threshold, the safety gate treats the field as unknown — which, under onUnknown: true, escalates. This is the mechanism that stops an unparseable medication list from being silently skipped."
+        }
+      },
+      "notes": "hasAny = true is never an escalate-everything switch. It is checked ingredient by ingredient against safety policy."
+    },
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "fieldConfidence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Per-field parse confidence from the LLM intake step. Fields below threshold must be confirmed by the user before the profile version is written."
+        },
+        "confirmedByUser": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

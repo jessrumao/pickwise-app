@@ -1,0 +1,59 @@
+{
+  "id": "elig-epa-dha-general",
+  "kind": "eligibility",
+  "compoundId": "epa-dha",
+  "citesClaims": [
+    "epa-dha-general-population-cv-prevention"
+  ],
+  "recommendWhen": {
+    "all": [
+      {
+        "lt": {
+          "field": "dietaryOilyFishServingsPerWeek",
+          "value": 2
+        },
+        "label": "eats oily fish less than twice a week"
+      },
+      {
+        "contains_any": {
+          "field": "primaryGoals",
+          "values": [
+            "general_wellness",
+            "joint_health",
+            "immunity"
+          ]
+        },
+        "label": "has a general wellness or joint goal"
+      }
+    ]
+  },
+  "suppressWhen": {
+    "any": [
+      {
+        "gte": {
+          "field": "dietaryOilyFishServingsPerWeek",
+          "value": 2
+        },
+        "label": "already eats enough oily fish"
+      },
+      {
+        "contains_any": {
+          "field": "existingSupplementUse",
+          "values": [
+            "epa-dha"
+          ]
+        },
+        "label": "already takes an omega-3 supplement"
+      }
+    ]
+  },
+  "suppressOutcome": "not_needed",
+  "onUnknown": "false",
+  "showWhenSuppressed": true,
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "Cites ONLY the Limited general-population claim, deliberately. The Strong triglyceride claim exists in claims/ but describes a 4 g/day therapeutic regime in a different population; citing it here would launder a Strong grade onto a 300 mg/day wellness recommendation. Highest cited grade is therefore Limited, so the best outcome this rule can produce is 'potentially useful', never 'recommended'."
+  }
+}

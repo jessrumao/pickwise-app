@@ -1,0 +1,69 @@
+{
+  "$comment": "Physiological outcomes. Claims are about outcomes; goals map to outcomes. This indirection is what stops a new user goal from requiring an edit to every ingredient record.",
+  "outcomes": [
+    {
+      "id": "lean_mass",
+      "label": "Lean body mass"
+    },
+    {
+      "id": "muscle_strength",
+      "label": "Muscular strength and power"
+    },
+    {
+      "id": "endurance_capacity",
+      "label": "Endurance capacity"
+    },
+    {
+      "id": "exercise_recovery",
+      "label": "Recovery between sessions"
+    },
+    {
+      "id": "body_fat_reduction",
+      "label": "Body fat reduction"
+    },
+    {
+      "id": "triglycerides",
+      "label": "Blood triglyceride levels"
+    },
+    {
+      "id": "cardiovascular_events",
+      "label": "Cardiovascular events"
+    },
+    {
+      "id": "micronutrient_adequacy",
+      "label": "Micronutrient adequacy"
+    },
+    {
+      "id": "cancer_incidence",
+      "label": "Cancer incidence"
+    },
+    {
+      "id": "gi_comfort",
+      "label": "Digestive comfort"
+    },
+    {
+      "id": "antibiotic_associated_diarrhoea",
+      "label": "Antibiotic-associated diarrhoea"
+    },
+    {
+      "id": "immune_function",
+      "label": "Immune function"
+    },
+    {
+      "id": "joint_comfort",
+      "label": "Joint comfort"
+    },
+    {
+      "id": "sleep_quality",
+      "label": "Sleep quality"
+    },
+    {
+      "id": "skin_hair_nail_quality",
+      "label": "Skin, hair and nail quality"
+    },
+    {
+      "id": "subjective_energy",
+      "label": "Subjective energy / fatigue"
+    }
+  ]
+}

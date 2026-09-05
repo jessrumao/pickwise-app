@@ -1,0 +1,46 @@
+{
+  "id": "epa-dha-triglyceride-lowering",
+  "subject": {
+    "type": "compound",
+    "id": "epa-dha"
+  },
+  "outcomeId": "triglycerides",
+  "population": {
+    "description": "Adults with elevated triglycerides, at pharmacological doses (typically 4 g/day)"
+  },
+  "direction": "decreases",
+  "magnitude": "moderate",
+  "grade": "Strong",
+  "gradeRationale": {
+    "designs": [
+      "meta_analysis_of_rcts",
+      "guideline"
+    ],
+    "consistency": "consistent",
+    "directness": "direct",
+    "note": "Recorded specifically so the engine does NOT borrow this claim's Strong grade to justify a 300 mg/day general-wellness recommendation. Different dose, different population, different claim - see epa-dha-general-population-cv-prevention."
+  },
+  "statement": "EPA and DHA lower elevated triglycerides in a dose-dependent way, but the effect is established at pharmacological doses of around 4 g/day - a therapeutic use case, not an over-the-counter general-wellness one.",
+  "citations": [
+    {
+      "title": "Omega-3 Fatty Acids for the Management of Hypertriglyceridemia: A Science Advisory From the American Heart Association",
+      "source": "Circulation (American Heart Association)",
+      "year": 2019,
+      "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000000709"
+    }
+  ],
+  "vectorRefs": [],
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  },
+  "version": 1,
+  "doseResponse": {
+    "summary": "Meaningful triglyceride lowering requires roughly 4 g/day combined EPA+DHA, far above the 250-500 mg/day general-intake range.",
+    "threshold": {
+      "amount": 4000,
+      "unit": "mg/day"
+    }
+  }
+}

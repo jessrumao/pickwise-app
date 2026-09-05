@@ -1,0 +1,50 @@
+{
+  "id": "safety-creatine-renal",
+  "kind": "safety",
+  "appliesTo": {
+    "compoundIds": [
+      "creatine-monohydrate"
+    ]
+  },
+  "trigger": {
+    "any": [
+      {
+        "matches": {
+          "field": "medicationsOrConditionsFlag.freeText",
+          "patterns": [
+            "kidney disease",
+            "chronic kidney",
+            "renal impairment",
+            "renal failure",
+            "ckd",
+            "dialysis",
+            "nephropathy"
+          ]
+        }
+      },
+      {
+        "matches": {
+          "field": "relevantHealthContext",
+          "patterns": [
+            "kidney disease",
+            "chronic kidney",
+            "renal impairment",
+            "renal failure",
+            "ckd",
+            "dialysis",
+            "nephropathy"
+          ]
+        }
+      }
+    ]
+  },
+  "action": "escalate",
+  "severity": "high",
+  "onUnknown": "true",
+  "userMessage": "Creatine has not been shown to harm healthy kidneys, but existing renal impairment warrants medical guidance first.",
+  "review": {
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null
+  }
+}

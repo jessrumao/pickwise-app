@@ -1,11 +1,6 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EvidenceAccordion } from "@/components/results/evidence-accordion";
 import { getProductDisplay, productsForIngredient } from "@/lib/results/product-lookup";
 import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
 import { findMatchingEscalation } from "@/lib/results/trace-match";
@@ -108,33 +103,7 @@ export function RecommendationCard({
         )}
 
         {policy && policy.citesClaims.length > 0 && rec.status !== "escalate" && (
-          <Accordion type="single" collapsible>
-            <AccordionItem value="why">
-              <AccordionTrigger className="text-sm">Why? (evidence)</AccordionTrigger>
-              <AccordionContent className="space-y-3">
-                {policy.citesClaims.map((claimId) => {
-                  const claim = knowledgeBase.claimById.get(claimId);
-                  if (!claim) return null;
-                  return (
-                    <div key={claimId} className="space-y-1">
-                      <p className="text-sm">{claim.statement}</p>
-                      <ul className="space-y-0.5 text-xs text-muted-foreground">
-                        {claim.citations.map((c, i) => (
-                          <li key={i}>
-                            <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline">
-                              {c.title}
-                            </a>{" "}
-                            — {c.source}
-                            {c.year ? `, ${c.year}` : ""}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <EvidenceAccordion claimIds={policy.citesClaims} />
         )}
       </CardContent>
     </Card>

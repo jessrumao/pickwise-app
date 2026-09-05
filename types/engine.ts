@@ -435,6 +435,13 @@ export const dosingPolicySchema = z.object({
   id: z.string(),
   kind: z.literal("dosing"),
   compoundId: z.string(),
+  // True on the one dosing record (dose-multivitamin-rda) where compoundId
+  // is actually an ingredient id, because a multivitamin is a bundle, not a
+  // compound — flagged in that record's own review note as a placeholder
+  // shape, not hidden. Not in the original policy.schema.json draft; added
+  // here because real data uses it and an unflagged field would silently
+  // vanish through zod's default "strip unknown keys" behavior.
+  ingredientScoped: z.boolean().optional(),
   citesClaims: z.array(z.string()).optional(),
   appliesWhen: predicateNodeSchema,
   basis: dosingBasisSchema,
@@ -753,10 +760,20 @@ export interface RecommendationDosing {
   // target.target already scaled by basis (e.g. x bodyWeightKg for
   // per_kg_bodyweight), when computable from the profile.
   resolvedTargetAmount?: number;
-  // resolvedTargetAmount minus dietary intake, only when the dosing
-  // policy's subtractDietaryIntake is true and intake is known
-  // (estimatedDailyProteinG etc.) — undefined, not zero, when intake is unknown.
+  // resolvedTargetAmount minus dietary intake when a numeric intake estimate
+  // is known (estimatedDailyProteinG etc); otherwise falls back to the full
+  // resolvedTargetAmount (dietary contribution treated as unknown/zero,
+  // never guessed at a nonzero value). Check gapIsQuantified before treating
+  // this as a real personalized shortfall vs. a full-target fallback.
   gapAmount?: number;
+  // True only when gapAmount reflects an actual measured dietary intake
+  // subtracted from the target (protein today, via estimatedDailyProteinG).
+  // False when subtractDietaryIntake is false (no gap concept for this
+  // compound — creatine, lgg) OR true but no numeric intake field exists yet
+  // for this compound (omega-3 — see lib/engine/dosing.ts's flagged
+  // limitation). Consumers (priority scoring, UI copy) should treat an
+  // unquantified gap as "unknown severity", not as "full deficiency".
+  gapIsQuantified: boolean;
   timing: DosingTiming;
 }
 
@@ -816,4 +833,31 @@ export interface BudgetOutcome {
   deferred: BasketItem[]; // still carries price — never silently dropped
   totalFundedCostINR: number;
   totalDeferredCostINR: number;
+}
+
+// ---------------------------------------------------------------------------
+// Safety escalation — top-level output of the safety gate (Package B)
+//
+// A GLOBAL escalation (appliesTo.all) stops the pipeline before eligibility
+// runs at all — "no automated recommendation is produced for this profile"
+// (see data/tools/demo.mjs's unparseable-medications case). A targeted
+// escalation blocks only the compounds/ingredients it names and surfaces as
+// an individual Recommendation with status "escalate" instead.
+// ---------------------------------------------------------------------------
+
+export interface SafetyEscalation {
+  policyId: PolicyId;
+  global: boolean; // appliesTo.all
+  severity?: "high" | "moderate";
+  userMessage?: string;
+  why: string; // from explain(trace)
+  firedOnUnknown: boolean; // true when this fired because of onUnknown fail-closed, not a direct match
+  trace: EvaluationResult;
+}
+
+export interface SafetyGateResult {
+  escalations: SafetyEscalation[]; // every policy that fired, global and targeted
+  globalEscalations: SafetyEscalation[];
+  blockedCompoundIds: Set<CompoundId>;
+  blockedIngredientIds: Set<IngredientId>;
 }

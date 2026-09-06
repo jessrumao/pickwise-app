@@ -32,7 +32,7 @@ export function BasketSummary({ budget }: { budget: BudgetOutcome }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your basket</CardTitle>
+        <CardTitle className="font-display">Your basket</CardTitle>
         <p className="text-sm text-muted-foreground">
           {budget.budgetINR != null
             ? `Budget: ₹${budget.budgetINR}/month${budget.budgetIsHardConstraint ? "" : " (soft limit)"}`

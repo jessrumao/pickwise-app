@@ -9,18 +9,18 @@
 // protein worked example exactly: 72kg x 1.8 g/kg = 130 g/day target, minus
 // 90 g from food = 40 g gap, 40 / 24 g-per-scoop = 1.667 -> 1.5 scoops (36 g).
 //
-// KNOWN LIMITATION (flagged, not silently worked around): subtractDietaryIntake
-// is also true for dose-epa-dha-general-health, but UserProfile has no numeric
+// FIXED 2026-09-06 (was a known limitation): subtractDietaryIntake is also
+// true for dose-epa-dha-general-health, but UserProfile has no numeric
 // "estimated daily EPA/DHA from food" field — only dietaryOilyFishServingsPerWeek,
-// a serving COUNT, not an amount. Until that field exists (mirroring
-// estimatedDailyProteinG), omega-3's gap conservatively falls back to the full
-// target, i.e. dietary intake is treated as unknown/zero rather than guessed.
-// This is a schema gap for Package A/D, the same category of issue as the
-// endurance-athlete protein gap in data/README.md's "known findings".
+// a serving COUNT, not an amount. resolveDietaryIntake below converts that
+// count into an approximate daily mg amount via a deliberately conservative
+// average-per-serving constant, so the gap is quantified the same way
+// protein's is instead of always falling back to the full target. See that
+// function's own comment for the conversion's provenance and caveats.
 
 import type { UserProfile, DosingPolicy, RecommendationDosing, ServingPlan, Product } from "@/types/engine";
 import { TRUE } from "@/types/engine";
-import { dosingPolicyForCompound, compoundById, productById } from "./knowledge-base";
+import { dosingPolicyForCompound, compoundById, productById, pricingByProductId } from "./knowledge-base";
 import { run } from "./predicate";
 import { computeServingPlan } from "./serving-plan";
 
@@ -67,8 +67,23 @@ export function resolveDosing(profile: UserProfile, compoundId: string): Recomme
  * dietary-EPA/DHA estimate (there is currently no field to map it to even
  * if this function did look one up generically).
  */
+// Average EPA+DHA content of a single typical "oily fish" serving (~100g),
+// used only to convert dietaryOilyFishServingsPerWeek (a serving COUNT) into
+// an approximate daily mg amount. Real content varies enormously by species
+// (salmon ~1000-2000mg/100g, mackerel ~2500mg/100g, sardines ~1000-1500mg/100g)
+// — 500mg is a deliberately conservative average so this estimate never
+// OVERstates dietary intake and wrongly suppresses a real need. Draft
+// constant, needs Package A/domain review to confirm or refine against
+// actual population data rather than a generic figure.
+const AVG_EPA_DHA_MG_PER_OILY_FISH_SERVING = 500;
+
 function resolveDietaryIntake(compoundId: string, profile: UserProfile): number | undefined {
   if (compoundId === "protein-complete") return profile.estimatedDailyProteinG;
+  if (compoundId === "epa-dha") {
+    const servingsPerWeek = profile.dietaryOilyFishServingsPerWeek;
+    if (servingsPerWeek == null) return undefined;
+    return Math.round((servingsPerWeek * AVG_EPA_DHA_MG_PER_OILY_FISH_SERVING) / 7);
+  }
   return undefined;
 }
 
@@ -105,16 +120,49 @@ export function amountPerServingFor(product: Product, compoundId: string): numbe
 }
 
 /**
- * Picks the product to plan a serving against: the first product (in
- * products.json's catalogue order) whose ingredientId is among the
- * candidate ingredients — exactly demo.mjs's selection rule
- * (`products.filter(pr => cands.some(...))[0]`), which is why the
- * vegetarian-muscle-gain case lands on whey (it's suitableFor vegetarian
- * too, and whey products are listed first) rather than plant-protein-blend.
- * Real product ranking (price, quality signal) is the budget allocator's job.
+ * Picks the product to plan a serving against: among every product whose
+ * ingredientId is among the candidate ingredients, the one with the lowest
+ * price per unit of `compoundId` actually delivered over the whole pack
+ * (priceINR / (amountPerServing * servingsPerPack)) — not, as originally
+ * implemented, just the first match in products.json's catalogue order.
+ *
+ * CHANGED 2026-09-06, at product's request: catalogue-order selection was
+ * picking a premium 1lb SKU (on-gold-standard-whey-1lb, ~₹5.55/g protein)
+ * over a cheaper, better-value 1kg SKU of the same ingredient
+ * (muscleblaze-biozyme-whey-1kg, ~₹2.40/g) whenever the premium one
+ * happened to be listed first and comfortably fit the budget — the budget
+ * allocator's own downgrade-to-a-cheaper-alternative logic (budget.ts) only
+ * ever fires when the top pick doesn't fit the remaining budget, so it
+ * never corrected a merely-worse-value pick that was still affordable.
+ * Ranking by value here means the affordable case is already the
+ * best-value choice, not just budget.ts's overflow fallback.
+ *
+ * Falls back to catalogue order (the original behavior) when no candidate
+ * has a price at all, rather than picking arbitrarily among unpriced
+ * products or returning nothing.
  */
-export function pickTopCandidateProduct(candidateIngredientIds: string[], allProducts: Product[]): Product | undefined {
-  return allProducts.find((p) => candidateIngredientIds.includes(p.ingredientId));
+export function pickTopCandidateProduct(
+  candidateIngredientIds: string[],
+  allProducts: Product[],
+  compoundId: string
+): Product | undefined {
+  const matches = allProducts.filter((p) => candidateIngredientIds.includes(p.ingredientId));
+  if (matches.length === 0) return undefined;
+
+  const priced = matches
+    .map((product) => {
+      const priceINR = pricingByProductId.get(product.id)?.priceINR;
+      const totalDelivered = amountPerServingFor(product, compoundId) * product.servingsPerPack;
+      const pricePerUnit = priceINR != null && totalDelivered > 0 ? priceINR / totalDelivered : undefined;
+      return { product, pricePerUnit };
+    })
+    .filter((m): m is { product: Product; pricePerUnit: number } => m.pricePerUnit != null);
+
+  if (priced.length === 0) return matches[0]; // no pricing anywhere — keep the old, deterministic fallback
+
+  // Stable sort: ties keep their original catalogue order.
+  priced.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+  return priced[0].product;
 }
 
 export function buildServingPlan(

@@ -12,7 +12,8 @@
           "field": "primaryGoals",
           "values": [
             "endurance_performance",
-            "general_fitness"
+            "general_fitness",
+            "energy_fatigue"
           ]
         },
         "label": "has an endurance or general fitness goal"
@@ -39,9 +40,9 @@
   "onUnknown": "false",
   "showWhenSuppressed": true,
   "review": {
-    "status": "expert_reviewed",
-    "reviewedBy": "Jess",
-    "reviewedOn": "2026-09-05",
-    "note": "Known limitation accepted by reviewer 2026-09-05: this rule does not subtract existing dietary caffeine (coffee/tea) since no profile field exists for it. A daily coffee drinker may be recommended an additional caffeine supplement on top of dietary intake - acceptable for now, revisit if a dietary-caffeine field is ever added to the profile schema."
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "2026-09-06: added energy_fatigue to the goal list, at product's request, as the sanctioned alternative to a symptom-based question ('do you feel tired before the gym?') the questionnaire deliberately doesn't ask (see data/questionnaire.md's explicit non-goals) - goal-based gating stays the only signal, just widened to cover low-energy/fatigue explicitly. Needs re-review since it changes what was approved 2026-09-05. Prior note, still true: this rule does not subtract existing dietary caffeine (coffee/tea) since no profile field exists for it - a daily coffee drinker may be recommended an additional caffeine supplement on top of dietary intake."
   }
 }

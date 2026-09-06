@@ -11,7 +11,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { userProfileSchema, type UserProfile } from "@/types/engine";
-import { assembleUserProfile, fieldsNeedingConfirmation } from "@/lib/intake/assemble-profile";
+import {
+  assembleUserProfile,
+  deriveDietaryProteinAdequacy,
+  fieldsNeedingConfirmation,
+} from "@/lib/intake/assemble-profile";
 import type { IntakeFormValues } from "@/lib/intake/schema";
 import { generateRecommendations } from "@/lib/engine";
 
@@ -28,18 +32,21 @@ function toFormValues(sample: UserProfile): IntakeFormValues {
     sex: sample.sex,
     isPregnantOrBreastfeeding: sample.isPregnantOrBreastfeeding,
     bodyWeightKg: sample.bodyWeightKg,
-    heightCm: sample.heightCm,
+    heightCm: sample.heightCm ?? 170, // required in the form; the 5 real samples predate that
     dietaryPattern: sample.dietaryPattern,
     exerciseFrequencyPerWeek: sample.exerciseFrequencyPerWeek,
     exerciseType: sample.exerciseType ?? [],
+    exerciseIntensityTypical: sample.exerciseIntensityTypical ?? "moderate", // required in the form; no sample predates this
     primaryGoals: sample.primaryGoals,
     monthlyBudgetINR: sample.monthlyBudgetINR,
     budgetIsHardConstraint: sample.budgetIsHardConstraint ?? true,
     sleepHoursTypical: sample.sleepHoursTypical,
     existingSupplementUseText: sample.existingSupplementUse.join(", "),
-    dietaryProteinAdequacy: sample.dietaryProteinAdequacy,
-    estimatedDailyProteinG: sample.estimatedDailyProteinG,
-    dietaryOilyFishServingsPerWeek: sample.dietaryOilyFishServingsPerWeek,
+    // required in the form; only vegetarian-muscle-gain's sample sets this
+    estimatedDailyProteinG: sample.estimatedDailyProteinG ?? 60,
+    proteinFoodDescription: "",
+    // required in the form; every sample already sets this, ?? 0 is just a type-safe fallback
+    dietaryOilyFishServingsPerWeek: sample.dietaryOilyFishServingsPerWeek ?? 0,
     allergiesText: sample.allergies.join(", "),
     relevantHealthContext: sample.relevantHealthContext,
     medicationsHasAny: sample.medicationsOrConditionsFlag.hasAny,
@@ -74,7 +81,14 @@ describe("assembleUserProfile against real sample profiles", () => {
       expect(assembled.primaryGoals).toEqual(sample.primaryGoals);
       expect(assembled.sleepHoursTypical).toBe(sample.sleepHoursTypical);
       expect(assembled.existingSupplementUse).toEqual(sample.existingSupplementUse);
-      expect(assembled.dietaryProteinAdequacy).toBe(sample.dietaryProteinAdequacy);
+      // No longer a straight pass-through — dietaryProteinAdequacy is now
+      // DERIVED from estimatedDailyProteinG/bodyWeightKg (see the "two
+      // questions consolidated into one" note in assemble-profile.ts), so
+      // this checks it matches the same derivation, not the sample's own
+      // originally-authored (now-informational-only) value.
+      expect(assembled.dietaryProteinAdequacy).toBe(
+        deriveDietaryProteinAdequacy(form.estimatedDailyProteinG, sample.bodyWeightKg)
+      );
       expect(assembled.allergies).toEqual(sample.allergies);
       expect(assembled.medicationsOrConditionsFlag.hasAny).toBe(
         sample.medicationsOrConditionsFlag.hasAny
@@ -110,6 +124,49 @@ describe("fieldsNeedingConfirmation", () => {
     });
     expect(flagged).toContain("medicationsOrConditionsFlag.freeText");
   });
+
+  it("ignores estimatedDailyProteinGConfidence when undefined (the default, manual-slider path)", () => {
+    const flagged = fieldsNeedingConfirmation(
+      {
+        existingSupplementUse: [],
+        existingSupplementUseConfidence: 1,
+        allergies: [],
+        allergiesConfidence: 1,
+        medicationsParseConfidence: 1,
+      },
+      undefined
+    );
+    expect(flagged).toEqual([]);
+  });
+
+  it("flags estimatedDailyProteinG when the AI-estimate escape hatch returns low confidence", () => {
+    const flagged = fieldsNeedingConfirmation(
+      {
+        existingSupplementUse: [],
+        existingSupplementUseConfidence: 1,
+        allergies: [],
+        allergiesConfidence: 1,
+        medicationsParseConfidence: 1,
+      },
+      0.4
+    );
+    expect(flagged).toContain("estimatedDailyProteinG");
+  });
+});
+
+describe("deriveDietaryProteinAdequacy", () => {
+  it("classifies at or above 1.2g/kg body weight as likely_adequate", () => {
+    expect(deriveDietaryProteinAdequacy(84, 70)).toBe("likely_adequate"); // exactly 1.2g/kg
+    expect(deriveDietaryProteinAdequacy(120, 70)).toBe("likely_adequate");
+  });
+
+  it("classifies below 1.2g/kg body weight as likely_inadequate", () => {
+    expect(deriveDietaryProteinAdequacy(60, 70)).toBe("likely_inadequate"); // ~0.86g/kg
+  });
+
+  it("never returns unsure — the intake form always has a real number by this point", () => {
+    expect(deriveDietaryProteinAdequacy(0, 70)).toBe("likely_inadequate");
+  });
 });
 
 // Regression test for a real bug found via manual Package E browser testing:
@@ -128,17 +185,18 @@ describe("blank optional free-text fields must not read as UNKNOWN to the safety
     sex: "male",
     isPregnantOrBreastfeeding: undefined,
     bodyWeightKg: 72,
-    heightCm: undefined,
+    heightCm: 175,
     dietaryPattern: "vegetarian",
     exerciseFrequencyPerWeek: 4,
     exerciseType: ["resistance_training"],
+    exerciseIntensityTypical: "moderate",
     primaryGoals: ["muscle_gain"],
     monthlyBudgetINR: undefined,
     budgetIsHardConstraint: true,
     sleepHoursTypical: 7,
     existingSupplementUseText: "",
-    dietaryProteinAdequacy: "likely_inadequate",
     estimatedDailyProteinG: 90,
+    proteinFoodDescription: "",
     dietaryOilyFishServingsPerWeek: 0,
     allergiesText: "",
     relevantHealthContext: undefined, // left blank, as most users will

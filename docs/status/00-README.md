@@ -42,6 +42,46 @@ Read in this order:
    object reference silently breaks once data round-trips through Postgres
    `jsonb`. Verified against the live database directly (curl + a real
    cookie jar), reproducing every check from Package C's own note.
+9. `g-routine-builder-status.md` — the one place an LLM writes free text in
+   this product, and why it's safe: routine timing is fenced by each dosing
+   policy's own declared `DosingTiming` constraint, tested against the real
+   policies in `data/`, and verified against the live model not to invent
+   timing folklore (e.g. a post-workout rule for creatine) that the
+   evidence doesn't support.
+10. `i-regulatory-writeup-status.md` — the in-product disclaimer (now real
+    copy, not Package E's placeholder) and the regulatory/deferral writeup
+    (`docs/regulatory-and-deferral-writeup.md`): sourced FSSAI/DPDPA
+    research, and a 4-tier-safety-model calibration section grounded in
+    which former "Yellow" ingredients already have real policies today vs.
+    which "Red" compounds exist only as entities with no policy yet.
+11. `ui-polish-1-status.md` — a landing page at `/` (chat moved to `/chat`),
+    the intake condensed from 17 one-question screens to 8 themed ones
+    (with `heightCm` now required), and a real review screen with per-section
+    "Edit" links replacing the raw JSON dump after submission. Live pricing
+    was discussed and explicitly deferred — see that note for why.
+12. `questionnaire-finalization-status.md` — the protein-dosage bug (was
+    showing "4-5 scoops/day" for most users) traced to an optional dietary
+    estimate that almost never got filled in, fixed by making it a
+    required slider; the identical bug fixed for omega-3 via the
+    already-asked fish-servings question; a new exercise-intensity
+    question; two eligibility-policy widenings (caffeine, magnesium) done
+    as the sanctioned goal-based alternative to symptom-style questions;
+    and a full audit of which questionnaire answers map to which knowledge-
+    base ingredients, including nine entities that are unreachable by any
+    answer today.
+13. `ai-protein-estimate-status.md` — an AI-assisted alternative to the
+    protein slider above: if the user says they don't know their protein
+    intake, they describe their diet in a few words and an LLM estimates a
+    starting value, confidence-gated through the same needs-confirmation
+    review-screen pattern already used for the free-text parse fields
+    (`existingSupplementUse`, `allergies`, `medicationsOrConditionsFlag`) —
+    the slider stays adjustable either way, and a vague description is
+    verified to route through confirmation while a specific one does not.
+14. `ui-redesign-1-status.md` — the brand theme (cream/blue, Syne/Inter,
+    `docs/design/pickwise_exmachina_v6.html`), a shared nav, a real About
+    page, and a restyled intake/results shell. Presentation only — no
+    `lib/`/`data/`/API changes, and the 5-status recommendation framing is
+    fully preserved, not simplified to match the mockup's plainer layout.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

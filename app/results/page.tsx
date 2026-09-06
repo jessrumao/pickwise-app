@@ -7,6 +7,7 @@ import { generateRecommendations, type RecommendationResult } from "@/lib/engine
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultsView } from "@/components/results/results-view";
+import { SiteHeader } from "@/components/site/site-header";
 import { DEMO_PROFILES } from "@/lib/results/demo-profiles";
 import { createDecision } from "@/lib/results/decisions-api";
 import { adaptDecisionRecord } from "@/lib/results/decision-record-adapter";
@@ -46,43 +47,53 @@ function ResultsPageInner() {
 
   if (state.status === "loading") {
     return (
-      <main className="flex min-h-svh items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">Loading your recommendations…</p>
-      </main>
+      <div className="flex flex-1 items-center justify-center p-6">
+        <p className="font-mono text-xs tracking-wide text-brand">
+          CALCULATING STACK<span className="animate-pulse">_</span>
+        </p>
+      </div>
     );
   }
 
   if (state.status === "error") {
     return (
-      <main className="flex min-h-svh flex-col items-center justify-center gap-4 p-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <p className="text-sm text-destructive">{state.message}</p>
-        <Button asChild variant="outline">
-          <Link href="/intake">Back to the questionnaire</Link>
+        <Button asChild variant="outline" className="font-display text-xs tracking-wide">
+          <Link href="/intake">← BACK TO THE QUESTIONNAIRE</Link>
         </Button>
-      </main>
+      </div>
     );
   }
 
   if (state.status === "ready") {
     return (
-      <main className="flex min-h-svh flex-col items-center gap-6 p-6">
+      <div className="flex flex-1 flex-col items-center gap-6 p-6 sm:p-10">
+        <div className="w-full max-w-xl">
+          <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
+            ANALYSIS COMPLETE
+          </p>
+        </div>
         <ResultsView result={state.result} />
-      </main>
+        <Button asChild variant="outline" className="font-display text-xs tracking-wide">
+          <Link href="/intake">START OVER</Link>
+        </Button>
+      </div>
     );
   }
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-6 p-6">
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
       <Card className="w-full max-w-xl">
         <CardHeader>
-          <CardTitle>No profile loaded</CardTitle>
+          <CardTitle className="font-display">No profile loaded</CardTitle>
           <p className="text-sm text-muted-foreground">
             Complete the questionnaire, or pick a sample profile to see how this page renders.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button asChild>
-            <Link href="/intake">Start the questionnaire</Link>
+          <Button asChild className="font-display text-xs tracking-wide">
+            <Link href="/intake">START THE QUESTIONNAIRE →</Link>
           </Button>
           <div className="space-y-2">
             {DEMO_PROFILES.map((demo) => (
@@ -92,7 +103,7 @@ function ResultsPageInner() {
                 onClick={() =>
                   setState({ status: "ready", result: generateRecommendations(demo.profile) })
                 }
-                className="block w-full rounded-md border p-3 text-left text-sm hover:bg-accent"
+                className="block w-full border border-border p-3 text-left text-sm hover:bg-accent"
               >
                 <p className="font-medium">{demo.label}</p>
                 <p className="text-xs text-muted-foreground">{demo.note}</p>
@@ -101,14 +112,17 @@ function ResultsPageInner() {
           </div>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }
 
 export default function ResultsPage() {
   return (
-    <React.Suspense fallback={null}>
-      <ResultsPageInner />
-    </React.Suspense>
+    <main className="flex min-h-svh flex-col">
+      <SiteHeader />
+      <React.Suspense fallback={null}>
+        <ResultsPageInner />
+      </React.Suspense>
+    </main>
   );
 }

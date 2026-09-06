@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -28,14 +27,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import {
   assembleUserProfile,
   fieldsNeedingConfirmation,
   type ParsedFreeText,
 } from "@/lib/intake/assemble-profile";
-import { intakeFormSchema, STEP_FIELDS, TOTAL_STEPS, type IntakeFormValues } from "@/lib/intake/schema";
-import { parseFreeText, submitProfile } from "@/lib/intake/submit-profile";
+import {
+  intakeFormSchema,
+  STEP_FIELDS,
+  STEP_TITLES,
+  TOTAL_STEPS,
+  type IntakeFormValues,
+} from "@/lib/intake/schema";
+import {
+  estimateProteinFromDescription,
+  parseFreeText,
+  submitProfile,
+} from "@/lib/intake/submit-profile";
 import type { UserProfile } from "@/types/engine";
 
 const PRIMARY_GOAL_OPTIONS: { value: IntakeFormValues["primaryGoals"][number]; label: string }[] = [
@@ -67,18 +77,20 @@ const DEFAULT_VALUES: IntakeFormValues = {
   sex: "prefer_not_to_say",
   isPregnantOrBreastfeeding: undefined,
   bodyWeightKg: 70,
-  heightCm: undefined,
+  heightCm: 170,
   dietaryPattern: "omnivore",
   exerciseFrequencyPerWeek: 3,
   exerciseType: [],
+  exerciseIntensityTypical: "moderate",
   primaryGoals: [],
   monthlyBudgetINR: undefined,
   budgetIsHardConstraint: true,
   sleepHoursTypical: 7,
   existingSupplementUseText: "",
-  dietaryProteinAdequacy: "unsure",
-  estimatedDailyProteinG: undefined,
-  dietaryOilyFishServingsPerWeek: undefined,
+  estimatedDailyProteinG: 60,
+  proteinFoodDescription: "",
+  estimatedDailyProteinGConfidence: undefined,
+  dietaryOilyFishServingsPerWeek: 0,
   allergiesText: "",
   relevantHealthContext: "",
   medicationsHasAny: false,
@@ -95,7 +107,22 @@ type SubmitState =
 
 export function IntakeFlow() {
   const [step, setStep] = React.useState(0);
+  const [returnToReview, setReturnToReview] = React.useState(false);
   const [submitState, setSubmitState] = React.useState<SubmitState>({ status: "idle" });
+  // Gates the protein-amount question into an explicit binary choice — see
+  // step 5's JSX below. null means no choice made yet (neither the slider
+  // nor the description box is shown until the user picks one).
+  const [proteinKnowsAmount, setProteinKnowsAmount] = React.useState<"yes" | "not_sure" | null>(
+    null
+  );
+  // Once a "not sure" estimate has succeeded, the slider stays revealed
+  // (for fine-tuning) even after the user drags it — separate from
+  // estimatedDailyProteinGConfidence, which intentionally clears on manual
+  // adjustment and would otherwise hide the slider again.
+  const [proteinEstimateRevealed, setProteinEstimateRevealed] = React.useState(false);
+  const [proteinEstimateState, setProteinEstimateState] = React.useState<
+    "idle" | "loading" | { error: string }
+  >("idle");
 
   const form = useForm<IntakeFormValues>({
     resolver: zodResolver(intakeFormSchema),
@@ -104,8 +131,8 @@ export function IntakeFlow() {
   });
 
   const sex = form.watch("sex");
-  const dietaryProteinAdequacy = form.watch("dietaryProteinAdequacy");
   const medicationsHasAny = form.watch("medicationsHasAny");
+  const proteinFoodDescription = form.watch("proteinFoodDescription");
 
   const isReviewStep = step === TOTAL_STEPS - 1;
 
@@ -115,12 +142,45 @@ export function IntakeFlow() {
       const valid = await form.trigger(fields);
       if (!valid) return;
     }
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+    if (returnToReview) {
+      setReturnToReview(false);
+      setStep(TOTAL_STEPS - 1);
+    } else {
+      setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+    }
   }
 
   function goBack() {
     setSubmitState({ status: "idle" });
+    setReturnToReview(false);
     setStep((s) => Math.max(s - 1, 0));
+  }
+
+  function editSection(sectionStep: number) {
+    setReturnToReview(true);
+    setStep(sectionStep);
+  }
+
+  async function estimateProtein() {
+    const { dietaryPattern, bodyWeightKg, heightCm, proteinFoodDescription } = form.getValues();
+    if (!proteinFoodDescription.trim()) return;
+    setProteinEstimateState("loading");
+    try {
+      const { estimatedDailyProteinG, confidence } = await estimateProteinFromDescription({
+        dietaryPattern,
+        bodyWeightKg,
+        heightCm,
+        foodDescription: proteinFoodDescription,
+      });
+      form.setValue("estimatedDailyProteinG", estimatedDailyProteinG);
+      form.setValue("estimatedDailyProteinGConfidence", confidence);
+      setProteinEstimateRevealed(true);
+      setProteinEstimateState("idle");
+    } catch (error) {
+      setProteinEstimateState({
+        error: error instanceof Error ? error.message : "Something went wrong.",
+      });
+    }
   }
 
   async function runParseAndReview() {
@@ -133,7 +193,10 @@ export function IntakeFlow() {
         medicationsHasAny: values.medicationsHasAny,
         medicationsFreeText: values.medicationsFreeText,
       });
-      const needsConfirmation = fieldsNeedingConfirmation(parsed);
+      const needsConfirmation = fieldsNeedingConfirmation(
+        parsed,
+        values.estimatedDailyProteinGConfidence
+      );
       const profile = assembleUserProfile(values, parsed, []);
       if (needsConfirmation.length > 0) {
         setSubmitState({ status: "needs-confirmation", profile, fields: needsConfirmation });
@@ -175,40 +238,39 @@ export function IntakeFlow() {
 
   if (submitState.status === "done") {
     return (
-      <Card className="mx-auto w-full max-w-xl">
-        <CardHeader>
-          <CardTitle>You&apos;re all set</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Your profile was recorded (version <code>{submitState.profileVersionId}</code>).
-          </p>
-          <Button asChild>
-            <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
-              See your recommendations
-            </Link>
-          </Button>
-          <pre className="max-h-96 overflow-auto rounded-md bg-muted p-3 text-xs">
-            {JSON.stringify(submitState.profile, null, 2)}
-          </pre>
-        </CardContent>
-      </Card>
+      <div className="flex flex-1 items-center justify-center p-6">
+        <Card className="mx-auto w-full max-w-xl">
+          <CardHeader>
+            <CardTitle className="font-display">You&apos;re all set</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your profile was recorded. Your personalized recommendations are ready.
+            </p>
+            <Button asChild className="font-display text-xs tracking-wide">
+              <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
+                SEE YOUR RECOMMENDATIONS →
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="mx-auto w-full max-w-xl">
-      <CardHeader className="space-y-3">
-        <CardTitle>Supplement intake</CardTitle>
-        <Progress value={((step + 1) / TOTAL_STEPS) * 100} />
-      </CardHeader>
-      <Form {...form}>
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="contents"
-        >
-          <CardContent className="space-y-6">
-            {step === 0 && (
+    <div className="flex flex-1 flex-col">
+      <IntakeProgress step={step} />
+      <div className="grid flex-1 md:grid-cols-[220px_1fr]">
+        <IntakeStepSidebar step={step} />
+        <Form {...form}>
+          <form onSubmit={(e) => e.preventDefault()} className="flex flex-col">
+            <div className="flex-1 space-y-6 px-6 py-10 sm:px-10">
+              <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
+                {isReviewStep ? "REVIEW" : `INPUT ${step} OF ${TOTAL_STEPS - 2}`}
+              </p>
+
+              {step === 0 && (
               <p className="text-sm leading-relaxed">
                 A few quick questions about your goals, diet and lifestyle. We&apos;ll only
                 recommend something if there&apos;s a real, evidence-backed reason for it — and
@@ -218,29 +280,26 @@ export function IntakeFlow() {
             )}
 
             {step === 1 && (
-              <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>What is your age?</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={18}
-                        max={100}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 2 && (
               <>
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>What is your age?</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={18}
+                          max={100}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="sex"
@@ -297,11 +356,6 @@ export function IntakeFlow() {
                     )}
                   />
                 )}
-              </>
-            )}
-
-            {step === 3 && (
-              <>
                 <FormField
                   control={form.control}
                   name="bodyWeightKg"
@@ -327,16 +381,14 @@ export function IntakeFlow() {
                   name="heightCm"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>And your height in centimetres? (optional)</FormLabel>
+                      <FormLabel>And your height in centimetres?</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min={100}
                           max={250}
                           value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
-                          }
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -346,155 +398,163 @@ export function IntakeFlow() {
               </>
             )}
 
-            {step === 4 && (
-              <FormField
-                control={form.control}
-                name="dietaryPattern"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Which best describes your diet?</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {[
-                          "omnivore",
-                          "vegetarian",
-                          "eggetarian",
-                          "vegan",
-                          "pescatarian",
-                          "other",
-                        ].map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 5 && (
-              <FormField
-                control={form.control}
-                name="exerciseFrequencyPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>How many days a week do you exercise?</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        max={14}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 6 && (
-              <FormField
-                control={form.control}
-                name="exerciseType"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>What kind of exercise, mostly?</FormLabel>
-                    <div className="space-y-2">
-                      {EXERCISE_TYPE_OPTIONS.map((opt) => (
-                        <FormField
-                          key={opt.value}
-                          control={form.control}
-                          name="exerciseType"
-                          render={({ field }) => {
-                            const values = field.value ?? [];
-                            const checked = values.includes(opt.value);
-                            return (
-                              <div className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`exercise-${opt.value}`}
-                                  checked={checked}
-                                  onCheckedChange={(c) => {
-                                    field.onChange(
-                                      c
-                                        ? [...values, opt.value]
-                                        : values.filter((v) => v !== opt.value)
-                                    );
-                                  }}
-                                />
-                                <Label htmlFor={`exercise-${opt.value}`}>{opt.label}</Label>
-                              </div>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 7 && (
-              <FormField
-                control={form.control}
-                name="primaryGoals"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>What are you mainly trying to achieve right now?</FormLabel>
-                    <FormDescription>Pick up to 3. The first you pick counts most.</FormDescription>
-                    <div className="space-y-2">
-                      {PRIMARY_GOAL_OPTIONS.map((opt) => (
-                        <FormField
-                          key={opt.value}
-                          control={form.control}
-                          name="primaryGoals"
-                          render={({ field }) => {
-                            const values = field.value ?? [];
-                            const checked = values.includes(opt.value);
-                            const disableUnchecked = !checked && values.length >= 3;
-                            return (
-                              <div className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`goal-${opt.value}`}
-                                  checked={checked}
-                                  disabled={disableUnchecked}
-                                  onCheckedChange={(c) => {
-                                    field.onChange(
-                                      c
-                                        ? [...values, opt.value]
-                                        : values.filter((v) => v !== opt.value)
-                                    );
-                                  }}
-                                />
-                                <Label htmlFor={`goal-${opt.value}`}>{opt.label}</Label>
-                              </div>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 8 && (
+            {step === 2 && (
               <>
+                <FormField
+                  control={form.control}
+                  name="dietaryPattern"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Which best describes your diet?</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["omnivore", "vegetarian", "eggetarian", "vegan", "pescatarian", "other"].map(
+                            (opt) => (
+                              <SelectItem key={opt} value={opt}>
+                                {opt}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="exerciseFrequencyPerWeek"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>How many days a week do you exercise?</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={14}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="exerciseType"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>What kind of exercise, mostly? (optional)</FormLabel>
+                      <div className="space-y-2">
+                        {EXERCISE_TYPE_OPTIONS.map((opt) => (
+                          <FormField
+                            key={opt.value}
+                            control={form.control}
+                            name="exerciseType"
+                            render={({ field }) => {
+                              const values = field.value ?? [];
+                              const checked = values.includes(opt.value);
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Checkbox
+                                    id={`exercise-${opt.value}`}
+                                    checked={checked}
+                                    onCheckedChange={(c) => {
+                                      field.onChange(
+                                        c ? [...values, opt.value] : values.filter((v) => v !== opt.value)
+                                      );
+                                    }}
+                                  />
+                                  <Label htmlFor={`exercise-${opt.value}`}>{opt.label}</Label>
+                                </div>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="exerciseIntensityTypical"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>On a typical session, how intense is your exercise?</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value}>
+                          {[
+                            { value: "light", label: "Light — e.g. walking, easy yoga" },
+                            { value: "moderate", label: "Moderate — 15-30 min of elevated heart rate" },
+                            { value: "vigorous", label: "Vigorous — 45+ min of elevated heart rate, or high-intensity training" },
+                          ].map((opt) => (
+                            <div key={opt.value} className="flex items-center gap-2">
+                              <RadioGroupItem value={opt.value} id={`intensity-${opt.value}`} />
+                              <Label htmlFor={`intensity-${opt.value}`}>{opt.label}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="primaryGoals"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>What are you mainly trying to achieve right now?</FormLabel>
+                      <FormDescription>Pick up to 3. The first you pick counts most.</FormDescription>
+                      <div className="space-y-2">
+                        {PRIMARY_GOAL_OPTIONS.map((opt) => (
+                          <FormField
+                            key={opt.value}
+                            control={form.control}
+                            name="primaryGoals"
+                            render={({ field }) => {
+                              const values = field.value ?? [];
+                              const checked = values.includes(opt.value);
+                              const disableUnchecked = !checked && values.length >= 3;
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Checkbox
+                                    id={`goal-${opt.value}`}
+                                    checked={checked}
+                                    disabled={disableUnchecked}
+                                    onCheckedChange={(c) => {
+                                      field.onChange(
+                                        c ? [...values, opt.value] : values.filter((v) => v !== opt.value)
+                                      );
+                                    }}
+                                  />
+                                  <Label htmlFor={`goal-${opt.value}`}>{opt.label}</Label>
+                                </div>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <p className="text-sm text-muted-foreground">
-                  This is used only to fit recommendations to a budget after they&apos;re
-                  decided — it never affects whether something is recommended in the first
-                  place.
+                  Budget is used only to fit recommendations to what you can spend, after
+                  they&apos;re decided — it never affects whether something is recommended in
+                  the first place.
                 </p>
                 <FormField
                   control={form.control}
@@ -503,9 +563,9 @@ export function IntakeFlow() {
                     <FormItem>
                       <FormLabel>
                         Roughly what would you be comfortable spending on supplements per
-                        month, in rupees?
+                        month, in rupees? (optional)
                       </FormLabel>
-                      <FormDescription>Optional — leave blank for no limit.</FormDescription>
+                      <FormDescription>Leave blank for no limit.</FormDescription>
                       <FormControl>
                         <Input
                           type="number"
@@ -537,9 +597,7 @@ export function IntakeFlow() {
                           </div>
                           <div className="flex items-center gap-2">
                             <RadioGroupItem value="no" id="budget-hard-no" />
-                            <Label htmlFor="budget-hard-no">
-                              Show slightly over-budget options too
-                            </Label>
+                            <Label htmlFor="budget-hard-no">Show slightly over-budget options too</Label>
                           </div>
                         </RadioGroup>
                       </FormControl>
@@ -550,171 +608,197 @@ export function IntakeFlow() {
               </>
             )}
 
-            {step === 9 && (
-              <FormField
-                control={form.control}
-                name="sleepHoursTypical"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>On a typical night, how many hours do you sleep?</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={14}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 10 && (
-              <FormField
-                control={form.control}
-                name="existingSupplementUseText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Are you currently taking any supplements? If so, which ones?</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="e.g. whey protein, a multivitamin" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 11 && (
+            {step === 4 && (
               <>
                 <FormField
                   control={form.control}
-                  name="dietaryProteinAdequacy"
+                  name="sleepHoursTypical"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Do you feel you consistently get enough protein from food?
-                      </FormLabel>
-                      <FormDescription>
-                        Roughly 1.2–2.0 g per kg body weight per day depending on your goal.
-                      </FormDescription>
+                      <FormLabel>On a typical night, how many hours do you sleep?</FormLabel>
                       <FormControl>
-                        <RadioGroup onValueChange={field.onChange} value={field.value}>
-                          {[
-                            { value: "likely_adequate", label: "Yes, likely" },
-                            { value: "likely_inadequate", label: "No, probably not" },
-                            { value: "unsure", label: "Not sure" },
-                          ].map((opt) => (
-                            <div key={opt.value} className="flex items-center gap-2">
-                              <RadioGroupItem value={opt.value} id={`protein-${opt.value}`} />
-                              <Label htmlFor={`protein-${opt.value}`}>{opt.label}</Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min={0}
+                          max={14}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {dietaryProteinAdequacy !== "likely_adequate" && (
-                  <FormField
-                    control={form.control}
-                    name="estimatedDailyProteinG"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          If you have a rough idea, about how many grams of protein a day do
-                          you get from food? (optional)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={400}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === "" ? undefined : e.target.valueAsNumber
-                              )
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                <FormField
+                  control={form.control}
+                  name="existingSupplementUseText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Are you currently taking any supplements? If so, which ones? (optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="e.g. whey protein, a multivitamin" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
 
-            {step === 12 && (
-              <FormField
-                control={form.control}
-                name="dietaryOilyFishServingsPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      How many servings of oily fish (salmon, mackerel, sardines, etc.) do
-                      you eat per week?
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        max={21}
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 13 && (
-              <FormField
-                control={form.control}
-                name="allergiesText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Do you have any food allergies or intolerances?</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="e.g. lactose, soy, shellfish, gluten" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 14 && (
-              <FormField
-                control={form.control}
-                name="relevantHealthContext"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Anything else relevant about your health or lifestyle you&apos;d like
-                      us to know? (optional)
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {step === 15 && (
+            {step === 5 && (
               <>
+                <FormField
+                  control={form.control}
+                  name="estimatedDailyProteinG"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About how many grams of protein a day do you get from food?</FormLabel>
+                      <FormDescription>
+                        A rough estimate is fine — this is what turns &ldquo;you may need
+                        protein&rdquo; into a real, personalized amount. Most people need roughly
+                        1.2–2.0g per kg body weight per day, depending on their goal.
+                      </FormDescription>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <RadioGroup
+                            value={proteinKnowsAmount ?? undefined}
+                            onValueChange={(v) => setProteinKnowsAmount(v as "yes" | "not_sure")}
+                          >
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem value="yes" id="protein-amount-known" />
+                              <Label htmlFor="protein-amount-known">Yes, I know roughly</Label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem value="not_sure" id="protein-amount-unsure" />
+                              <Label htmlFor="protein-amount-unsure">
+                                Not sure — help me estimate
+                              </Label>
+                            </div>
+                          </RadioGroup>
+
+                          {proteinKnowsAmount === "not_sure" && (
+                            <div className="space-y-2 rounded-md border border-dashed p-3">
+                              <Label htmlFor="protein-food-description" className="text-xs">
+                                What are the most common foods you eat in a day?
+                              </Label>
+                              <Textarea
+                                id="protein-food-description"
+                                placeholder="e.g. 2 eggs, 1 bowl dal, 3 rotis, chicken curry, 1 glass milk"
+                                maxLength={500}
+                                {...form.register("proteinFoodDescription")}
+                              />
+                              <p className="text-right text-xs text-muted-foreground">
+                                {proteinFoodDescription.length}/500
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={proteinEstimateState === "loading"}
+                                  onClick={estimateProtein}
+                                >
+                                  {proteinEstimateState === "loading" ? "Estimating…" : "Estimate for me"}
+                                </Button>
+                                {typeof proteinEstimateState === "object" && (
+                                  <span className="text-xs text-destructive">{proteinEstimateState.error}</span>
+                                )}
+                              </div>
+                              {!proteinEstimateRevealed && (
+                                <p className="text-xs text-muted-foreground">
+                                  We&apos;ll set the amount below from this — you can still adjust it
+                                  afterward.
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {(proteinKnowsAmount === "yes" ||
+                            (proteinKnowsAmount === "not_sure" && proteinEstimateRevealed)) && (
+                            <div className="flex items-center gap-3">
+                              <Slider
+                                min={0}
+                                max={250}
+                                step={5}
+                                value={[field.value]}
+                                onValueChange={([v]) => {
+                                  field.onChange(v);
+                                  // Moving the slider by hand after an AI estimate means the
+                                  // final number is the user's own call again, not the estimate.
+                                  form.setValue("estimatedDailyProteinGConfidence", undefined);
+                                }}
+                                className="flex-1"
+                              />
+                              <span className="w-16 shrink-0 text-right text-sm font-medium">
+                                {field.value}g
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dietaryOilyFishServingsPerWeek"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        How many servings of oily fish (salmon, mackerel, sardines, etc.) do
+                        you eat per week?
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={21}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {step === 6 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="allergiesText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Do you have any food allergies or intolerances? (optional)</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="e.g. lactose, soy, shellfish, gluten" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="relevantHealthContext"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Anything else relevant about your health or lifestyle you&apos;d like
+                        us to know? (optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="medicationsHasAny"
@@ -766,53 +850,201 @@ export function IntakeFlow() {
             )}
 
             {isReviewStep && (
-              <ReviewStep submitState={submitState} onConfirm={confirmAndSubmit} />
+              <ReviewStep
+                values={form.getValues()}
+                submitState={submitState}
+                onConfirm={confirmAndSubmit}
+                onSubmit={runParseAndReview}
+                onEditSection={editSection}
+              />
             )}
-          </CardContent>
+            </div>
 
-          <CardFooter className="flex justify-between">
-            <Button type="button" variant="outline" onClick={goBack} disabled={step === 0}>
-              Back
-            </Button>
-            {isReviewStep ? (
-              submitState.status === "idle" || submitState.status === "error" ? (
-                <Button type="button" onClick={runParseAndReview}>
-                  Review my answers
-                </Button>
-              ) : null
-            ) : (
-              <Button type="button" onClick={goNext}>
-                Next
+            <div className="flex justify-between border-t border-border px-6 py-5 sm:px-10">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={goBack}
+                disabled={step === 0}
+                className="font-display text-xs tracking-wide"
+              >
+                ← BACK
               </Button>
-            )}
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+              {isReviewStep ? null : (
+                <Button type="button" onClick={goNext} className="font-display text-xs tracking-wide">
+                  {returnToReview ? "SAVE & BACK TO REVIEW →" : "NEXT →"}
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }
 
+// Segmented progress row -- one tick per step, filled up to the current one.
+function IntakeProgress({ step }: { step: number }) {
+  return (
+    <div className="flex gap-[3px] border-b border-border px-6 py-3 sm:px-10">
+      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-[3px] flex-1 rounded-sm ${
+            i < step ? "bg-brand" : i === step ? "bg-brand/40" : "bg-border"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+const SIDEBAR_LABELS: Record<number, string> = {
+  0: "Start",
+  ...STEP_TITLES,
+  [TOTAL_STEPS - 1]: "Review",
+};
+
+function IntakeStepSidebar({ step }: { step: number }) {
+  return (
+    <aside className="hidden border-r border-border bg-[#0F0F0F] px-6 py-8 text-[#F2F2F0] md:block">
+      <p className="mb-6 font-display text-[9px] tracking-[0.2em] text-[#2A3A4A]">
+        ANALYSIS STEPS
+      </p>
+      <ol className="space-y-0">
+        {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
+          const state = i === step ? "current" : i < step ? "done" : "upcoming";
+          return (
+            <li
+              key={i}
+              className="flex items-center gap-3 border-b border-[#141414] py-3 last:border-b-0"
+            >
+              <span
+                className={`font-display text-[10px] tracking-wide ${
+                  state === "current" ? "text-brand" : state === "done" ? "text-[#3A4A5A]" : "text-[#2A3A4A]"
+                }`}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span
+                className={`font-display text-xs ${
+                  state === "current" ? "text-[#F2F2F0]" : "text-[#2A3A4A]"
+                }`}
+              >
+                {SIDEBAR_LABELS[i]}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </aside>
+  );
+}
+
+function goalLabel(value: string): string {
+  return PRIMARY_GOAL_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+function exerciseLabel(value: string): string {
+  return EXERCISE_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+interface SummarySection {
+  title: string;
+  stepIndex: number;
+  rows: { label: string; value: string }[];
+}
+
+function buildSummary(values: IntakeFormValues): SummarySection[] {
+  return [
+    {
+      title: STEP_TITLES[1],
+      stepIndex: 1,
+      rows: [
+        { label: "Age", value: String(values.age) },
+        { label: "Sex", value: values.sex.replace(/_/g, " ") },
+        ...(values.sex === "female"
+          ? [{ label: "Pregnant/breastfeeding", value: values.isPregnantOrBreastfeeding ? "Yes" : "No" }]
+          : []),
+        { label: "Weight", value: `${values.bodyWeightKg} kg` },
+        { label: "Height", value: `${values.heightCm} cm` },
+      ],
+    },
+    {
+      title: STEP_TITLES[2],
+      stepIndex: 2,
+      rows: [
+        { label: "Diet", value: values.dietaryPattern },
+        { label: "Exercise frequency", value: `${values.exerciseFrequencyPerWeek} day(s)/week` },
+        {
+          label: "Exercise type",
+          value: values.exerciseType && values.exerciseType.length > 0
+            ? values.exerciseType.map(exerciseLabel).join(", ")
+            : "Not specified",
+        },
+        { label: "Typical intensity", value: values.exerciseIntensityTypical },
+      ],
+    },
+    {
+      title: STEP_TITLES[3],
+      stepIndex: 3,
+      rows: [
+        { label: "Goals", value: values.primaryGoals.map(goalLabel).join(", ") || "None selected" },
+        {
+          label: "Monthly budget",
+          value: values.monthlyBudgetINR != null ? `₹${values.monthlyBudgetINR}` : "No limit set",
+        },
+        { label: "Stay within budget", value: values.budgetIsHardConstraint ? "Yes" : "No, show near-budget options too" },
+      ],
+    },
+    {
+      title: STEP_TITLES[4],
+      stepIndex: 4,
+      rows: [
+        { label: "Sleep", value: `${values.sleepHoursTypical} hours/night` },
+        { label: "Current supplements", value: values.existingSupplementUseText.trim() || "None mentioned" },
+      ],
+    },
+    {
+      title: STEP_TITLES[5],
+      stepIndex: 5,
+      rows: [
+        { label: "Estimated daily protein", value: `${values.estimatedDailyProteinG}g` },
+        { label: "Oily fish servings/week", value: String(values.dietaryOilyFishServingsPerWeek) },
+      ],
+    },
+    {
+      title: STEP_TITLES[6],
+      stepIndex: 6,
+      rows: [
+        { label: "Allergies", value: values.allergiesText.trim() || "None mentioned" },
+        { label: "Other health context", value: values.relevantHealthContext?.trim() || "None" },
+        {
+          label: "Medications/conditions",
+          value: values.medicationsHasAny ? values.medicationsFreeText.trim() || "Yes (not specified)" : "No",
+        },
+      ],
+    },
+  ];
+}
+
 function ReviewStep({
+  values,
   submitState,
   onConfirm,
+  onSubmit,
+  onEditSection,
 }: {
+  values: IntakeFormValues;
   submitState: SubmitState;
   onConfirm: () => void;
+  onSubmit: () => void;
+  onEditSection: (stepIndex: number) => void;
 }) {
-  if (submitState.status === "idle") {
-    return (
-      <p className="text-sm text-muted-foreground">
-        That&apos;s everything. We&apos;ll quickly normalize your free-text answers, then you
-        can review them before submitting.
-      </p>
-    );
-  }
   if (submitState.status === "parsing" || submitState.status === "submitting") {
     return <p className="text-sm text-muted-foreground">Working on it…</p>;
   }
-  if (submitState.status === "error") {
-    return <p className="text-sm text-destructive">{submitState.message}</p>;
-  }
+
   if (submitState.status === "needs-confirmation") {
     const { profile, fields } = submitState;
     return (
@@ -824,9 +1056,7 @@ function ReviewStep({
         {fields.includes("existingSupplementUse") && (
           <p className="text-sm">
             <strong>Current supplements we understood:</strong>{" "}
-            {profile.existingSupplementUse.length > 0
-              ? profile.existingSupplementUse.join(", ")
-              : "(none)"}
+            {profile.existingSupplementUse.length > 0 ? profile.existingSupplementUse.join(", ") : "(none)"}
           </p>
         )}
         {fields.includes("allergies") && (
@@ -837,8 +1067,13 @@ function ReviewStep({
         )}
         {fields.includes("medicationsOrConditionsFlag.freeText") && (
           <p className="text-sm">
-            <strong>Medications/conditions:</strong>{" "}
-            {profile.medicationsOrConditionsFlag.freeText || "(none)"}
+            <strong>Medications/conditions:</strong> {profile.medicationsOrConditionsFlag.freeText || "(none)"}
+          </p>
+        )}
+        {fields.includes("estimatedDailyProteinG") && (
+          <p className="text-sm">
+            <strong>Estimated daily protein (from what you described):</strong>{" "}
+            {profile.estimatedDailyProteinG}g
           </p>
         )}
         <p className="text-sm text-muted-foreground">
@@ -850,5 +1085,42 @@ function ReviewStep({
       </div>
     );
   }
-  return null;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Here&apos;s everything you told us. Edit any section, or submit if it looks right —
+        we&apos;ll quickly normalize your free-text answers first.
+      </p>
+      {buildSummary(values).map((section) => (
+        <div key={section.title} className="rounded-md border p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-medium">{section.title}</p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onEditSection(section.stepIndex)}
+            >
+              Edit
+            </Button>
+          </div>
+          <dl className="space-y-1 text-sm">
+            {section.rows.map((row) => (
+              <div key={row.label} className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">{row.label}</dt>
+                <dd className="text-right">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))}
+      {submitState.status === "error" && (
+        <p className="text-sm text-destructive">{submitState.message}</p>
+      )}
+      <Button type="button" onClick={onSubmit}>
+        Looks good, get my recommendations
+      </Button>
+    </div>
+  );
 }

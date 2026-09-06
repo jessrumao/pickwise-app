@@ -4,6 +4,7 @@ import { EvidenceAccordion } from "@/components/results/evidence-accordion";
 import { getProductDisplay, productsForIngredient } from "@/lib/results/product-lookup";
 import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
 import { findMatchingEscalation } from "@/lib/results/trace-match";
+import { RoutineSection } from "@/components/results/routine-section";
 import { knowledgeBase } from "@/lib/engine";
 import type { Recommendation, SafetyEscalation } from "@/types/engine";
 
@@ -35,8 +36,11 @@ export function RecommendationCard({
     <Card>
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle>{itemName(rec)}</CardTitle>
-          <Badge variant="outline" className={TONE_BADGE_CLASSES[display.tone]}>
+          <CardTitle className="font-display">{itemName(rec)}</CardTitle>
+          <Badge
+            variant="outline"
+            className={`font-display text-[10px] tracking-wide ${TONE_BADGE_CLASSES[display.tone]}`}
+          >
             {display.label}
           </Badge>
         </div>
@@ -100,6 +104,14 @@ export function RecommendationCard({
               </p>
             )}
           </div>
+        )}
+
+        {rec.dosing?.timing && rec.status !== "escalate" && (
+          <RoutineSection
+            compoundName={itemName(rec)}
+            timing={rec.dosing.timing}
+            servingPlan={rec.servingPlan}
+          />
         )}
 
         {policy && policy.citesClaims.length > 0 && rec.status !== "escalate" && (

@@ -1,0 +1,379 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  .os{background:#F2F2F0;font-family:'Inter',sans-serif;color:#0A0A0A;border-radius:12px;overflow:hidden;}
+
+  /* SCREEN TABS */
+  .tabs{display:flex;background:#E8EDF2;border-bottom:1px solid #D4DBE4;}
+  .tab{padding:10px 20px;font-size:11px;font-weight:500;color:#8A9AAD;cursor:pointer;letter-spacing:0.5px;border-right:1px solid #D4DBE4;font-family:'Syne',sans-serif;}
+  .tab.on{background:#F2F2F0;color:#0A0A0A;}
+
+  /* SCREEN 1 — LANDING */
+  .s1{display:block;}
+  .s2,.s3{display:none;}
+
+  /* NAV */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px;background:#F2F2F0;border-bottom:1px solid #E0E4E8;}
+  .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:2px;color:#0A0A0A;}
+  .logo span{color:#4D9FFF;}
+  .nav-r{display:flex;gap:24px;align-items:center;}
+  .nav-link{font-size:12px;color:#8A9AAD;text-decoration:none;font-family:'Syne',sans-serif;letter-spacing:0.5px;}
+  .nav-btn{background:#0A0A0A;color:#F2F2F0;border:none;padding:9px 20px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:1px;cursor:pointer;border-radius:2px;}
+
+  /* HERO */
+  .hero{display:grid;grid-template-columns:3fr 2fr;border-bottom:1px solid #E0E4E8;}
+  .hero-l{padding:72px 40px 56px;border-right:1px solid #E0E4E8;}
+  .hero-r{background:#0A0A0A;padding:40px 32px;display:flex;flex-direction:column;justify-content:space-between;}
+
+  .sys-id{font-family:'Syne',sans-serif;font-size:9px;font-weight:500;color:#8A9AAD;letter-spacing:2px;margin-bottom:32px;display:flex;align-items:center;gap:8px;}
+  .sys-id::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#4D9FFF;}
+
+  .hero-h{font-family:'Syne',sans-serif;font-weight:800;font-size:58px;line-height:0.95;letter-spacing:-1px;color:#0A0A0A;margin-bottom:28px;}
+  .hero-h em{font-style:normal;color:#4D9FFF;}
+
+  .hero-body{font-size:14px;color:#6B7A8D;line-height:1.8;max-width:380px;margin-bottom:36px;font-weight:300;}
+
+  .hero-actions{display:flex;gap:10px;align-items:center;}
+  .btn-p{background:#0A0A0A;color:#F2F2F0;border:none;padding:13px 28px;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:1px;cursor:pointer;border-radius:2px;}
+  .btn-g{background:transparent;color:#8A9AAD;border:1px solid #D4DBE4;padding:13px 24px;font-size:12px;font-family:'Syne',sans-serif;letter-spacing:0.5px;cursor:pointer;border-radius:2px;}
+
+  .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1A1A1A;border:1px solid #1A1A1A;margin-bottom:28px;}
+  .data-cell{background:#0F0F0F;padding:18px 16px;}
+  .data-n{font-family:'Syne',sans-serif;font-weight:700;font-size:30px;color:#F2F2F0;letter-spacing:-0.5px;}
+  .data-l{font-size:9px;color:#3A4A5A;letter-spacing:1.5px;margin-top:4px;font-family:'Syne',sans-serif;}
+  .data-accent{color:#4D9FFF;}
+
+  .terminal{font-family:'Inter',monospace;font-size:10px;color:#2A3A4A;line-height:2;}
+  .terminal .t-blue{color:#4D9FFF;}
+  .terminal .t-dim{color:#1E2A32;}
+
+  /* TRUST ROW */
+  .trust-bar{display:flex;gap:0;border-top:1px solid #E0E4E8;}
+  .trust-item{flex:1;padding:14px 20px;border-right:1px solid #E0E4E8;font-size:11px;color:#8A9AAD;display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;letter-spacing:0.3px;}
+  .trust-item:last-child{border-right:none;}
+  .trust-dot{width:5px;height:5px;border-radius:50%;background:#4D9FFF;flex-shrink:0;}
+
+  /* SECTION */
+  .section{padding:56px 40px;border-top:1px solid #E0E4E8;}
+  .sec-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;}
+  .sec-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;color:#4D9FFF;letter-spacing:2px;margin-bottom:10px;}
+  .sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:28px;color:#0A0A0A;letter-spacing:-0.5px;line-height:1.1;}
+  .sec-meta{font-size:11px;color:#8A9AAD;font-family:'Syne',sans-serif;letter-spacing:0.5px;}
+
+  /* PRODUCT CARDS */
+  .prod-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E0E4E8;border:1px solid #E0E4E8;}
+  .pc{background:#F2F2F0;padding:24px 20px;}
+  .pc.feat{background:#0A0A0A;}
+  .pc-rank{font-family:'Syne',sans-serif;font-size:9px;color:#B0BAC4;letter-spacing:2px;margin-bottom:16px;}
+  .pc.feat .pc-rank{color:#2A3A4A;}
+  .pc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#0A0A0A;margin-bottom:4px;line-height:1.2;}
+  .pc.feat .pc-name{color:#F2F2F0;}
+  .pc-brand{font-size:10px;color:#B0BAC4;letter-spacing:1px;margin-bottom:18px;font-family:'Syne',sans-serif;}
+  .pc-price{font-family:'Syne',sans-serif;font-weight:700;font-size:28px;color:#0A0A0A;margin-bottom:16px;letter-spacing:-0.5px;}
+  .pc.feat .pc-price{color:#F2F2F0;}
+  .score-track{height:2px;background:#E0E4E8;margin-bottom:6px;}
+  .pc.feat .score-track{background:#1A2A3A;}
+  .score-fill{height:2px;background:#4D9FFF;}
+  .score-row{display:flex;justify-content:space-between;margin-bottom:16px;}
+  .score-label{font-size:9px;color:#B0BAC4;letter-spacing:1px;font-family:'Syne',sans-serif;}
+  .score-val{font-size:9px;color:#4D9FFF;letter-spacing:1px;font-family:'Syne',sans-serif;font-weight:600;}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{font-size:9px;border:1px solid #E0E4E8;color:#8A9AAD;padding:3px 8px;border-radius:2px;font-family:'Syne',sans-serif;letter-spacing:0.5px;}
+  .pc.feat .chip{border-color:#1E2E3E;color:#3A5A7A;}
+  .chip-blue{border-color:#4D9FFF;color:#4D9FFF;}
+  .pc.feat .chip-blue{border-color:#4D9FFF;color:#4D9FFF;}
+
+  /* BUDGET SPLIT */
+  .budget{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #E0E4E8;}
+  .bud-l{padding:48px 40px;border-right:1px solid #E0E4E8;background:#F2F2F0;}
+  .bud-r{padding:48px 40px;background:#fff;}
+  .bud-title{font-family:'Syne',sans-serif;font-weight:700;font-size:24px;color:#0A0A0A;margin-bottom:12px;letter-spacing:-0.3px;line-height:1.2;}
+  .bud-body{font-size:13px;color:#6B7A8D;line-height:1.8;margin-bottom:24px;font-weight:300;}
+  .tier-g{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .tier{border:1px solid #E0E4E8;padding:12px 14px;background:#fff;border-radius:2px;}
+  .tier.on{border-color:#4D9FFF;background:#F0F6FF;}
+  .tier-amt{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#0A0A0A;}
+  .tier.on .tier-amt{color:#4D9FFF;}
+  .tier-lbl{font-size:9px;color:#B0BAC4;letter-spacing:1px;margin-top:3px;font-family:'Syne',sans-serif;}
+  .tier.on .tier-lbl{color:#4D9FFF;}
+
+  .stack-label{font-family:'Syne',sans-serif;font-size:9px;color:#4D9FFF;letter-spacing:2px;margin-bottom:20px;}
+  .stack-item{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 0;border-bottom:1px solid #F0F0EE;}
+  .stack-item:last-of-type{border-bottom:none;}
+  .si-name{font-size:13px;font-weight:500;color:#0A0A0A;}
+  .si-sub{font-size:10px;color:#B0BAC4;margin-top:2px;letter-spacing:0.3px;}
+  .si-price{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#0A0A0A;}
+  .stack-total{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid #4D9FFF;}
+  .st-label{font-size:9px;color:#8A9AAD;letter-spacing:1.5px;font-family:'Syne',sans-serif;}
+  .st-val{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#4D9FFF;}
+
+  /* SCREEN 2 — ONBOARDING */
+  .onboard{padding:0;}
+  .ob-header{background:#0A0A0A;padding:24px 40px;border-bottom:1px solid #1A2A3A;display:flex;align-items:center;justify-content:space-between;}
+  .ob-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;letter-spacing:2px;color:#F2F2F0;}
+  .ob-logo span{color:#4D9FFF;}
+  .ob-step-track{display:flex;gap:4px;align-items:center;}
+  .ob-step{width:32px;height:3px;background:#1A2A3A;border-radius:1px;}
+  .ob-step.done{background:#4D9FFF;}
+  .ob-step.active{background:#4D9FFF;opacity:0.5;}
+  .ob-body{display:grid;grid-template-columns:1fr 2fr;min-height:480px;}
+  .ob-sidebar{background:#0F0F0F;padding:40px 28px;border-right:1px solid #1A2A3A;}
+  .ob-sidebar-label{font-family:'Syne',sans-serif;font-size:9px;color:#2A3A4A;letter-spacing:2px;margin-bottom:24px;}
+  .ob-steps-list{display:flex;flex-direction:column;gap:0;}
+  .ob-step-item{padding:14px 0;border-bottom:1px solid #141414;display:flex;align-items:center;gap:12px;}
+  .ob-step-num{font-family:'Syne',sans-serif;font-size:10px;color:#2A3A4A;letter-spacing:1px;width:20px;}
+  .ob-step-name{font-family:'Syne',sans-serif;font-size:12px;color:#2A3A4A;letter-spacing:0.3px;}
+  .ob-step-item.cur .ob-step-num{color:#4D9FFF;}
+  .ob-step-item.cur .ob-step-name{color:#F2F2F0;}
+  .ob-step-item.done-s .ob-step-num{color:#1A4A2A;}
+  .ob-step-item.done-s .ob-step-name{color:#2A5A3A;}
+  .ob-main{padding:48px 40px;background:#F2F2F0;}
+  .ob-q-label{font-family:'Syne',sans-serif;font-size:9px;color:#4D9FFF;letter-spacing:2px;margin-bottom:16px;}
+  .ob-q{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#0A0A0A;margin-bottom:8px;letter-spacing:-0.3px;line-height:1.2;}
+  .ob-q-sub{font-size:13px;color:#8A9AAD;margin-bottom:32px;font-weight:300;}
+  .ob-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:32px;}
+  .ob-opt{border:1px solid #E0E4E8;border-radius:4px;padding:16px 18px;cursor:pointer;background:#fff;}
+  .ob-opt.sel{border-color:#4D9FFF;background:#F0F6FF;}
+  .ob-opt-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#0A0A0A;margin-bottom:4px;}
+  .ob-opt.sel .ob-opt-title{color:#4D9FFF;}
+  .ob-opt-sub{font-size:11px;color:#B0BAC4;}
+  .ob-next{background:#0A0A0A;color:#F2F2F0;border:none;padding:13px 28px;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;letter-spacing:1px;cursor:pointer;border-radius:2px;}
+
+  /* SCREEN 3 — RESULTS */
+  .results-header{background:#0A0A0A;padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1A2A3A;}
+  .rh-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;letter-spacing:2px;color:#F2F2F0;}
+  .rh-logo span{color:#4D9FFF;}
+  .rh-profile{display:flex;align-items:center;gap:12px;}
+  .rh-avatar{width:32px;height:32px;border-radius:50%;border:1px solid #4D9FFF;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;color:#4D9FFF;font-weight:700;}
+  .rh-name{font-size:12px;color:#F2F2F0;font-family:'Syne',sans-serif;}
+  .rh-sub{font-size:10px;color:#2A3A4A;letter-spacing:0.5px;}
+  .results-body{display:grid;grid-template-columns:260px 1fr;min-height:440px;}
+  .res-sidebar{background:#0F0F0F;border-right:1px solid #1A2A3A;padding:28px 20px;}
+  .res-sb-label{font-family:'Syne',sans-serif;font-size:9px;color:#2A3A4A;letter-spacing:2px;margin-bottom:16px;}
+  .res-profile-block{background:#141414;border:1px solid #1A2A3A;border-radius:4px;padding:16px;margin-bottom:12px;}
+  .rpb-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1A1A1A;}
+  .rpb-row:last-child{border-bottom:none;}
+  .rpb-key{font-size:10px;color:#2A4A5A;font-family:'Syne',sans-serif;letter-spacing:0.5px;}
+  .rpb-val{font-size:10px;color:#F2F2F0;font-family:'Syne',sans-serif;font-weight:600;}
+  .rpb-val.blue{color:#4D9FFF;}
+  .res-budget-bar{margin-top:16px;}
+  .rbb-label{display:flex;justify-content:space-between;font-size:9px;color:#2A3A4A;font-family:'Syne',sans-serif;letter-spacing:1px;margin-bottom:8px;}
+  .rbb-track{height:4px;background:#1A2A3A;border-radius:2px;}
+  .rbb-fill{height:4px;background:#4D9FFF;border-radius:2px;width:96%;}
+  .res-main{padding:28px 32px;background:#F2F2F0;}
+  .res-main-label{font-family:'Syne',sans-serif;font-size:9px;color:#4D9FFF;letter-spacing:2px;margin-bottom:20px;}
+  .res-cards{display:flex;flex-direction:column;gap:8px;}
+  .res-card{background:#fff;border:1px solid #E0E4E8;border-radius:4px;padding:16px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;}
+  .res-card.top{border-color:#4D9FFF;background:#F0F6FF;}
+  .res-num{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#E0E4E8;}
+  .res-card.top .res-num{color:#4D9FFF;}
+  .res-info{}
+  .res-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#0A0A0A;margin-bottom:2px;}
+  .res-detail{font-size:11px;color:#B0BAC4;letter-spacing:0.3px;}
+  .res-right{text-align:right;}
+  .res-price{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#0A0A0A;}
+  .res-score{font-size:9px;color:#4D9FFF;letter-spacing:1px;font-family:'Syne',sans-serif;margin-top:3px;}
+</style>
+
+<div class="os">
+
+  <div class="tabs">
+    <div class="tab on" onclick="show('s1',this)">01 — Landing</div>
+    <div class="tab" onclick="show('s2',this)">02 — Onboarding</div>
+    <div class="tab" onclick="show('s3',this)">03 — Results</div>
+  </div>
+
+  <!-- SCREEN 1 -->
+  <div class="s1" id="s1">
+    <nav class="nav">
+      <div class="logo">PICK<span>WISE</span></div>
+      <div class="nav-r">
+        <a class="nav-link" href="#">SYSTEM</a>
+        <a class="nav-link" href="#">ABOUT</a>
+        <button class="nav-btn">INITIALISE →</button>
+      </div>
+    </nav>
+    <section class="hero">
+      <div class="hero-l">
+        <div class="sys-id">PICKWISE OS · v2.4.1 · RECOMMENDATION ENGINE ACTIVE</div>
+        <h1 class="hero-h">THE RIGHT<br>STACK.<br><em>CALCULATED.</em></h1>
+        <p class="hero-body">Input your goals, constraints, and budget. The system cross-references 500+ products against verified nutritional data and returns a ranked output. No noise. No influence.</p>
+        <div class="hero-actions">
+          <button class="btn-p">BEGIN ANALYSIS →</button>
+          <button class="btn-g">HOW IT WORKS</button>
+        </div>
+      </div>
+      <div class="hero-r">
+        <div class="data-grid">
+          <div class="data-cell"><div class="data-n data-accent">500<span style="font-size:16px">+</span></div><div class="data-l">PRODUCTS INDEXED</div></div>
+          <div class="data-cell"><div class="data-n">₹500</div><div class="data-l">MIN BUDGET</div></div>
+          <div class="data-cell"><div class="data-n">2<span style="font-size:16px">min</span></div><div class="data-l">TO OUTPUT</div></div>
+          <div class="data-cell"><div class="data-n data-accent">0</div><div class="data-l">SPONSORED PICKS</div></div>
+        </div>
+        <div class="terminal">
+          <div><span class="t-blue">SYS</span> &nbsp;Engine status: <span class="t-blue">ONLINE</span></div>
+          <div><span class="t-blue">DB &nbsp;</span> Last sync: <span class="t-blue">TODAY 08:14 IST</span></div>
+          <div><span class="t-blue">ALG</span> &nbsp;Bias filter: <span class="t-blue">ACTIVE</span></div>
+          <div><span class="t-blue">USR</span> &nbsp;Profile loaded: <span class="t-dim">AWAITING INPUT</span></div>
+          <div><span class="t-blue">REC</span> &nbsp;Recommendations: <span class="t-dim">PENDING_</span></div>
+        </div>
+      </div>
+    </section>
+    <div class="trust-bar">
+      <div class="trust-item"><div class="trust-dot"></div>No sponsored placements</div>
+      <div class="trust-item"><div class="trust-dot"></div>Budget-hard filter applied</div>
+      <div class="trust-item"><div class="trust-dot"></div>Ranked by value score only</div>
+      <div class="trust-item"><div class="trust-dot"></div>500+ products cross-referenced</div>
+    </div>
+    <section class="section">
+      <div class="sec-header">
+        <div><div class="sec-label">RANKED OUTPUT</div><div class="sec-title">This week's top products</div></div>
+        <div class="sec-meta">SORTED BY VALUE SCORE ↓</div>
+      </div>
+      <div class="prod-row">
+        <div class="pc feat">
+          <div class="pc-rank">RANK 01 · TOP PICK</div>
+          <div class="pc-name">Impact Whey Protein</div>
+          <div class="pc-brand">MYPROTEIN</div>
+          <div class="pc-price">₹1,899</div>
+          <div class="score-track"><div class="score-fill" style="width:94%"></div></div>
+          <div class="score-row"><span class="score-label">VALUE SCORE</span><span class="score-val">94 / 100</span></div>
+          <div class="chips"><span class="chip chip-blue">BEST VALUE</span><span class="chip">21G PROTEIN</span><span class="chip">BEGINNER</span></div>
+        </div>
+        <div class="pc">
+          <div class="pc-rank">RANK 02</div>
+          <div class="pc-name">WPC 80 Unflavoured</div>
+          <div class="pc-brand">AS-IT-IS NUTRITION</div>
+          <div class="pc-price">₹1,749</div>
+          <div class="score-track"><div class="score-fill" style="width:88%"></div></div>
+          <div class="score-row"><span class="score-label">VALUE SCORE</span><span class="score-val">88 / 100</span></div>
+          <div class="chips"><span class="chip chip-blue">NO FRILLS</span><span class="chip">24G PROTEIN</span><span class="chip">RAW</span></div>
+        </div>
+        <div class="pc">
+          <div class="pc-rank">RANK 03</div>
+          <div class="pc-name">Biozyme Performance Whey</div>
+          <div class="pc-brand">MUSCLEBLAZE</div>
+          <div class="pc-price">₹2,299</div>
+          <div class="score-track"><div class="score-fill" style="width:81%"></div></div>
+          <div class="score-row"><span class="score-label">VALUE SCORE</span><span class="score-val">81 / 100</span></div>
+          <div class="chips"><span class="chip chip-blue">INTERMEDIATE</span><span class="chip">25G PROTEIN</span></div>
+        </div>
+      </div>
+    </section>
+    <div class="budget">
+      <div class="bud-l">
+        <div class="sec-label" style="margin-bottom:12px;">CONSTRAINT ENGINE</div>
+        <div class="bud-title">Budget is the first filter. Not the last.</div>
+        <div class="bud-body">Every product is scored independently. Then your budget is applied as a hard ceiling. Nothing above it enters the output — no partial results, no "just slightly over" picks.</div>
+        <div class="tier-g">
+          <div class="tier"><div class="tier-amt">₹500</div><div class="tier-lbl">STARTER</div></div>
+          <div class="tier"><div class="tier-amt">₹1,500</div><div class="tier-lbl">CORE</div></div>
+          <div class="tier on"><div class="tier-amt">₹3,000</div><div class="tier-lbl">OPTIMISED</div></div>
+          <div class="tier"><div class="tier-amt">₹5,000+</div><div class="tier-lbl">FULL STACK</div></div>
+        </div>
+      </div>
+      <div class="bud-r">
+        <div class="stack-label">OUTPUT · ₹3,000 STACK</div>
+        <div class="stack-item"><div><div class="si-name">Impact Whey Protein</div><div class="si-sub">MYPROTEIN · 1KG · CHOCOLATE</div></div><div class="si-price">₹1,899</div></div>
+        <div class="stack-item"><div><div class="si-name">Creatine Monohydrate</div><div class="si-sub">BOLT NUTRITION · 250G</div></div><div class="si-price">₹599</div></div>
+        <div class="stack-item"><div><div class="si-name">Multivitamin Daily</div><div class="si-sub">HEALTHKART · 60 TABLETS</div></div><div class="si-price">₹399</div></div>
+        <div class="stack-total"><div class="st-label">TOTAL / BUDGET</div><div class="st-val">₹2,897 <span style="font-size:13px;color:#8A9AAD;font-family:'Inter',sans-serif;font-weight:300;">/ ₹3,000</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div class="s2" id="s2">
+    <div class="ob-header">
+      <div class="ob-logo">PICK<span>WISE</span></div>
+      <div class="ob-step-track">
+        <div class="ob-step done"></div>
+        <div class="ob-step active"></div>
+        <div class="ob-step"></div>
+        <div class="ob-step"></div>
+      </div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-sidebar">
+        <div class="ob-sidebar-label">ANALYSIS STEPS</div>
+        <div class="ob-steps-list">
+          <div class="ob-step-item done-s"><div class="ob-step-num">01</div><div class="ob-step-name">Goals</div></div>
+          <div class="ob-step-item cur"><div class="ob-step-num">02</div><div class="ob-step-name">Experience</div></div>
+          <div class="ob-step-item"><div class="ob-step-num">03</div><div class="ob-step-name">Budget</div></div>
+          <div class="ob-step-item"><div class="ob-step-num">04</div><div class="ob-step-name">Restrictions</div></div>
+        </div>
+      </div>
+      <div class="ob-main">
+        <div class="ob-q-label">INPUT 02 OF 04</div>
+        <div class="ob-q">What's your training experience level?</div>
+        <div class="ob-q-sub">This affects how the system weights protein timing, creatine loading, and stack complexity.</div>
+        <div class="ob-options">
+          <div class="ob-opt"><div class="ob-opt-title">Complete beginner</div><div class="ob-opt-sub">Under 6 months training</div></div>
+          <div class="ob-opt sel"><div class="ob-opt-title">Intermediate</div><div class="ob-opt-sub">6 months – 2 years</div></div>
+          <div class="ob-opt"><div class="ob-opt-title">Advanced</div><div class="ob-opt-sub">2+ years consistent</div></div>
+          <div class="ob-opt"><div class="ob-opt-title">Returning</div><div class="ob-opt-sub">Took a break, restarting</div></div>
+        </div>
+        <button class="ob-next">NEXT INPUT →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 -->
+  <div class="s3" id="s3">
+    <div class="results-header">
+      <div class="rh-logo">PICK<span>WISE</span></div>
+      <div class="rh-profile">
+        <div><div class="rh-name">Analysis complete</div><div class="rh-sub">3 RECOMMENDATIONS · ₹2,897 / ₹3,000</div></div>
+        <div class="rh-avatar">KP</div>
+      </div>
+    </div>
+    <div class="results-body">
+      <div class="res-sidebar">
+        <div class="res-sb-label">USER PROFILE</div>
+        <div class="res-profile-block">
+          <div class="rpb-row"><span class="rpb-key">GOAL</span><span class="rpb-val">Muscle gain</span></div>
+          <div class="rpb-row"><span class="rpb-key">LEVEL</span><span class="rpb-val">Intermediate</span></div>
+          <div class="rpb-row"><span class="rpb-key">FREQ</span><span class="rpb-val">4x / week</span></div>
+          <div class="rpb-row"><span class="rpb-key">DIET</span><span class="rpb-val">Non-veg</span></div>
+          <div class="rpb-row"><span class="rpb-key">BUDGET</span><span class="rpb-val blue">₹3,000 / mo</span></div>
+        </div>
+        <div class="res-budget-bar">
+          <div class="rbb-label"><span>BUDGET USED</span><span style="color:#4D9FFF;">96%</span></div>
+          <div class="rbb-track"><div class="rbb-fill"></div></div>
+        </div>
+      </div>
+      <div class="res-main">
+        <div class="res-main-label">RANKED RECOMMENDATIONS · 3 RESULTS</div>
+        <div class="res-cards">
+          <div class="res-card top">
+            <div class="res-num">01</div>
+            <div class="res-info"><div class="res-name">Impact Whey Protein — Chocolate</div><div class="res-detail">MYPROTEIN · 1KG · 21G PROTEIN / SERVE · BEST PROTEIN-PER-RUPEE IN CATEGORY</div></div>
+            <div class="res-right"><div class="res-price">₹1,899</div><div class="res-score">SCORE 94 / 100</div></div>
+          </div>
+          <div class="res-card">
+            <div class="res-num">02</div>
+            <div class="res-info"><div class="res-name">Creatine Monohydrate</div><div class="res-detail">BOLT NUTRITION · 250G · ESSENTIAL FOR INTERMEDIATE GOAL · HIGH PURITY</div></div>
+            <div class="res-right"><div class="res-price">₹599</div><div class="res-score">SCORE 96 / 100</div></div>
+          </div>
+          <div class="res-card">
+            <div class="res-num">03</div>
+            <div class="res-info"><div class="res-name">Multivitamin Daily</div><div class="res-detail">HEALTHKART · 60 TABLETS · MICRONUTRIENT GAP COVERAGE · TRAINING SUPPORT</div></div>
+            <div class="res-right"><div class="res-price">₹399</div><div class="res-score">SCORE 79 / 100</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function show(id, el) {
+  ['s1','s2','s3'].forEach(s => document.getElementById(s).style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+</script>

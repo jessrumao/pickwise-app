@@ -77,6 +77,11 @@ Read in this order:
     (`existingSupplementUse`, `allergies`, `medicationsOrConditionsFlag`) —
     the slider stays adjustable either way, and a vague description is
     verified to route through confirmation while a specific one does not.
+14. `ui-redesign-1-status.md` — the brand theme (cream/blue, Syne/Inter,
+    `docs/design/pickwise_exmachina_v6.html`), a shared nav, a real About
+    page, and a restyled intake/results shell. Presentation only — no
+    `lib/`/`data/`/API changes, and the 5-status recommendation framing is
+    fully preserved, not simplified to match the mockup's plainer layout.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

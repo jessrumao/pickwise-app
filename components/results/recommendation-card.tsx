@@ -41,8 +41,11 @@ export function RecommendationCard({
     <Card>
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle>{itemName(rec)}</CardTitle>
-          <Badge variant="outline" className={TONE_BADGE_CLASSES[display.tone]}>
+          <CardTitle className="font-display">{itemName(rec)}</CardTitle>
+          <Badge
+            variant="outline"
+            className={`font-display text-[10px] tracking-wide ${TONE_BADGE_CLASSES[display.tone]}`}
+          >
             {display.label}
           </Badge>
         </div>

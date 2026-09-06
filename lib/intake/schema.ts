@@ -54,7 +54,10 @@ export const intakeFormSchema = z
     // proteinFoodDescription only exists to send to /api/intake/estimate-protein,
     // and the confidence that call returns feeds fieldsNeedingConfirmation the
     // same way the other AI-parsed fields' confidences already do.
-    proteinFoodDescription: z.string(),
+    // Capped to match /api/intake/estimate-protein's own limit — enforced
+    // client-side too (Textarea maxLength) so a real description of a whole
+    // day's eating can never silently fail the request-body schema there.
+    proteinFoodDescription: z.string().max(500),
     estimatedDailyProteinGConfidence: z.number().min(0).max(1).optional(),
     // Required (was optional): dosing.ts now converts this into an estimated
     // daily EPA+DHA mg amount, so it needs a real answer to quantify the gap

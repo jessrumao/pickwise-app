@@ -130,6 +130,7 @@ export function IntakeFlow() {
 
   const sex = form.watch("sex");
   const medicationsHasAny = form.watch("medicationsHasAny");
+  const proteinFoodDescription = form.watch("proteinFoodDescription");
 
   const isReviewStep = step === TOTAL_STEPS - 1;
 
@@ -708,8 +709,12 @@ export function IntakeFlow() {
                               <Textarea
                                 id="protein-food-description"
                                 placeholder="e.g. 2 eggs, 1 bowl dal, 3 rotis, chicken curry, 1 glass milk"
+                                maxLength={500}
                                 {...form.register("proteinFoodDescription")}
                               />
+                              <p className="text-right text-xs text-muted-foreground">
+                                {proteinFoodDescription.length}/500
+                              </p>
                               <div className="flex items-center gap-2">
                                 <Button
                                   type="button"

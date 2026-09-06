@@ -30,7 +30,17 @@ const STATUS_ORDER: Record<string, number> = {
 // caller decides how that result was produced: generateRecommendations()
 // directly for the demo picker, or fetched back from Package C's
 // /api/decisions (via adaptDecisionRecord) for a real submitted profile.
-export function ResultsView({ result }: { result: RecommendationResult }) {
+//
+// profileVersionId is only passed for that real-submission path (see
+// app/results/page.tsx) — the demo picker has no persisted profile row to
+// hand the chat, so it keeps today's evidence-only behavior.
+export function ResultsView({
+  result,
+  profileVersionId,
+}: {
+  result: RecommendationResult;
+  profileVersionId?: string;
+}) {
   if (result.globalEscalation) {
     return (
       <div className="mx-auto w-full max-w-xl space-y-4">
@@ -118,7 +128,7 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
         </Accordion>
       </div>
 
-      <RecommendationsChat citedClaimIds={citedClaimIds} />
+      <RecommendationsChat citedClaimIds={citedClaimIds} profileVersionId={profileVersionId} />
       <Disclaimer />
     </div>
   );

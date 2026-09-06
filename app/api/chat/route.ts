@@ -35,6 +35,10 @@ import {
   claimSupported,
 } from "@/lib/citations";
 import { uiSourceSchema, type UISource } from "@/types/data";
+import { resolveAnonUserId, withAnonCookie } from "@/lib/anon-session";
+import { getProfileVersionById } from "@/lib/profile";
+import { generateRecommendations } from "@/lib/engine";
+import { buildRecommendationContext } from "@/lib/results/build-recommendation-context";
 
 // Next.js requires segment config to be a static literal (not imported).
 // Keep in sync with VERCEL_MAX_DURATION in config.ts and Vercel Pro plan settings.
@@ -81,6 +85,14 @@ export async function POST(req: Request) {
   // Package B's rules engine, not from any LLM).
   const MAX_EXPLAIN_CLAIM_IDS = 20; // same bound as app/api/evidence/route.ts
   let explainCitedClaimIds: string[] | null = null;
+  // Set only when the client sent a profileVersionId AND the server
+  // independently verified (below, after resolveAnonUserId) that the
+  // requesting cookie actually owns that profile version -- never trust the
+  // client's claim of who they are. This is what lets the explain-mode
+  // chat answer "why was this recommended for ME" / "what's in my profile"
+  // instead of only being able to search evidence text (see
+  // lib/results/build-recommendation-context.ts for why that gap existed).
+  let explainProfileVersionId: string | null = null;
   const rawExplainContext = (body as { explainContext?: unknown }).explainContext;
   if (rawExplainContext && typeof rawExplainContext === "object") {
     const claimIds = (rawExplainContext as { citedClaimIds?: unknown }).citedClaimIds;
@@ -95,6 +107,35 @@ export async function POST(req: Request) {
       explainCitedClaimIds = claimIds.slice(0, MAX_EXPLAIN_CLAIM_IDS);
     } else if (process.env.NODE_ENV === "development") {
       console.warn("EXPLAIN MODE: rejected malformed explainContext.citedClaimIds");
+    }
+    const profileVersionId = (rawExplainContext as { profileVersionId?: unknown }).profileVersionId;
+    if (typeof profileVersionId === "string" && profileVersionId.length > 0) {
+      explainProfileVersionId = profileVersionId;
+    }
+  }
+
+  // --- Resolve verified user-profile + recommendation context (explain mode only) ---
+  // Re-derives the recommendation set fresh from the OWNED profile version
+  // (same ownership check as POST /api/decisions) rather than trusting
+  // anything the client says about who they are or what was recommended --
+  // a chat message is not an acceptable channel for that. Failing to
+  // resolve (no cookie yet, wrong user, deleted row) degrades gracefully to
+  // the prior evidence-only behavior rather than erroring the whole chat.
+  let recommendationContext: string | null = null;
+  let anonUserId: string | undefined;
+  let anonIsNew = false;
+  if (explainProfileVersionId) {
+    try {
+      const { userId, isNew } = await resolveAnonUserId(req);
+      anonUserId = userId;
+      anonIsNew = isNew;
+      const profileVersion = await getProfileVersionById(userId, explainProfileVersionId);
+      if (profileVersion) {
+        const result = generateRecommendations(profileVersion.profile);
+        recommendationContext = buildRecommendationContext(profileVersion.profile, result);
+      }
+    } catch (error) {
+      console.error("Failed to resolve explain-mode profile context:", error);
     }
   }
 
@@ -250,10 +291,13 @@ export async function POST(req: Request) {
   // --- Stream response ---
   try {
     const basePrompt = explainCitedClaimIds !== null ? EXPLAIN_SYSTEM_PROMPT : SYSTEM_PROMPT;
+    const contextBlock = recommendationContext
+      ? "\n\n<user_context>\n" + recommendationContext + "\n</user_context>"
+      : "";
     const systemPrompt = compactionResult.compacted
-      ? basePrompt + "\n\n" + toolGuidance +
+      ? basePrompt + contextBlock + "\n\n" + toolGuidance +
         "\n\n[Note: Earlier conversation context is provided as a summary. Continue naturally.]"
-      : basePrompt + "\n\n" + toolGuidance;
+      : basePrompt + contextBlock + "\n\n" + toolGuidance;
 
     // Wrap streamText in a UI message stream so we can append a structured
     // `data-sources` part once the model (and all its tool steps) finish.
@@ -400,7 +444,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return response;
+    return anonIsNew && anonUserId ? withAnonCookie(response, anonUserId) : response;
   } catch (error) {
     console.error("streamText failed:", error);
     return jsonError(

@@ -82,6 +82,16 @@ Read in this order:
     page, and a restyled intake/results shell. Presentation only — no
     `lib/`/`data/`/API changes, and the 5-status recommendation framing is
     fully preserved, not simplified to match the mockup's plainer layout.
+15. `chat-profile-context-status.md` — fixes the `/results` explain-mode
+    chat denying it could discuss the user's own profile or recommendations.
+    Two stacked bugs: `sendMessage`'s `body` option was passed to the wrong
+    argument (silently dropped by the installed AI SDK, so explain mode
+    never even activated), and even once fixed, the model had no structured
+    profile/recommendation data — only an evidence-search tool. Fixed both:
+    corrected the `sendMessage` call, and added a server-verified
+    `<user_context>` block (`lib/results/build-recommendation-context.ts`)
+    built from an ownership-checked profile re-fetch, never trusting
+    anything the client claims.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

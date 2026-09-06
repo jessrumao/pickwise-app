@@ -95,7 +95,7 @@ function ResultsPageInner() {
               </h1>
             </div>
             <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10 sm:px-10">
-              <ResultsView result={state.result} />
+              <ResultsView result={state.result} profileVersionId={profileVersionId ?? undefined} />
               <Button asChild variant="outline" className="font-display text-xs tracking-wide">
                 <Link href="/intake">START OVER</Link>
               </Button>

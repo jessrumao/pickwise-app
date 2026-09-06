@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/types/engine";
+import type { DietaryPattern, UserProfile } from "@/types/engine";
 import type { ParsedFreeText } from "@/lib/intake/assemble-profile";
 
 export async function parseFreeText(input: {
@@ -18,9 +18,27 @@ export async function parseFreeText(input: {
   return res.json();
 }
 
-// Talks to Package C's profile API once it exists; today that's the stub at
-// app/api/profile/route.ts. Swapping in the real implementation should not
-// require changing any caller of this function.
+// Only called when the user says they don't know their daily protein
+// intake and describes what they eat instead — never on the default
+// slider path. Returns a rough estimate + confidence; the caller still
+// shows it on the same adjustable slider rather than trusting it silently.
+export async function estimateProteinFromDescription(input: {
+  dietaryPattern: DietaryPattern;
+  bodyWeightKg: number;
+  foodDescription: string;
+}): Promise<{ estimatedDailyProteinG: number; confidence: number }> {
+  const res = await fetch("/api/intake/estimate-protein", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) {
+    throw new Error("Could not estimate from that description. Please try again.");
+  }
+  return res.json();
+}
+
+// Package C's real /api/profile — see docs/status/c-auth-persistence-status.md.
 export async function submitProfile(
   profile: UserProfile
 ): Promise<{ profileVersionId: string }> {

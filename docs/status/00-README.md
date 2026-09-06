@@ -69,6 +69,14 @@ Read in this order:
     and a full audit of which questionnaire answers map to which knowledge-
     base ingredients, including nine entities that are unreachable by any
     answer today.
+13. `ai-protein-estimate-status.md` — an AI-assisted alternative to the
+    protein slider above: if the user says they don't know their protein
+    intake, they describe their diet in a few words and an LLM estimates a
+    starting value, confidence-gated through the same needs-confirmation
+    review-screen pattern already used for the free-text parse fields
+    (`existingSupplementUse`, `allergies`, `medicationsOrConditionsFlag`) —
+    the slider stays adjustable either way, and a vague description is
+    verified to route through confirmation while a specific one does not.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

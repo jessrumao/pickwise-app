@@ -49,7 +49,11 @@ import {
   TOTAL_STEPS,
   type IntakeFormValues,
 } from "@/lib/intake/schema";
-import { parseFreeText, submitProfile } from "@/lib/intake/submit-profile";
+import {
+  estimateProteinFromDescription,
+  parseFreeText,
+  submitProfile,
+} from "@/lib/intake/submit-profile";
 import type { UserProfile } from "@/types/engine";
 
 const PRIMARY_GOAL_OPTIONS: { value: IntakeFormValues["primaryGoals"][number]; label: string }[] = [
@@ -99,6 +103,8 @@ const DEFAULT_VALUES: IntakeFormValues = {
   existingSupplementUseText: "",
   dietaryProteinAdequacy: "unsure",
   estimatedDailyProteinG: 60,
+  proteinFoodDescription: "",
+  estimatedDailyProteinGConfidence: undefined,
   dietaryOilyFishServingsPerWeek: 0,
   allergiesText: "",
   relevantHealthContext: "",
@@ -118,6 +124,10 @@ export function IntakeFlow() {
   const [step, setStep] = React.useState(0);
   const [returnToReview, setReturnToReview] = React.useState(false);
   const [submitState, setSubmitState] = React.useState<SubmitState>({ status: "idle" });
+  const [proteinUnsure, setProteinUnsure] = React.useState(false);
+  const [proteinEstimateState, setProteinEstimateState] = React.useState<
+    "idle" | "loading" | { error: string }
+  >("idle");
 
   const form = useForm<IntakeFormValues>({
     resolver: zodResolver(intakeFormSchema),
@@ -155,6 +165,26 @@ export function IntakeFlow() {
     setStep(sectionStep);
   }
 
+  async function estimateProtein() {
+    const { dietaryPattern, bodyWeightKg, proteinFoodDescription } = form.getValues();
+    if (!proteinFoodDescription.trim()) return;
+    setProteinEstimateState("loading");
+    try {
+      const { estimatedDailyProteinG, confidence } = await estimateProteinFromDescription({
+        dietaryPattern,
+        bodyWeightKg,
+        foodDescription: proteinFoodDescription,
+      });
+      form.setValue("estimatedDailyProteinG", estimatedDailyProteinG);
+      form.setValue("estimatedDailyProteinGConfidence", confidence);
+      setProteinEstimateState("idle");
+    } catch (error) {
+      setProteinEstimateState({
+        error: error instanceof Error ? error.message : "Something went wrong.",
+      });
+    }
+  }
+
   async function runParseAndReview() {
     setSubmitState({ status: "parsing" });
     const values = form.getValues();
@@ -165,7 +195,10 @@ export function IntakeFlow() {
         medicationsHasAny: values.medicationsHasAny,
         medicationsFreeText: values.medicationsFreeText,
       });
-      const needsConfirmation = fieldsNeedingConfirmation(parsed);
+      const needsConfirmation = fieldsNeedingConfirmation(
+        parsed,
+        values.estimatedDailyProteinGConfidence
+      );
       const profile = assembleUserProfile(values, parsed, []);
       if (needsConfirmation.length > 0) {
         setSubmitState({ status: "needs-confirmation", profile, fields: needsConfirmation });
@@ -665,13 +698,56 @@ export function IntakeFlow() {
                       </FormDescription>
                       <FormControl>
                         <div className="space-y-2">
+                          {!proteinUnsure ? (
+                            <button
+                              type="button"
+                              className="text-xs text-muted-foreground underline"
+                              onClick={() => setProteinUnsure(true)}
+                            >
+                              Not sure? Describe what you eat instead
+                            </button>
+                          ) : (
+                            <div className="space-y-2 rounded-md border border-dashed p-3">
+                              <Label htmlFor="protein-food-description" className="text-xs">
+                                In 5-6 words, what do you typically eat in a day?
+                              </Label>
+                              <Textarea
+                                id="protein-food-description"
+                                placeholder="e.g. eggs, dal, roti, chicken curry, milk"
+                                {...form.register("proteinFoodDescription")}
+                              />
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={proteinEstimateState === "loading"}
+                                  onClick={estimateProtein}
+                                >
+                                  {proteinEstimateState === "loading" ? "Estimating…" : "Estimate for me"}
+                                </Button>
+                                {typeof proteinEstimateState === "object" && (
+                                  <span className="text-xs text-destructive">{proteinEstimateState.error}</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                We&apos;ll set the slider below from this — you can still adjust it
+                                afterward.
+                              </p>
+                            </div>
+                          )}
                           <div className="flex items-center gap-3">
                             <Slider
                               min={0}
                               max={250}
                               step={5}
                               value={[field.value]}
-                              onValueChange={([v]) => field.onChange(v)}
+                              onValueChange={([v]) => {
+                                field.onChange(v);
+                                // Moving the slider by hand after an AI estimate means the
+                                // final number is the user's own call again, not the estimate.
+                                form.setValue("estimatedDailyProteinGConfidence", undefined);
+                              }}
                               className="flex-1"
                             />
                             <span className="w-16 shrink-0 text-right text-sm font-medium">
@@ -966,6 +1042,12 @@ function ReviewStep({
         {fields.includes("medicationsOrConditionsFlag.freeText") && (
           <p className="text-sm">
             <strong>Medications/conditions:</strong> {profile.medicationsOrConditionsFlag.freeText || "(none)"}
+          </p>
+        )}
+        {fields.includes("estimatedDailyProteinG") && (
+          <p className="text-sm">
+            <strong>Estimated daily protein (from what you described):</strong>{" "}
+            {profile.estimatedDailyProteinG}g
           </p>
         )}
         <p className="text-sm text-muted-foreground">

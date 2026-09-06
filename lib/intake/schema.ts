@@ -49,6 +49,13 @@ export const intakeFormSchema = z
     // was showing 4-5 scoops/day for most people — see lib/engine/dosing.ts.
     // Range capped at 250 (not UserProfile's 400) to match the slider UI.
     estimatedDailyProteinG: z.number().min(0).max(250),
+    // UI-only support fields for the "I don't know, describe what you eat
+    // instead" escape hatch on the slider above. Never read by the engine —
+    // proteinFoodDescription only exists to send to /api/intake/estimate-protein,
+    // and the confidence that call returns feeds fieldsNeedingConfirmation the
+    // same way the other AI-parsed fields' confidences already do.
+    proteinFoodDescription: z.string(),
+    estimatedDailyProteinGConfidence: z.number().min(0).max(1).optional(),
     // Required (was optional): dosing.ts now converts this into an estimated
     // daily EPA+DHA mg amount, so it needs a real answer to quantify the gap
     // the same way protein's is, instead of always falling back to the full

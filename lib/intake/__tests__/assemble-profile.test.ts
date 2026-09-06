@@ -41,6 +41,7 @@ function toFormValues(sample: UserProfile): IntakeFormValues {
     dietaryProteinAdequacy: sample.dietaryProteinAdequacy,
     // required in the form; only vegetarian-muscle-gain's sample sets this
     estimatedDailyProteinG: sample.estimatedDailyProteinG ?? 60,
+    proteinFoodDescription: "",
     // required in the form; every sample already sets this, ?? 0 is just a type-safe fallback
     dietaryOilyFishServingsPerWeek: sample.dietaryOilyFishServingsPerWeek ?? 0,
     allergiesText: sample.allergies.join(", "),
@@ -113,6 +114,34 @@ describe("fieldsNeedingConfirmation", () => {
     });
     expect(flagged).toContain("medicationsOrConditionsFlag.freeText");
   });
+
+  it("ignores estimatedDailyProteinGConfidence when undefined (the default, manual-slider path)", () => {
+    const flagged = fieldsNeedingConfirmation(
+      {
+        existingSupplementUse: [],
+        existingSupplementUseConfidence: 1,
+        allergies: [],
+        allergiesConfidence: 1,
+        medicationsParseConfidence: 1,
+      },
+      undefined
+    );
+    expect(flagged).toEqual([]);
+  });
+
+  it("flags estimatedDailyProteinG when the AI-estimate escape hatch returns low confidence", () => {
+    const flagged = fieldsNeedingConfirmation(
+      {
+        existingSupplementUse: [],
+        existingSupplementUseConfidence: 1,
+        allergies: [],
+        allergiesConfidence: 1,
+        medicationsParseConfidence: 1,
+      },
+      0.4
+    );
+    expect(flagged).toContain("estimatedDailyProteinG");
+  });
 });
 
 // Regression test for a real bug found via manual Package E browser testing:
@@ -143,6 +172,7 @@ describe("blank optional free-text fields must not read as UNKNOWN to the safety
     existingSupplementUseText: "",
     dietaryProteinAdequacy: "likely_inadequate",
     estimatedDailyProteinG: 90,
+    proteinFoodDescription: "",
     dietaryOilyFishServingsPerWeek: 0,
     allergiesText: "",
     relevantHealthContext: undefined, // left blank, as most users will

@@ -26,6 +26,10 @@ export function assembleUserProfile(
     existingSupplementUse: parsed.existingSupplementUseConfidence,
     allergies: parsed.allergiesConfidence,
     "medicationsOrConditionsFlag.freeText": parsed.medicationsParseConfidence,
+    // Full confidence unless it came from the "describe what you eat"
+    // AI-estimate escape hatch, which sets a real (always <1, see that
+    // route's own prompt) confidence via form.setValue.
+    estimatedDailyProteinG: form.estimatedDailyProteinGConfidence ?? 1,
   };
 
   const profile: UserProfile = {
@@ -84,8 +88,13 @@ export function assembleUserProfile(
 }
 
 // Which parsed fields need explicit user confirmation before submit, given
-// the confidences the parse API returned.
-export function fieldsNeedingConfirmation(parsed: ParsedFreeText): string[] {
+// the confidences the parse API returned. estimatedDailyProteinGConfidence
+// is undefined whenever the slider was set manually (the default path) —
+// only the AI-estimate escape hatch ever sets a real value there.
+export function fieldsNeedingConfirmation(
+  parsed: ParsedFreeText,
+  estimatedDailyProteinGConfidence?: number
+): string[] {
   const needsConfirmation: string[] = [];
   if (parsed.existingSupplementUseConfidence < CONFIRMATION_THRESHOLD) {
     needsConfirmation.push("existingSupplementUse");
@@ -95,6 +104,12 @@ export function fieldsNeedingConfirmation(parsed: ParsedFreeText): string[] {
   }
   if (parsed.medicationsParseConfidence < CONFIRMATION_THRESHOLD) {
     needsConfirmation.push("medicationsOrConditionsFlag.freeText");
+  }
+  if (
+    estimatedDailyProteinGConfidence != null &&
+    estimatedDailyProteinGConfidence < CONFIRMATION_THRESHOLD
+  ) {
+    needsConfirmation.push("estimatedDailyProteinG");
   }
   return needsConfirmation;
 }

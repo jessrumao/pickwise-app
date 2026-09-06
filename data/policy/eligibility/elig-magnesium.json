@@ -18,6 +18,13 @@
         "label": "has a sleep quality goal"
       },
       {
+        "lt": {
+          "field": "sleepHoursTypical",
+          "value": 7
+        },
+        "label": "typically sleeps less than 7 hours a night"
+      },
+      {
         "all": [
           {
             "contains_any": {
@@ -69,9 +76,9 @@
   "onUnknown": "false",
   "showWhenSuppressed": true,
   "review": {
-    "status": "expert_reviewed",
-    "reviewedBy": "Jess",
-    "reviewedOn": "2026-09-05",
-    "note": "Drafted from master research list v2 (2026-09-05), not yet expert-reviewed. The multivitamin suppression clause is a conservative placeholder (a multivitamin does not guarantee a meaningful magnesium dose) - reviewer should decide whether to gate on actual multivitamin magnesium content instead of presence/absence of multivitamin use."
+    "status": "draft_needs_expert_review",
+    "reviewedBy": null,
+    "reviewedOn": null,
+    "note": "2026-09-06: added a direct sleepHoursTypical < 7 branch, at product's request — this was previously gated only on the self-selected sleep_quality GOAL, never the actual reported sleep hours, even though magnesium-sleep-quality is exactly the claim being cited. The 7-hour cutoff follows common adult sleep-sufficiency guidance (7-9h) but the specific threshold hasn't been expert-reviewed against magnesium-sleep-quality.json's actual study population — reviewer should confirm or adjust it. Needs re-review since it changes what was approved 2026-09-05. Prior note, still true: the multivitamin suppression clause is a conservative placeholder (a multivitamin does not guarantee a meaningful magnesium dose) - reviewer should decide whether to gate on actual multivitamin magnesium content instead of presence/absence of multivitamin use."
   }
 }

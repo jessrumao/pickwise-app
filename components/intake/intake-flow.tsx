@@ -117,7 +117,17 @@ export function IntakeFlow() {
   const [step, setStep] = React.useState(0);
   const [returnToReview, setReturnToReview] = React.useState(false);
   const [submitState, setSubmitState] = React.useState<SubmitState>({ status: "idle" });
-  const [proteinUnsure, setProteinUnsure] = React.useState(false);
+  // Gates the protein-amount question into an explicit binary choice — see
+  // step 5's JSX below. null means no choice made yet (neither the slider
+  // nor the description box is shown until the user picks one).
+  const [proteinKnowsAmount, setProteinKnowsAmount] = React.useState<"yes" | "not_sure" | null>(
+    null
+  );
+  // Once a "not sure" estimate has succeeded, the slider stays revealed
+  // (for fine-tuning) even after the user drags it — separate from
+  // estimatedDailyProteinGConfidence, which intentionally clears on manual
+  // adjustment and would otherwise hide the slider again.
+  const [proteinEstimateRevealed, setProteinEstimateRevealed] = React.useState(false);
   const [proteinEstimateState, setProteinEstimateState] = React.useState<
     "idle" | "loading" | { error: string }
   >("idle");
@@ -172,6 +182,7 @@ export function IntakeFlow() {
       });
       form.setValue("estimatedDailyProteinG", estimatedDailyProteinG);
       form.setValue("estimatedDailyProteinGConfidence", confidence);
+      setProteinEstimateRevealed(true);
       setProteinEstimateState("idle");
     } catch (error) {
       setProteinEstimateState({
@@ -238,6 +249,9 @@ export function IntakeFlow() {
     setReturnToReview(false);
     setStep(0);
     setSubmitState({ status: "idle" });
+    setProteinKnowsAmount(null);
+    setProteinEstimateRevealed(false);
+    setProteinEstimateState("idle");
   }
 
   if (submitState.status === "done") {
@@ -692,16 +706,24 @@ export function IntakeFlow() {
                         protein&rdquo; into a real, personalized amount.
                       </FormDescription>
                       <FormControl>
-                        <div className="space-y-2">
-                          {!proteinUnsure ? (
-                            <button
-                              type="button"
-                              className="text-xs text-muted-foreground underline"
-                              onClick={() => setProteinUnsure(true)}
-                            >
-                              Not sure? Describe what you eat instead
-                            </button>
-                          ) : (
+                        <div className="space-y-3">
+                          <RadioGroup
+                            value={proteinKnowsAmount ?? undefined}
+                            onValueChange={(v) => setProteinKnowsAmount(v as "yes" | "not_sure")}
+                          >
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem value="yes" id="protein-amount-known" />
+                              <Label htmlFor="protein-amount-known">Yes, I know roughly</Label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem value="not_sure" id="protein-amount-unsure" />
+                              <Label htmlFor="protein-amount-unsure">
+                                Not sure — help me estimate
+                              </Label>
+                            </div>
+                          </RadioGroup>
+
+                          {proteinKnowsAmount === "not_sure" && (
                             <div className="space-y-2 rounded-md border border-dashed p-3">
                               <Label htmlFor="protein-food-description" className="text-xs">
                                 What are the most common foods you eat in a day?
@@ -729,30 +751,36 @@ export function IntakeFlow() {
                                   <span className="text-xs text-destructive">{proteinEstimateState.error}</span>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                We&apos;ll set the slider below from this — you can still adjust it
-                                afterward.
-                              </p>
+                              {!proteinEstimateRevealed && (
+                                <p className="text-xs text-muted-foreground">
+                                  We&apos;ll set the amount below from this — you can still adjust it
+                                  afterward.
+                                </p>
+                              )}
                             </div>
                           )}
-                          <div className="flex items-center gap-3">
-                            <Slider
-                              min={0}
-                              max={250}
-                              step={5}
-                              value={[field.value]}
-                              onValueChange={([v]) => {
-                                field.onChange(v);
-                                // Moving the slider by hand after an AI estimate means the
-                                // final number is the user's own call again, not the estimate.
-                                form.setValue("estimatedDailyProteinGConfidence", undefined);
-                              }}
-                              className="flex-1"
-                            />
-                            <span className="w-16 shrink-0 text-right text-sm font-medium">
-                              {field.value}g
-                            </span>
-                          </div>
+
+                          {(proteinKnowsAmount === "yes" ||
+                            (proteinKnowsAmount === "not_sure" && proteinEstimateRevealed)) && (
+                            <div className="flex items-center gap-3">
+                              <Slider
+                                min={0}
+                                max={250}
+                                step={5}
+                                value={[field.value]}
+                                onValueChange={([v]) => {
+                                  field.onChange(v);
+                                  // Moving the slider by hand after an AI estimate means the
+                                  // final number is the user's own call again, not the estimate.
+                                  form.setValue("estimatedDailyProteinGConfidence", undefined);
+                                }}
+                                className="flex-1"
+                              />
+                              <span className="w-16 shrink-0 text-right text-sm font-medium">
+                                {field.value}g
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />

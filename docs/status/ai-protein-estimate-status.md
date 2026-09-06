@@ -156,6 +156,42 @@ rather than throwing. Full suite: **172 tests pass** (166 prior + 6 new).
 end to end in-browser: "100g paneer, 2 eggs, 1 bowl dal" → exactly 45g
 (18 + 13 + 14, matching the database's real values precisely).
 
+## Update (2026-09-06): made the entry point an explicit 2-option choice
+
+The "not sure? describe what you eat instead" link sat beneath a slider
+that was always visible (defaulting to 60g) even before the user had made
+any real choice — easy to miss the link entirely and just leave the
+default. Replaced it with an explicit, required-feeling binary question
+directly under "About how many grams of protein a day do you get from
+food?": **"Yes, I know roughly"** or **"Not sure — help me estimate"**
+(exactly 2 options, no third "in-between" choice). Neither the slider nor
+the description box renders until one is picked — the numeric answer isn't
+shown by default, so there's nothing to overlook.
+
+Picking "Yes" reveals the slider immediately, unchanged from before.
+Picking "Not sure" reveals only the description textarea + "Estimate for
+me" button; the slider then appears once an estimate succeeds (tracked by
+a new `proteinEstimateRevealed` flag, kept separate from
+`estimatedDailyProteinGConfidence` — which intentionally clears when the
+user drags the slider afterward, so it can't double as the "should the
+slider be visible" signal without hiding it again on their first manual
+adjustment). Also added the two new pieces of local state to `startOver()`,
+which previously reset the form's own fields via `DEFAULT_VALUES` but never
+touched this UI-only gating state — a latent gap from when the escape hatch
+was first built (the old link-based version had the same bug: restarting
+never re-hid the slider). This is a UI-only change — `estimatedDailyProteinG`
+is still the same required form field, `dietaryProteinAdequacy` (the
+separate 3-option self-assessment question above it, used by
+`elig-protein-complete.json`'s eligibility policy) is untouched.
+
+`tsc --noEmit`, `eslint`, and the full `vitest run` (172 tests, unchanged
+count — no test-covered logic touched) all stayed clean. Verified end to
+end in-browser: neither option renders anything below it until chosen;
+"Not sure" → description → estimate reveals the slider at the correct
+real-value-computed amount (45g for "100g paneer, 2 eggs, 1 bowl dal");
+switching to "Yes" afterward hides the description box while keeping the
+slider (now the user's own value to adjust).
+
 ## Not done here (intentionally)
 
 - No confidence-threshold tuning beyond reusing the existing `0.7` constant

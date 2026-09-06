@@ -48,3 +48,4 @@ __pycache__/
 
 # Local-only scratch (Claude Desktop / working notes, not part of the app)
 Claude outputs/
+master-ingredient-list-full.md

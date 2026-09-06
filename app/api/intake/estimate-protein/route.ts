@@ -18,6 +18,7 @@ import { dietaryPatternSchema } from "@/types/engine";
 const requestSchema = z.object({
   dietaryPattern: dietaryPatternSchema,
   bodyWeightKg: z.number(),
+  heightCm: z.number(),
   foodDescription: z.string().min(1).max(500),
 });
 
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return jsonError("Invalid request body.", 400);
   }
-  const { dietaryPattern, bodyWeightKg, foodDescription } = parsed.data;
+  const { dietaryPattern, bodyWeightKg, heightCm, foodDescription } = parsed.data;
 
   try {
     const { object } = await generateObject({
@@ -53,7 +54,9 @@ export async function POST(req: Request) {
         "informal description of what they typically eat. This is a rough ballpark for a",
         "supplement-dosing calculation, not a nutrition analysis — use general knowledge of",
         "protein content in common foods (accounting for the stated diet pattern) to make a",
-        "reasonable estimate.",
+        "reasonable estimate. Use body weight and height only as context for typical portion",
+        "sizes a person of that build would realistically eat — never estimate protein from",
+        "body weight/height alone; the food description is what actually drives the number.",
         "",
         "confidence (0-1) reflects how much you can trust this estimate given what was",
         "described — a short or vague description (e.g. just one or two foods, or no portion",
@@ -63,7 +66,7 @@ export async function POST(req: Request) {
         "",
         "Return only the number and your confidence — no explanation, no recommendation.",
       ].join("\n"),
-      prompt: JSON.stringify({ dietaryPattern, bodyWeightKg, foodDescription }),
+      prompt: JSON.stringify({ dietaryPattern, bodyWeightKg, heightCm, foodDescription }),
     });
     return Response.json(object);
   } catch (error) {

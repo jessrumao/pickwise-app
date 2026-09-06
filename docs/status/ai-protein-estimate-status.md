@@ -80,6 +80,32 @@ you described): 65g") before the final "Looks right, submit" completes the
 flow. This confirms the fail-safe behaves as intended: the AI estimate is
 never silently trusted when it's a genuine guess.
 
+## Update (2026-09-06): dropped the static reference table, added height
+
+Follow-up product feedback: keep the manual slider as the primary path
+(unchanged), but reconsider the static "Need help estimating?" food-protein
+reference table (`lib/intake/protein-food-reference.ts`) that sat below it —
+requiring someone to manually cross-reference a lookup table is worse than
+just letting them describe their day and having the model do that
+arithmetic, which the escape hatch above already does for anyone who says
+"Not sure." Removed the table and the now-unused file entirely; the escape
+hatch is unchanged in when it appears, just the only aid offered now.
+
+Also widened `/api/intake/estimate-protein`'s inputs to include `heightCm`
+(previously only `bodyWeightKg`), and told the model explicitly to use
+weight/height only as context for realistic portion sizes for someone of
+that build — never to estimate protein from body stats alone, since the
+food description is what should actually drive the number. Verified via
+curl (`heightCm: 178` alongside the same vague description still correctly
+returns confidence 0.55) and in-browser end to end: the toggle now reads
+"What are the most common foods you eat in a day?", no reference table is
+rendered, and the slider still updates correctly (75g, from a 70kg/170cm/
+omnivore profile eating "eggs, dal, roti, chicken curry, milk").
+
+`tsc --noEmit`, `eslint`, and the full `vitest run` (166 tests) all stayed
+clean — this was a UI/prompt change only, no schema or test-covered logic
+touched.
+
 ## Not done here (intentionally)
 
 - No confidence-threshold tuning beyond reusing the existing `0.7` constant

@@ -5,12 +5,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,7 +35,6 @@ import {
   fieldsNeedingConfirmation,
   type ParsedFreeText,
 } from "@/lib/intake/assemble-profile";
-import { PROTEIN_FOOD_REFERENCE } from "@/lib/intake/protein-food-reference";
 import {
   intakeFormSchema,
   STEP_FIELDS,
@@ -166,13 +159,14 @@ export function IntakeFlow() {
   }
 
   async function estimateProtein() {
-    const { dietaryPattern, bodyWeightKg, proteinFoodDescription } = form.getValues();
+    const { dietaryPattern, bodyWeightKg, heightCm, proteinFoodDescription } = form.getValues();
     if (!proteinFoodDescription.trim()) return;
     setProteinEstimateState("loading");
     try {
       const { estimatedDailyProteinG, confidence } = await estimateProteinFromDescription({
         dietaryPattern,
         bodyWeightKg,
+        heightCm,
         foodDescription: proteinFoodDescription,
       });
       form.setValue("estimatedDailyProteinG", estimatedDailyProteinG);
@@ -709,7 +703,7 @@ export function IntakeFlow() {
                           ) : (
                             <div className="space-y-2 rounded-md border border-dashed p-3">
                               <Label htmlFor="protein-food-description" className="text-xs">
-                                In 5-6 words, what do you typically eat in a day?
+                                What are the most common foods you eat in a day?
                               </Label>
                               <Textarea
                                 id="protein-food-description"
@@ -754,27 +748,6 @@ export function IntakeFlow() {
                               {field.value}g
                             </span>
                           </div>
-                          <Accordion type="single" collapsible>
-                            <AccordionItem value="food-reference">
-                              <AccordionTrigger className="text-sm">Need help estimating?</AccordionTrigger>
-                              <AccordionContent>
-                                <p className="mb-2 text-xs text-muted-foreground">
-                                  Rough protein content of common foods, to help you add up a
-                                  typical day.
-                                </p>
-                                <ul className="space-y-1 text-xs">
-                                  {PROTEIN_FOOD_REFERENCE.map((f) => (
-                                    <li key={f.food} className="flex justify-between gap-4">
-                                      <span>{f.food}</span>
-                                      <span className="text-right text-muted-foreground">
-                                        {f.proteinPer100g}g/100g — {f.typicalServing}
-                                      </span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
                         </div>
                       </FormControl>
                       <FormMessage />

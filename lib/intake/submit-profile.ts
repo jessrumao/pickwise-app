@@ -25,6 +25,7 @@ export async function parseFreeText(input: {
 export async function estimateProteinFromDescription(input: {
   dietaryPattern: DietaryPattern;
   bodyWeightKg: number;
+  heightCm: number;
   foodDescription: string;
 }): Promise<{ estimatedDailyProteinG: number; confidence: number }> {
   const res = await fetch("/api/intake/estimate-protein", {

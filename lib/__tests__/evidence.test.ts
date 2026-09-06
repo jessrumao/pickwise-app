@@ -2,8 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { getEvidenceForClaim, getEvidenceForClaims } from "@/lib/evidence";
 import { claimById } from "@/lib/engine/knowledge-base";
 
-// A real, currently-un-ingested claim (no vectorRefs yet) -- exercises the
-// fallback path deterministically without needing a live Pinecone index.
+// A real claim, used to exercise the fallback path deterministically. This
+// no longer depends on the claim being un-ingested -- deleting
+// PINECONE_API_KEY below (beforeEach) already forces the fallback path
+// regardless of whether vectorRefs is populated, since lib/evidence.ts never
+// attempts a Pinecone fetch when the key is absent.
 const REAL_CLAIM_ID = "bcaa-no-incremental-benefit-over-complete-protein";
 
 describe("evidence retrieval", () => {
@@ -22,10 +25,9 @@ describe("evidence retrieval", () => {
     expect(result).toBeNull();
   });
 
-  it("falls back to the claim's own statement when there is no vectorRefs / no Pinecone key", async () => {
+  it("falls back to the claim's own statement when there is no Pinecone key, regardless of vectorRefs", async () => {
     const claim = claimById.get(REAL_CLAIM_ID);
     expect(claim).toBeDefined();
-    expect(claim!.vectorRefs ?? []).toHaveLength(0); // not yet ingested
 
     const result = await getEvidenceForClaim(REAL_CLAIM_ID);
     expect(result).not.toBeNull();

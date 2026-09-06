@@ -27,6 +27,14 @@ export const chunkSchema = z.object({
     context_breadcrumb: z.string().optional(),
     description: z.string().optional(),
     table_markdown: z.string().optional(),
+    // "cited" = this record belongs to a claim a recommendation policy
+    // actually cites (data/claims/*.json, ingested by RAGloader/ingest_claims.py);
+    // "supplementary" = the broader, vetted-but-not-necessarily-cited research
+    // corpus (RAGloader/ingest_research_papers.py). Written to Pinecone metadata
+    // as "evidenceTier" (camelCase, matching the ingestion scripts' already-
+    // written data -- kept as-is rather than renamed to avoid a second re-tag
+    // pass). Absent on records ingested before this tagging existed.
+    evidenceTier: z.enum(["cited", "supplementary"]).optional(),
 });
 export type Chunk = z.infer<typeof chunkSchema>;
 
@@ -35,6 +43,9 @@ export const sourceSchema = z.object({
     source_url: z.string(),
     source_description: z.string(),
     source_name: z.string(),
+    // A source (one ingested document) is homogeneous -- every chunk in it
+    // carries the same evidenceTier -- so this mirrors the first chunk's value.
+    evidenceTier: z.enum(["cited", "supplementary"]).optional(),
 });
 export type Source = z.infer<typeof sourceSchema>;
 
@@ -55,5 +66,11 @@ export const uiSourceSchema = z.object({
     // text. Rendered as a green check in the Sources box; undefined = nothing
     // could be checked (no marker).
     verified: z.boolean().optional(),
+    // Set only for sources retrieved via the recommendation-explainer tool
+    // (see app/api/chat/tools/ask-about-recommendation.ts). "supplementary"
+    // means this source was NOT part of what justified the recommendation --
+    // the UI should badge it distinctly so a real, vetted paper is never
+    // mistaken for the reason a recommendation fired.
+    evidenceTier: z.enum(["cited", "supplementary"]).optional(),
 });
 export type UISource = z.infer<typeof uiSourceSchema>;

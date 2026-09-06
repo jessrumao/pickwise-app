@@ -24,6 +24,7 @@ export function aggregateSourcesFromChunks(chunks: Chunk[]): Source[] {
         source_url: safeChunkUrl,
         source_description: chunk.source_description,
         source_name: chunk.source_name,
+        evidenceTier: chunk.evidenceTier,
       });
     }
 
@@ -215,6 +216,13 @@ export function searchResultsToChunks(results: any): Chunk[] {
           : {}),
         ...(fields.description || metadata.description ? { description: fields.description || metadata.description } : {}),
         ...(fields.table_markdown || metadata.table_markdown ? { table_markdown: fields.table_markdown || metadata.table_markdown } : {}),
+        // Written by RAGloader/ingest_claims.py ("cited") and
+        // ingest_research_papers.py ("supplementary") as a metadata-only
+        // patch after upsert -- absent on records ingested before that
+        // tagging existed.
+        ...(fields.evidenceTier || metadata.evidenceTier
+          ? { evidenceTier: fields.evidenceTier || metadata.evidenceTier }
+          : {}),
       };
 
       try {

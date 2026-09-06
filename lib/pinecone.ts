@@ -48,9 +48,27 @@ function pineconeIndex() {
 }
 
 type PineconeFilters = {
-  source_name?: string;
+  // A single name (exact match) or a list (match any) -- the list form is
+  // what the recommendation-explainer tool uses to restrict a search to
+  // exactly the claim(s) a policy cited, never the whole KB.
+  source_name?: string | string[];
   chunk_type?: Chunk["chunk_type"];
+  // "cited" | "supplementary" -- see types/data.ts's Chunk.evidenceTier
+  // comment. Absent = no restriction (matches records with any tier, or none).
+  evidenceTier?: "cited" | "supplementary";
 };
+
+function buildFilter(opts: PineconeFilters): Record<string, any> {
+  const filter: Record<string, any> = {};
+  if (opts.source_name) {
+    filter.source_name = Array.isArray(opts.source_name)
+      ? { $in: opts.source_name }
+      : { $eq: opts.source_name };
+  }
+  if (opts.chunk_type) filter.chunk_type = { $eq: opts.chunk_type };
+  if (opts.evidenceTier) filter.evidenceTier = { $eq: opts.evidenceTier };
+  return filter;
+}
 
 // --- Legacy single-namespace search (backward compat) ---
 
@@ -58,9 +76,7 @@ async function searchLegacy(
   query: string,
   opts: PineconeFilters
 ): Promise<Chunk[]> {
-  const filter: Record<string, any> = {};
-  if (opts.source_name) filter.source_name = { $eq: opts.source_name };
-  if (opts.chunk_type) filter.chunk_type = { $eq: opts.chunk_type };
+  const filter = buildFilter(opts);
 
   const results = await pineconeIndex().namespace("default").searchRecords({
     query: {
@@ -80,6 +96,7 @@ async function searchLegacy(
       "chunk_type",
       "order",
       "page_number",
+      "evidenceTier",
     ],
   });
 
@@ -94,9 +111,7 @@ async function searchParentChild(
   query: string,
   opts: PineconeFilters
 ): Promise<Chunk[]> {
-  const filter: Record<string, any> = {};
-  if (opts.source_name) filter.source_name = { $eq: opts.source_name };
-  if (opts.chunk_type) filter.chunk_type = { $eq: opts.chunk_type };
+  const filter = buildFilter(opts);
 
   // 1. Search children namespace (no parent_content — fetched separately)
   const childResults = await pineconeIndex()
@@ -124,6 +139,7 @@ async function searchParentChild(
         "description",
         "figure_caption",
         "table_markdown",
+        "evidenceTier",
       ],
     });
 
@@ -361,7 +377,10 @@ export async function searchPinecone(
   query: string,
   opts: PineconeFilters = {}
 ): Promise<PineconeSearchResult> {
-  const cacheKey = `${query}::${opts.source_name ?? ""}::${opts.chunk_type ?? ""}`;
+  const sourceNameKey = Array.isArray(opts.source_name)
+    ? [...opts.source_name].sort().join(",")
+    : opts.source_name ?? "";
+  const cacheKey = `${query}::${sourceNameKey}::${opts.chunk_type ?? ""}::${opts.evidenceTier ?? ""}`;
   const cached = searchCache.get(cacheKey);
   if (cached) return cached;
 

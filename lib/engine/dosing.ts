@@ -23,6 +23,7 @@ import { TRUE } from "@/types/engine";
 import { dosingPolicyForCompound, compoundById, productById, pricingByProductId } from "./knowledge-base";
 import { run } from "./predicate";
 import { computeServingPlan } from "./serving-plan";
+import { packsNeededPerMonth } from "./monthly-cost";
 
 /** Resolves a dosing policy's target amount and (where computable) dietary gap for this profile. */
 export function resolveDosing(profile: UserProfile, compoundId: string): RecommendationDosing | undefined {
@@ -121,10 +122,21 @@ export function amountPerServingFor(product: Product, compoundId: string): numbe
 
 /**
  * Picks the product to plan a serving against: among every product whose
- * ingredientId is among the candidate ingredients, the one with the lowest
- * price per unit of `compoundId` actually delivered over the whole pack
- * (priceINR / (amountPerServing * servingsPerPack)) — not, as originally
- * implemented, just the first match in products.json's catalogue order.
+ * ingredientId is among the candidate ingredients, the one that actually
+ * costs the LEAST per month for THIS user's real daily need — not, as
+ * originally implemented, just the first match in products.json's catalogue
+ * order.
+ *
+ * When `gapAmount` (the daily amount still needed) is known, this simulates
+ * the real serving plan each candidate product would produce (rounding,
+ * splittability, and the minimum-effective-dose floor all included, exactly
+ * as buildServingPlan will later compute for whichever product wins), turns
+ * that into whole packs/month (lib/engine/monthly-cost.ts — you can't buy a
+ * fraction of a pack), and ranks by that true monthly cost. Two products
+ * with near-identical price-per-gram can differ once pack-rounding is
+ * applied: a slightly pricier product whose pack size divides the monthly
+ * need evenly can beat a "cheaper per gram" one whose pack size forces
+ * buying an extra, mostly-wasted pack.
  *
  * CHANGED 2026-09-06, at product's request: catalogue-order selection was
  * picking a premium 1lb SKU (on-gold-standard-whey-1lb, ~₹5.55/g protein)
@@ -137,17 +149,49 @@ export function amountPerServingFor(product: Product, compoundId: string): numbe
  * Ranking by value here means the affordable case is already the
  * best-value choice, not just budget.ts's overflow fallback.
  *
- * Falls back to catalogue order (the original behavior) when no candidate
- * has a price at all, rather than picking arbitrarily among unpriced
- * products or returning nothing.
+ * CHANGED 2026-09-07: ranking moved from "price per gram over the whole
+ * pack" to "true monthly cost after pack-rounding", per the same request —
+ * a budget is a monthly constraint, and packs are the only purchasable unit.
+ * Falls back to the price-per-unit-over-the-pack heuristic when `gapAmount`
+ * isn't supplied (e.g. no dosing concept for this recommendation), and
+ * further to catalogue order (the original behavior) when no candidate has
+ * a price at all, rather than picking arbitrarily among unpriced products
+ * or returning nothing.
  */
 export function pickTopCandidateProduct(
   candidateIngredientIds: string[],
   allProducts: Product[],
-  compoundId: string
+  compoundId: string,
+  gapAmount?: number
 ): Product | undefined {
   const matches = allProducts.filter((p) => candidateIngredientIds.includes(p.ingredientId));
   if (matches.length === 0) return undefined;
+
+  if (gapAmount != null && gapAmount > 0) {
+    const minEffectiveDose = dosingMinEffectiveDoseFor(compoundId);
+    const byMonthlyCost = matches
+      .map((product) => {
+        const priceINR = pricingByProductId.get(product.id)?.priceINR;
+        const amountPerServing = amountPerServingFor(product, compoundId);
+        if (priceINR == null || amountPerServing <= 0) return undefined;
+        const calc = computeServingPlan({
+          gapAmount,
+          amountPerServing,
+          splittable: product.splittable,
+          minEffectiveDose,
+        });
+        const packs = packsNeededPerMonth(calc.servings, product.servingsPerPack);
+        return { product, monthlyCost: packs * priceINR };
+      })
+      .filter((m): m is { product: Product; monthlyCost: number } => m != null);
+
+    if (byMonthlyCost.length > 0) {
+      // Stable sort: ties keep their original catalogue order.
+      byMonthlyCost.sort((a, b) => a.monthlyCost - b.monthlyCost);
+      return byMonthlyCost[0].product;
+    }
+    // No candidate had pricing — fall through to the pricing-agnostic path below.
+  }
 
   const priced = matches
     .map((product) => {

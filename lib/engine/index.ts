@@ -7,5 +7,6 @@ export { resolveDosing, buildServingPlan, pickTopCandidateProduct, amountPerServ
 export { computeServingPlan } from "./serving-plan";
 export { computeGoalAlignment, computeGapTier, computePriorityScore } from "./priority";
 export { allocateBudget, type BasketCandidate } from "./budget";
+export { packsNeededPerMonth, monthlyCostINR, DAYS_PER_MONTH } from "./monthly-cost";
 export { evaluate, run, decisive, explain } from "./predicate";
 export * as knowledgeBase from "./knowledge-base";

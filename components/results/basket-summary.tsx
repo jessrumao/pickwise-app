@@ -17,8 +17,15 @@ function BasketRow({ item }: { item: BasketItem }) {
         <span>
           {name ?? rec.compoundId ?? rec.ingredientId} — {product?.productName ?? item.productId}
         </span>
-        <span className="text-muted-foreground">₹{item.priceINR}</span>
+        <span className="text-muted-foreground">
+          {item.packsPerMonth} pack{item.packsPerMonth === 1 ? "" : "s"}/mo · ₹{item.monthlyCostINR}/mo
+        </span>
       </div>
+      {item.packsPerMonth > 1 && (
+        <p className="text-xs text-muted-foreground">
+          ₹{item.priceINR}/pack × {item.packsPerMonth} to cover this month&apos;s servings
+        </p>
+      )}
       {product?.compositionIsPlaceholder && (
         <p className="text-xs text-amber-700 dark:text-amber-400">
           Composition not yet verified by our nutrition expert — treat this listing as indicative.
@@ -35,7 +42,9 @@ export function BasketSummary({ budget }: { budget: BudgetOutcome }) {
         <CardTitle className="font-display">Your basket</CardTitle>
         <p className="text-sm text-muted-foreground">
           {budget.budgetINR != null
-            ? `Budget: ₹${budget.budgetINR}/month${budget.budgetIsHardConstraint ? "" : " (soft limit)"}`
+            ? budget.budgetIsHardConstraint
+              ? `Budget: ₹${budget.budgetINR}/month`
+              : `Budget: ₹${budget.budgetINR}/month (flexible — up to ₹${budget.headroomINR} more for something you really need)`
             : "No budget limit set"}
         </p>
       </CardHeader>

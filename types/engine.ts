@@ -833,7 +833,12 @@ export interface Recommendation {
 export interface BasketItem {
   recommendation: Recommendation;
   productId: ProductId;
-  priceINR: number;
+  priceINR: number; // per-pack price
+  // Whole packs needed this month to cover the real daily need, and the
+  // resulting monthly cost (packsPerMonth * priceINR) — the number that
+  // actually counts against monthlyBudgetINR. See lib/engine/monthly-cost.ts.
+  packsPerMonth: number;
+  monthlyCostINR: number;
   priorityScore: PriorityScore;
   // True when this item was substituted to a cheaper SKU than the top
   // candidate — only ever allowed above the quality floor (still meets the
@@ -844,10 +849,14 @@ export interface BasketItem {
 export interface BudgetOutcome {
   budgetINR?: number; // undefined = user set no limit (monthlyBudgetINR was blank)
   budgetIsHardConstraint: boolean;
+  // Extra headroom added to budgetINR when budgetIsHardConstraint is false:
+  // min(15% of budgetINR, ₹1000) — enough to let one more genuinely-needed
+  // item in, not an unbounded overage. 0 when hard, or when budgetINR is unset.
+  headroomINR: number;
   funded: BasketItem[]; // priority order preserved, never re-sorted by price
   deferred: BasketItem[]; // still carries price — never silently dropped
-  totalFundedCostINR: number;
-  totalDeferredCostINR: number;
+  totalFundedCostINR: number; // sum of funded[].monthlyCostINR
+  totalDeferredCostINR: number; // sum of deferred[].monthlyCostINR
 }
 
 // ---------------------------------------------------------------------------

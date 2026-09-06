@@ -1,10 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EvidenceAccordion } from "@/components/results/evidence-accordion";
-import { getProductDisplay, productsForIngredient } from "@/lib/results/product-lookup";
+import { getProductDisplay, productsForIngredient, monthlyPacksFor } from "@/lib/results/product-lookup";
 import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
 import { findMatchingEscalation } from "@/lib/results/trace-match";
-import { RoutineSection } from "@/components/results/routine-section";
 import { knowledgeBase } from "@/lib/engine";
 import type { Recommendation, SafetyEscalation } from "@/types/engine";
 
@@ -31,6 +29,7 @@ export function RecommendationCard({
   const otherProducts = (rec.candidateIngredients ?? [])
     .flatMap((c) => productsForIngredient(c.ingredientId))
     .filter((p) => p.productId !== chosenProduct?.productId);
+  const monthlyPacks = chosenProduct ? monthlyPacksFor(chosenProduct.productId, rec.servingPlan) : undefined;
 
   return (
     <Card>
@@ -57,6 +56,12 @@ export function RecommendationCard({
             {display.tone !== "escalate" && (
               <Badge variant="outline" className="text-xs">
                 Evidence: {rec.grade}
+                {policy && policy.citesClaims.length > 0 && (
+                  <>
+                    {" "}
+                    · {policy.citesClaims.length} source{policy.citesClaims.length === 1 ? "" : "s"}
+                  </>
+                )}
               </Badge>
             )}
             <p className="text-sm">{rec.why}</p>
@@ -78,7 +83,14 @@ export function RecommendationCard({
               {chosenProduct.brand} — {chosenProduct.productName}
             </p>
             <div className="mt-1 flex items-center gap-2 text-muted-foreground">
-              {chosenProduct.priceINR != null && <span>₹{chosenProduct.priceINR}</span>}
+              {monthlyPacks ? (
+                <span>
+                  ₹{monthlyPacks.monthlyCostINR}/mo ({monthlyPacks.packsPerMonth} pack
+                  {monthlyPacks.packsPerMonth === 1 ? "" : "s"} × ₹{chosenProduct.priceINR})
+                </span>
+              ) : (
+                chosenProduct.priceINR != null && <span>₹{chosenProduct.priceINR}</span>
+              )}
               {chosenProduct.marketplaceUrl ? (
                 <a
                   href={chosenProduct.marketplaceUrl}
@@ -104,18 +116,6 @@ export function RecommendationCard({
               </p>
             )}
           </div>
-        )}
-
-        {rec.dosing?.timing && rec.status !== "escalate" && (
-          <RoutineSection
-            compoundName={itemName(rec)}
-            timing={rec.dosing.timing}
-            servingPlan={rec.servingPlan}
-          />
-        )}
-
-        {policy && policy.citesClaims.length > 0 && rec.status !== "escalate" && (
-          <EvidenceAccordion claimIds={policy.citesClaims} />
         )}
       </CardContent>
     </Card>

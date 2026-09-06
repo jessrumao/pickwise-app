@@ -68,16 +68,26 @@ function ResultsPageInner() {
 
   if (state.status === "ready") {
     return (
-      <div className="flex flex-1 flex-col items-center gap-6 p-6 sm:p-10">
-        <div className="w-full max-w-xl">
-          <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
+      <div className="flex flex-1 flex-col">
+        {/* Same "INPUT X OF Y" micro-label rhythm intake uses (see
+            components/intake/intake-flow.tsx) so landing on /results after
+            finishing the questionnaire reads as the next step in one flow,
+            not a jump into a differently-styled page. */}
+        <div className="border-b border-border px-6 py-6 sm:px-10">
+          <p className="flex items-center gap-2 font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
             ANALYSIS COMPLETE
           </p>
+          <h1 className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Your recommendations
+          </h1>
         </div>
-        <ResultsView result={state.result} />
-        <Button asChild variant="outline" className="font-display text-xs tracking-wide">
-          <Link href="/intake">START OVER</Link>
-        </Button>
+        <div className="flex flex-1 flex-col items-center gap-6 px-6 py-10 sm:px-10">
+          <ResultsView result={state.result} />
+          <Button asChild variant="outline" className="font-display text-xs tracking-wide">
+            <Link href="/intake">START OVER</Link>
+          </Button>
+        </div>
       </div>
     );
   }

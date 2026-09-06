@@ -18,7 +18,11 @@ import { DEFAULT_VENDOR, DEFAULT_MODEL_ID } from "@/config";
 import { dosingTimingSchema } from "@/types/engine";
 import { buildRoutinePrompt } from "@/lib/routine/build-routine-prompt";
 
-const requestSchema = z.object({
+// One call covers the whole funded basket (2026-09-07 product decision) —
+// a person fits several supplements into one day, and cross-item separation
+// rules only mean anything relative to what else is in the basket. `items`
+// always carries at least one entry.
+const routineItemSchema = z.object({
   compoundName: z.string().min(1),
   timing: dosingTimingSchema,
   servingPlan: z
@@ -28,6 +32,10 @@ const requestSchema = z.object({
       unit: z.string(),
     })
     .optional(),
+});
+
+const requestSchema = z.object({
+  items: z.array(routineItemSchema).min(1),
   scheduleContext: z
     .object({
       exerciseFrequencyPerWeek: z.number().optional(),
@@ -55,7 +63,7 @@ export async function POST(req: Request) {
     return jsonError("Invalid request body.", 400);
   }
 
-  const { system, prompt } = buildRoutinePrompt(parsed.data);
+  const { system, prompt } = buildRoutinePrompt(parsed.data.items, parsed.data.scheduleContext);
 
   try {
     const { object } = await generateObject({
@@ -67,6 +75,6 @@ export async function POST(req: Request) {
     return Response.json(object);
   } catch (error) {
     console.error("routine generation failed:", error);
-    return jsonError("Could not generate a routine for this item. Please try again.", 502);
+    return jsonError("Could not generate a routine for this basket. Please try again.", 502);
   }
 }

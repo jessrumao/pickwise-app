@@ -4,6 +4,14 @@ import { BasketSummary } from "@/components/results/basket-summary";
 import { Disclaimer } from "@/components/results/disclaimer";
 import { RecommendationCard } from "@/components/results/recommendation-card";
 import { RecommendationsChat } from "@/components/results/recommendations-chat";
+import { RoutineSection } from "@/components/results/routine-section";
+import type { RoutineItemInput } from "@/lib/routine/build-routine-prompt";
+
+function itemName(compoundId?: string, ingredientId?: string): string {
+  if (compoundId) return knowledgeBase.compoundById.get(compoundId)?.name ?? compoundId;
+  if (ingredientId) return knowledgeBase.ingredientById.get(ingredientId)?.name ?? ingredientId;
+  return "Unknown item";
+}
 
 // Recommended/potentially-useful first (highest priority score first), then
 // escalate, then the explicit no's — not_shown never reaches this list's
@@ -46,7 +54,7 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
   // visible recommendation's cited claims — not a per-card question box
   // (that clutters the UI once several recommendations are shown; see
   // components/results/recommendations-chat.tsx). Escalations are excluded
-  // the same way RecommendationCard excludes them from EvidenceAccordion: a
+  // the same way RecommendationCard excludes them from its evidence badge: a
   // safety escalation has no "why" evidence to explain, only a message to
   // see a professional. Deduped since multiple recommendations can share a
   // policy/claim.
@@ -60,12 +68,30 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
     )
   );
 
+  // One combined routine for the whole FUNDED basket — only items whose
+  // dosing policy actually declares a timing fence (dosing.timing) have
+  // anything for the routine builder to phrase; a bundle product with no
+  // dosing concept (e.g. the multivitamin) is simply left out, same as the
+  // old per-card button only rendering when dosing.timing existed.
+  const routineItems: RoutineItemInput[] = (result.budget?.funded ?? [])
+    .map((item) => item.recommendation)
+    .filter((rec) => rec.status !== "escalate" && rec.dosing?.timing)
+    .map((rec) => ({
+      compoundName: itemName(rec.compoundId, rec.ingredientId),
+      timing: rec.dosing!.timing,
+      servingPlan: rec.servingPlan,
+    }));
+
   return (
     <div className="mx-auto w-full max-w-xl space-y-4">
+      <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">
+        YOUR RECOMMENDATIONS
+      </p>
       {visible.map((rec, i) => (
         <RecommendationCard key={i} rec={rec} safetyEscalations={result.safety.escalations} />
       ))}
       {result.budget && <BasketSummary budget={result.budget} />}
+      {routineItems.length > 0 && <RoutineSection items={routineItems} />}
       <RecommendationsChat citedClaimIds={citedClaimIds} />
       <Disclaimer />
     </div>

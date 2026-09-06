@@ -11,35 +11,51 @@
 //   floor (still meets the required effective dose — dose-met is the only
 //   gate, there is no separate third-party-testing requirement).
 //
-// FLAGGED INTERPRETATION (the spec is silent on the exact mechanics, so this
-// is Package B's own reasonable reading, not a re-litigation of a settled
-// decision): when budgetIsHardConstraint is false ("show slightly over-budget
-// options too" per user-profile.schema.json's questionnaireText), an item
-// that doesn't fit even after a downgrade attempt is still funded rather than
-// deferred, on the reading that the user explicitly opted out of a hard cap.
-// Package E may want a distinct "near-miss" display state rather than lumping
-// every soft-constraint overage into plain "funded" — that's a UI decision
-// this engine output doesn't need to make for it.
+// The budget is a MONTHLY constraint, and every candidate/alternative here
+// already carries `monthlyCostINR` — the real cost of buying however many
+// whole packs cover this month's need (lib/engine/monthly-cost.ts) — so all
+// fit-checks and totals below compare monthly cost, never the flat per-pack
+// `priceINR` (which is kept only for display, e.g. "3 packs x ₹599").
+//
+// FLEXIBLE-BUDGET RULE (product decision, replacing the earlier "fund every
+// overage no matter how large" reading of budgetIsHardConstraint=false, i.e.
+// "show slightly over-budget options too" per user-profile.schema.json's
+// questionnaireText): a flexible user gets a bounded extra headroom, min(15%
+// of budgetINR, ₹1000), added to the total basket cap — enough to let ONE
+// more genuinely-needed item squeeze in, not unlimited spending. It applies
+// to the TOTAL basket, not per item: funded total <= budgetINR + headroomINR.
 
 import type { UserProfile, Recommendation, BasketItem, BudgetOutcome, ProductId } from "@/types/engine";
 
 export interface BasketCandidate {
   recommendation: Recommendation; // must already carry priorityScore and servingPlan
   productId: ProductId;
-  priceINR: number;
+  priceINR: number; // per-pack price, display only
+  packsPerMonth: number;
+  monthlyCostINR: number; // the number this allocator actually budgets against
   // Other products that could deliver the same recommendation, cheapest-first
   // is NOT assumed — this module sorts them. Only ever populated with
   // products that already satisfy the quality floor (i.e. their serving plan
   // was computed the same way and still meets minEffectiveDose) — computing
   // that is dosing.ts's job, not this module's.
-  alternativeProducts: Array<{ productId: ProductId; priceINR: number }>;
+  alternativeProducts: Array<{ productId: ProductId; priceINR: number; packsPerMonth: number; monthlyCostINR: number }>;
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+const FLEXIBLE_BUDGET_HEADROOM_PERCENT = 0.15;
+const FLEXIBLE_BUDGET_HEADROOM_MAX_INR = 1000;
+
 export function allocateBudget(candidates: BasketCandidate[], profile: UserProfile): BudgetOutcome {
   const budgetINR = profile.monthlyBudgetINR;
   const hardConstraint = profile.budgetIsHardConstraint ?? true;
+  const headroomINR =
+    budgetINR != null && !hardConstraint
+      ? Math.min(budgetINR * FLEXIBLE_BUDGET_HEADROOM_PERCENT, FLEXIBLE_BUDGET_HEADROOM_MAX_INR)
+      : 0;
+  // The real cap fit-checks run against — plain budgetINR when hard (or
+  // unset), budgetINR + headroomINR when flexible.
+  const effectiveBudgetINR = budgetINR != null ? budgetINR + headroomINR : undefined;
 
   // Priority order preserved — NEVER re-sorted by price. Stable sort keeps
   // the original (eligibility-stage) order for ties.
@@ -52,20 +68,24 @@ export function allocateBudget(candidates: BasketCandidate[], profile: UserProfi
   let spent = 0;
 
   for (const candidate of byPriority) {
-    const remaining = budgetINR != null ? budgetINR - spent : Infinity;
+    const remaining = effectiveBudgetINR != null ? effectiveBudgetINR - spent : Infinity;
 
     let productId = candidate.productId;
     let priceINR = candidate.priceINR;
+    let packsPerMonth = candidate.packsPerMonth;
+    let monthlyCostINR = candidate.monthlyCostINR;
     let downgradedFromProductId: ProductId | undefined;
 
-    if (budgetINR != null && priceINR > remaining) {
+    if (effectiveBudgetINR != null && monthlyCostINR > remaining) {
       const fits = candidate.alternativeProducts
-        .filter((alt) => alt.priceINR <= remaining)
-        .sort((a, b) => a.priceINR - b.priceINR)[0];
+        .filter((alt) => alt.monthlyCostINR <= remaining)
+        .sort((a, b) => a.monthlyCostINR - b.monthlyCostINR)[0];
       if (fits) {
         downgradedFromProductId = productId;
         productId = fits.productId;
         priceINR = fits.priceINR;
+        packsPerMonth = fits.packsPerMonth;
+        monthlyCostINR = fits.monthlyCostINR;
       }
     }
 
@@ -73,25 +93,28 @@ export function allocateBudget(candidates: BasketCandidate[], profile: UserProfi
       recommendation: candidate.recommendation,
       productId,
       priceINR,
+      packsPerMonth,
+      monthlyCostINR,
       priorityScore: candidate.recommendation.priorityScore ?? { gapTier: 0, evidenceTier: 0, goalAlignment: 0, total: 0 },
       downgradedFromProductId,
     };
 
-    const fitsBudget = budgetINR == null || priceINR <= remaining;
-    if (fitsBudget || !hardConstraint) {
+    const fitsBudget = effectiveBudgetINR == null || monthlyCostINR <= remaining;
+    if (fitsBudget) {
       funded.push(item);
-      spent += priceINR;
+      spent += monthlyCostINR;
     } else {
-      deferred.push(item); // still carries its price — never silently dropped
+      deferred.push(item); // still carries its cost — never silently dropped
     }
   }
 
   return {
     budgetINR,
     budgetIsHardConstraint: hardConstraint,
+    headroomINR: round2(headroomINR),
     funded,
     deferred,
     totalFundedCostINR: round2(spent),
-    totalDeferredCostINR: round2(deferred.reduce((sum, d) => sum + d.priceINR, 0)),
+    totalDeferredCostINR: round2(deferred.reduce((sum, d) => sum + d.monthlyCostINR, 0)),
   };
 }

@@ -1,61 +1,75 @@
 "use client";
 
 import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { generateRoutine } from "@/lib/routine/routine-api";
-import type { RoutineInput } from "@/lib/routine/build-routine-prompt";
+import type { RoutineItemInput, RoutineScheduleContext } from "@/lib/routine/build-routine-prompt";
 
-// Lazy and per-card on purpose: generating this for every card on every
-// page load would mean an LLM call nobody asked for, on every /results
-// view. Per the brief, this section is optional and never required for the
-// card to render — it only exists once a user asks for it.
-type RoutineState = "idle" | "loading" | { text: string } | { error: string };
+// One combined routine for the whole FUNDED basket (2026-09-07 product
+// decision), not a per-card "Show my routine" button — a person fits every
+// funded item into one actual day, and cross-item separation rules
+// (timing.separateFromCompoundIds) only mean anything relative to what else
+// is in the basket. Auto-generates on mount rather than waiting for a click:
+// this is now exactly one LLM call for the whole page (previously up to one
+// per card), and how to actually use what was just recommended is core
+// information, not an optional aside.
+type RoutineState = "loading" | { text: string } | { error: string };
 
-export function RoutineSection(props: RoutineInput) {
-  const [state, setState] = React.useState<RoutineState>("idle");
+export function RoutineSection({
+  items,
+  scheduleContext,
+}: {
+  items: RoutineItemInput[];
+  scheduleContext?: RoutineScheduleContext;
+}) {
+  const [state, setState] = React.useState<RoutineState>("loading");
 
-  async function handleClick() {
+  const load = React.useCallback(() => {
     setState("loading");
-    try {
-      const text = await generateRoutine(props);
-      setState({ text });
-    } catch (error) {
-      setState({ error: error instanceof Error ? error.message : "Something went wrong." });
-    }
-  }
+    generateRoutine(items, scheduleContext)
+      .then((text) => setState({ text }))
+      .catch((error: unknown) =>
+        setState({ error: error instanceof Error ? error.message : "Something went wrong." })
+      );
+    // items/scheduleContext are derived fresh from the same funded basket
+    // each render — re-running on every reference change would refetch
+    // needlessly, so this intentionally only depends on the item identities
+    // that actually change the routine text.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(items), JSON.stringify(scheduleContext)]);
 
-  if (state === "idle") {
-    return (
-      <Button type="button" variant="outline" size="sm" onClick={handleClick}>
-        Show my routine
-      </Button>
-    );
-  }
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
-  if (state === "loading") {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Spinner /> Working out a routine…
-      </div>
-    );
-  }
-
-  if ("error" in state) {
-    return (
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-destructive">{state.error}</span>
-        <Button type="button" variant="outline" size="sm" onClick={handleClick}>
-          Retry
-        </Button>
-      </div>
-    );
-  }
+  if (items.length === 0) return null;
 
   return (
-    <div className="rounded-md border border-dashed p-3 text-sm">
-      <p className="mb-1 text-xs font-medium text-muted-foreground">Your routine</p>
-      <p>{state.text}</p>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-display">Your daily routine</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          How everything in your basket fits into one day.
+        </p>
+      </CardHeader>
+      <CardContent>
+        {state === "loading" && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner /> Working out your routine…
+          </div>
+        )}
+        {typeof state === "object" && "error" in state && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-destructive">{state.error}</span>
+            <Button type="button" variant="outline" size="sm" onClick={load}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {typeof state === "object" && "text" in state && <p className="text-sm">{state.text}</p>}
+      </CardContent>
+    </Card>
   );
 }

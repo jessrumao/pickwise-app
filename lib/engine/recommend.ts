@@ -16,10 +16,47 @@ import type {
 } from "@/types/engine";
 import { evaluateSafetyGate } from "./safety";
 import { evaluateEligibility } from "./eligibility";
-import { resolveDosing, pickTopCandidateProduct, buildServingPlan, dosingMinEffectiveDoseFor } from "./dosing";
+import { resolveDosing, pickTopCandidateProduct, buildServingPlan, dosingMinEffectiveDoseFor, amountPerServingFor } from "./dosing";
+import { computeServingPlan } from "./serving-plan";
 import { computeGoalAlignment, computeGapTier, computePriorityScore } from "./priority";
 import { allocateBudget, type BasketCandidate } from "./budget";
+import { packsNeededPerMonth } from "./monthly-cost";
 import { products, pricingByProductId, eligibilityPolicyById, GRADE_RANK } from "./knowledge-base";
+import type { Product } from "@/types/engine";
+
+// Monthly cost for a candidate product against a real daily compound gap —
+// simulates the exact serving plan that product would produce (rounding,
+// splittability, minimum-effective-dose floor, same as buildServingPlan)
+// and turns it into whole packs/month (you can't buy a fraction of a pack).
+// Mirrors pickTopCandidateProduct's own internal ranking simulation exactly,
+// so the product actually chosen and the monthly cost shown for it agree.
+function monthlyCostForCompound(
+  product: Product,
+  compoundId: string,
+  gapAmount: number,
+  priceINR: number
+): { packsPerMonth: number; monthlyCostINR: number } {
+  const calc = computeServingPlan({
+    gapAmount,
+    amountPerServing: amountPerServingFor(product, compoundId),
+    splittable: product.splittable,
+    minEffectiveDose: dosingMinEffectiveDoseFor(compoundId),
+  });
+  const packsPerMonth = packsNeededPerMonth(calc.servings, product.servingsPerPack);
+  return { packsPerMonth, monthlyCostINR: packsPerMonth * priceINR };
+}
+
+// Ingredient-scoped bundle products (e.g. a multivitamin) have no per-compound
+// dose to close a gap against — rda_multiple can't resolve to a concrete
+// amount (see the comment below), so there is no real daily-serving figure
+// to compute. Assumes the standard one-serving-a-day label dosing these
+// products are sold under, per product decision.
+const BUNDLE_ASSUMED_DAILY_SERVINGS = 1;
+
+function monthlyCostForBundle(product: Product, priceINR: number): { packsPerMonth: number; monthlyCostINR: number } {
+  const packsPerMonth = packsNeededPerMonth(BUNDLE_ASSUMED_DAILY_SERVINGS, product.servingsPerPack);
+  return { packsPerMonth, monthlyCostINR: packsPerMonth * priceINR };
+}
 
 export interface RecommendationResult {
   // Set when a GLOBAL safety policy fired (e.g. unparseable medications,
@@ -51,9 +88,10 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
     // Compound-level recommendation: resolve dose, pick a product via the
     // substitution candidates, build a serving plan.
     if (rec.compoundId) {
-      const dosing = resolveDosing(profile, rec.compoundId);
+      const compoundId = rec.compoundId;
+      const dosing = resolveDosing(profile, compoundId);
       const candidateIds = (rec.candidateIngredients ?? []).map((c) => c.ingredientId);
-      const topProduct = pickTopCandidateProduct(candidateIds, products, rec.compoundId);
+      const topProduct = pickTopCandidateProduct(candidateIds, products, compoundId, dosing?.gapAmount);
 
       const priorityScore = computePriorityScore({
         gapTier: computeGapTier(dosing?.gapAmount, dosing?.resolvedTargetAmount, dosing?.gapIsQuantified ?? false),
@@ -62,28 +100,49 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
       });
 
       let servingPlan: ServingPlan | undefined;
-      if (topProduct && dosing?.gapAmount != null && dosing.gapAmount > 0) {
+      const gapAmount = dosing?.gapAmount;
+      if (topProduct && gapAmount != null && gapAmount > 0) {
         servingPlan = buildServingPlan(
-          rec.compoundId,
+          compoundId,
           topProduct,
-          dosing.gapAmount,
-          dosingMinEffectiveDoseFor(rec.compoundId)
+          gapAmount,
+          dosingMinEffectiveDoseFor(compoundId)
         );
       }
 
       const updated: Recommendation = { ...rec, dosing, servingPlan, priorityScore };
 
+      // A real, quantified daily gap lets monthly cost be computed against
+      // this compound's actual per-serving delivery (monthlyCostForCompound).
+      // Without one (no dosing policy matched this profile at all — rare,
+      // but the eligibility/dosing predicates are independent so it's not
+      // impossible), fall back to the same one-serving-a-day assumption the
+      // ingredient-scoped branch below uses, rather than dropping an
+      // otherwise-eligible recommendation out of the basket entirely.
+      const hasQuantifiedGap = gapAmount != null && gapAmount > 0;
+      const costFor = (product: Product, price: number) =>
+        hasQuantifiedGap
+          ? monthlyCostForCompound(product, compoundId, gapAmount!, price)
+          : monthlyCostForBundle(product, price);
+
       if (topProduct) {
         const price = pricingByProductId.get(topProduct.id)?.priceINR;
         if (price != null) {
+          const { packsPerMonth, monthlyCostINR } = costFor(topProduct, price);
           const alternativeProducts = products
             .filter((p) => candidateIds.includes(p.ingredientId) && p.id !== topProduct.id)
-            .map((p) => ({ productId: p.id, priceINR: pricingByProductId.get(p.id)?.priceINR }))
-            .filter((alt): alt is { productId: string; priceINR: number } => alt.priceINR != null);
+            .map((p) => {
+              const altPrice = pricingByProductId.get(p.id)?.priceINR;
+              if (altPrice == null) return undefined;
+              return { productId: p.id, priceINR: altPrice, ...costFor(p, altPrice) };
+            })
+            .filter((alt): alt is { productId: string; priceINR: number; packsPerMonth: number; monthlyCostINR: number } => alt != null);
           basketCandidates.push({
             recommendation: updated,
             productId: topProduct.id,
             priceINR: price,
+            packsPerMonth,
+            monthlyCostINR,
             alternativeProducts,
           });
         }
@@ -108,7 +167,15 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
       const product = products.find((p) => p.ingredientId === rec.ingredientId);
       const price = product ? pricingByProductId.get(product.id)?.priceINR : undefined;
       if (product && price != null) {
-        basketCandidates.push({ recommendation: updated, productId: product.id, priceINR: price, alternativeProducts: [] });
+        const { packsPerMonth, monthlyCostINR } = monthlyCostForBundle(product, price);
+        basketCandidates.push({
+          recommendation: updated,
+          productId: product.id,
+          priceINR: price,
+          packsPerMonth,
+          monthlyCostINR,
+          alternativeProducts: [],
+        });
       }
     }
 

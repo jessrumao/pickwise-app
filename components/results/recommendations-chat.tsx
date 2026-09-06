@@ -35,7 +35,19 @@ import { Button } from "@/components/ui/button";
 import { MessageWall } from "@/components/messages/message-wall";
 import { ThinkingIndicator } from "@/components/ai-elements/thinking-indicator";
 
-export function RecommendationsChat({ citedClaimIds }: { citedClaimIds: string[] }) {
+export function RecommendationsChat({
+  citedClaimIds,
+  profileVersionId,
+}: {
+  citedClaimIds: string[];
+  // Only set for a real, persisted submission (see app/results/page.tsx) —
+  // absent for the demo-profile picker, which has no database row to look
+  // up. When present, the server independently re-fetches this exact,
+  // OWNED profile version and injects it (plus the recommendations it
+  // produces) as verified context — never trusting a client-supplied
+  // profile. See lib/results/build-recommendation-context.ts.
+  profileVersionId?: string;
+}) {
   const [input, setInput] = React.useState("");
 
   const { messages, sendMessage, status, stop } = useChat({
@@ -47,10 +59,14 @@ export function RecommendationsChat({ citedClaimIds }: { citedClaimIds: string[]
     e.preventDefault();
     const text = input.trim();
     if (!text) return;
-    sendMessage({
-      text,
-      body: { explainContext: { citedClaimIds } },
-    } as any);
+    // `body` is a ChatRequestOptions field — it belongs in sendMessage's
+    // SECOND argument, not alongside `text` in the first. Putting it in the
+    // first argument (as this used to) is silently dropped by the SDK, so
+    // explainContext never reached the server: explain mode never
+    // activated, and the chat always answered as the generic assistant with
+    // no recommendation or profile context at all. This was the real
+    // reason the chat previously seemed unable to talk about either.
+    sendMessage({ text }, { body: { explainContext: { citedClaimIds, profileVersionId } } });
     setInput("");
   }
 

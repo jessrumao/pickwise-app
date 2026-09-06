@@ -38,6 +38,13 @@ ${AI_NAME} is ${OWNER_NAME}'s AI assistant. It answers questions about the evide
 // Browser tab / metadata title. Change freely — one line, no other edits needed.
 export const BROWSER_TAB_TITLE = "Pickwise";
 
+// Product-focused description for <meta name="description"> and Open Graph
+// (used when the site link itself is shared — link-preview cards on
+// WhatsApp/Slack/iMessage/Twitter read these tags specifically, not the
+// chatbot-focused AI_DESCRIPTION above). See app/layout.tsx.
+export const SITE_DESCRIPTION =
+  "Pickwise recommends supplements based on your goals, diet, and budget — evidence-backed, with no sponsored placements. Rules decide, not an LLM.";
+
 export const WELCOME_MESSAGE = `Hello! I'm the ${OWNER_NAME} Assistant. Ask me about the evidence behind any supplement we have recommended you.`;
 export const CLEAR_CHAT_TEXT = "New";
 

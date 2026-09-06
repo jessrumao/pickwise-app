@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono, Syne } from "next/font/google";
-import { AI_DESCRIPTION, BROWSER_TAB_TITLE } from "@/config";
+import { BROWSER_TAB_TITLE, SITE_DESCRIPTION } from "@/config";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import "streamdown/styles.css";
@@ -24,9 +24,30 @@ const syne = Syne({
   subsets: ["latin"],
 });
 
+// metadataBase resolves the relative /logo.png below into an absolute URL —
+// required for Open Graph/Twitter card images to render on link-preview
+// scrapers (WhatsApp, Slack, iMessage, Twitter/X), which fetch the image
+// directly rather than loading it in a browser context.
+const SITE_URL = "https://pickwise-app-wine.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: BROWSER_TAB_TITLE,
-  description: AI_DESCRIPTION,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: BROWSER_TAB_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: BROWSER_TAB_TITLE,
+    images: ["/logo.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: BROWSER_TAB_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({

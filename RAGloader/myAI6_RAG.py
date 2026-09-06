@@ -2851,7 +2851,11 @@ def _iter_namespace(index, ns, max_url_chars=3000):
         if not page:
             continue
         batch, size = [], 0
-        for vid in page:
+        for raw in page:
+            # Same SDK-version normalization as _collect_source_ids above:
+            # newer pinecone-client yields list-item objects (.id), older
+            # versions yield plain id strings.
+            vid = raw.id if hasattr(raw, "id") else raw
             cost = len(vid) + 16  # url-encoding of '::' plus '&ids=' overhead
             if batch and size + cost > max_url_chars:
                 yield from _fetch_meta(index, ns, batch)
@@ -2874,7 +2878,12 @@ def _collect_source_ids(index, ns, source_name, extra_child_ids=None, deep=True)
     ids = set()
     try:
         for page in index.list(prefix=f"{source_name}::", namespace=ns):
-            ids.update(page)
+            # Newer pinecone-client versions yield list-item objects (with an
+            # .id attribute) here instead of plain id strings; older versions
+            # yield plain strings directly. Handle both so a set() of ids is
+            # always the result regardless of which SDK version is installed.
+            for item in page:
+                ids.add(item.id if hasattr(item, "id") else item)
     except Exception as e:
         logger.warning("Prefix listing failed in '%s': %s", ns, e)
     if not deep:

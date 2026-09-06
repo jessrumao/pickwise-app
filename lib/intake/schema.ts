@@ -23,7 +23,10 @@ export const intakeFormSchema = z
     sex: z.enum(["male", "female", "prefer_not_to_say"]),
     isPregnantOrBreastfeeding: z.boolean().optional(),
     bodyWeightKg: z.number().min(30).max(250),
-    heightCm: z.number().min(100).max(250).optional(),
+    // Required in the intake form (unlike UserProfile's own schema, where
+    // it stays optional — no MVP rule reads it yet). Product decision: ask
+    // for it up front so it's never missing later if a rule needs it.
+    heightCm: z.number().min(100).max(250),
     dietaryPattern: dietaryPatternSchema,
     exerciseFrequencyPerWeek: z.number().int().min(0).max(14),
     exerciseType: z.array(exerciseTypeSchema).optional(),
@@ -67,25 +70,32 @@ export type IntakeFormValues = z.infer<typeof intakeFormSchema>;
 
 // Field groups validated together as the user advances one step at a time.
 // Kept separate from the step *copy* (in intake-flow.tsx) so validation
-// stays correct even if the visual grouping changes.
+// stays correct even if the visual grouping changes. Grouped by theme
+// (about you / diet & activity / goals & budget / sleep & supplements /
+// diet gaps / allergies & safety) rather than one question per screen —
+// each screen mixes its required question(s) with the optional ones that
+// belong to the same topic, so filling in an optional field never costs a
+// separate screen of its own.
 export const STEP_FIELDS: (keyof IntakeFormValues)[][] = [
   [], // 0: intro/framing, nothing to validate
-  ["age"],
-  ["sex", "isPregnantOrBreastfeeding"],
-  ["bodyWeightKg", "heightCm"],
-  ["dietaryPattern"],
-  ["exerciseFrequencyPerWeek"],
-  ["exerciseType"],
-  ["primaryGoals"],
-  ["monthlyBudgetINR", "budgetIsHardConstraint"],
-  ["sleepHoursTypical"],
-  ["existingSupplementUseText"],
-  ["dietaryProteinAdequacy", "estimatedDailyProteinG"],
-  ["dietaryOilyFishServingsPerWeek"],
-  ["allergiesText"],
-  ["relevantHealthContext"],
-  ["medicationsHasAny", "medicationsFreeText"],
-  [], // 16: review & submit
+  ["age", "sex", "isPregnantOrBreastfeeding", "bodyWeightKg", "heightCm"], // 1: about you
+  ["dietaryPattern", "exerciseFrequencyPerWeek", "exerciseType"], // 2: diet & activity
+  ["primaryGoals", "monthlyBudgetINR", "budgetIsHardConstraint"], // 3: goals & budget
+  ["sleepHoursTypical", "existingSupplementUseText"], // 4: sleep & current supplements
+  ["dietaryProteinAdequacy", "estimatedDailyProteinG", "dietaryOilyFishServingsPerWeek"], // 5: diet gaps
+  ["allergiesText", "relevantHealthContext", "medicationsHasAny", "medicationsFreeText"], // 6: allergies & safety
+  [], // 7: review & submit
 ];
 
 export const TOTAL_STEPS = STEP_FIELDS.length;
+
+// Human-readable section titles for the review screen's "Edit" links,
+// indexed the same way as STEP_FIELDS (skips 0 and the last/review step).
+export const STEP_TITLES: Record<number, string> = {
+  1: "About you",
+  2: "Diet & activity",
+  3: "Goals & budget",
+  4: "Sleep & current supplements",
+  5: "Diet gaps",
+  6: "Allergies & safety",
+};

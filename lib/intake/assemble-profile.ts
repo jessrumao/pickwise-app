@@ -56,7 +56,7 @@ export function assembleUserProfile(
     },
   };
 
-  if (form.heightCm !== undefined) profile.heightCm = form.heightCm;
+  profile.heightCm = form.heightCm; // required in the intake form now
   if (form.monthlyBudgetINR !== undefined) profile.monthlyBudgetINR = form.monthlyBudgetINR;
   profile.budgetIsHardConstraint = form.budgetIsHardConstraint;
   // Always set, never omitted: user-profile.schema.json's own notes say this

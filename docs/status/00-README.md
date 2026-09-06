@@ -54,6 +54,11 @@ Read in this order:
     research, and a 4-tier-safety-model calibration section grounded in
     which former "Yellow" ingredients already have real policies today vs.
     which "Red" compounds exist only as entities with no policy yet.
+11. `ui-polish-1-status.md` — a landing page at `/` (chat moved to `/chat`),
+    the intake condensed from 17 one-question screens to 8 themed ones
+    (with `heightCm` now required), and a real review screen with per-section
+    "Edit" links replacing the raw JSON dump after submission. Live pricing
+    was discussed and explicitly deferred — see that note for why.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

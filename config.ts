@@ -34,7 +34,10 @@ ${AI_NAME} is ${OWNER_NAME}'s AI assistant. It answers questions about ${OWNER_N
 `.trim();
 
 // Browser tab / metadata title. Change freely — one line, no other edits needed.
-export const BROWSER_TAB_TITLE = `${AI_NAME}`;
+// Deliberately not `${AI_NAME}` — the site's public identity is Pickwise now
+// that / is a Pickwise landing page (see app/page.tsx); the chat at /chat is
+// still internally the myAI6 scaffold pending its own domain rewrite.
+export const BROWSER_TAB_TITLE = "Pickwise";
 
 export const WELCOME_MESSAGE = `Hello! I'm ${AI_NAME}, ${OWNER_NAME}'s AI assistant.`;
 export const CLEAR_CHAT_TEXT = "New";

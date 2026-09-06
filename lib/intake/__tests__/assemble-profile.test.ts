@@ -28,7 +28,7 @@ function toFormValues(sample: UserProfile): IntakeFormValues {
     sex: sample.sex,
     isPregnantOrBreastfeeding: sample.isPregnantOrBreastfeeding,
     bodyWeightKg: sample.bodyWeightKg,
-    heightCm: sample.heightCm,
+    heightCm: sample.heightCm ?? 170, // required in the form; the 5 real samples predate that
     dietaryPattern: sample.dietaryPattern,
     exerciseFrequencyPerWeek: sample.exerciseFrequencyPerWeek,
     exerciseType: sample.exerciseType ?? [],
@@ -128,7 +128,7 @@ describe("blank optional free-text fields must not read as UNKNOWN to the safety
     sex: "male",
     isPregnantOrBreastfeeding: undefined,
     bodyWeightKg: 72,
-    heightCm: undefined,
+    heightCm: 175,
     dietaryPattern: "vegetarian",
     exerciseFrequencyPerWeek: 4,
     exerciseType: ["resistance_training"],

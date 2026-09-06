@@ -7,7 +7,7 @@ import {
   createUIMessageStreamResponse,
 } from "ai";
 import "@/lib/env";
-import { SYSTEM_PROMPT } from "@/prompts";
+import { SYSTEM_PROMPT, EXPLAIN_SYSTEM_PROMPT } from "@/prompts";
 import { isContentFlagged } from "@/lib/moderation";
 import {
   MODERATION_FAIL_POLICY,
@@ -25,6 +25,7 @@ import {
   buildProviderOptions,
 } from "@/lib/ai/routing";
 import { buildToolSet, buildToolGuidance } from "@/lib/ai/tools";
+import { createAskAboutRecommendation } from "@/app/api/chat/tools/ask-about-recommendation";
 import { compactMessages } from "@/lib/compaction";
 import {
   normUrl,
@@ -68,6 +69,34 @@ export async function POST(req: Request) {
   }
 
   const messages: UIMessage[] = body.messages ?? [];
+
+  // --- Optional "explain this recommendation" mode ---
+  // Present only when a chat turn originates from a recommendation card's
+  // question box (see components/results/*), never from the general
+  // assistant page (app/page.tsx), which never sends this field and gets
+  // the exact same behavior as before. When present, this turn is scoped to
+  // ONE recommendation: the model explains and answers follow-up questions
+  // about it, grounded via ask-about-recommendation.ts, and never invents,
+  // overrides, or re-derives the recommendation itself (that came from
+  // Package B's rules engine, not from any LLM).
+  const MAX_EXPLAIN_CLAIM_IDS = 20; // same bound as app/api/evidence/route.ts
+  let explainCitedClaimIds: string[] | null = null;
+  const rawExplainContext = (body as { explainContext?: unknown }).explainContext;
+  if (rawExplainContext && typeof rawExplainContext === "object") {
+    const claimIds = (rawExplainContext as { citedClaimIds?: unknown }).citedClaimIds;
+    if (
+      Array.isArray(claimIds) &&
+      claimIds.every((id) => typeof id === "string")
+    ) {
+      // Empty array is valid (a card can have zero cited claims) -- it just
+      // means the "cited" tier search is skipped and only the broader
+      // "supplementary" research corpus is searched. See
+      // ask-about-recommendation.ts.
+      explainCitedClaimIds = claimIds.slice(0, MAX_EXPLAIN_CLAIM_IDS);
+    } else if (process.env.NODE_ENV === "development") {
+      console.warn("EXPLAIN MODE: rejected malformed explainContext.citedClaimIds");
+    }
+  }
 
   // Read compaction summary from request headers (client sends via headers, not body).
   // The summary enters the model context as trusted history, so it is only
@@ -177,8 +206,15 @@ export async function POST(req: Request) {
   }
 
   const model = getModel(vendor, modelId);
-  const tools = buildToolSet(collectSource);
-  const toolGuidance = buildToolGuidance();
+  // In explain mode, the model gets exactly one tool -- scoped to this one
+  // recommendation -- instead of the general KB/web tool set, and no
+  // general-KB tool guidance (buildToolGuidance() describes vectorDatabaseSearch/
+  // webSearch, which don't exist in this mode and would only confuse the model).
+  const tools =
+    explainCitedClaimIds !== null
+      ? { askAboutRecommendation: createAskAboutRecommendation(explainCitedClaimIds, collectSource) }
+      : buildToolSet(collectSource);
+  const toolGuidance = explainCitedClaimIds !== null ? "" : buildToolGuidance();
   const providerOptions = buildProviderOptions(vendor, mode, thinkingLevel, modelId);
 
   // --- Run moderation + compaction in parallel (saves ~3-5s) ---
@@ -213,10 +249,11 @@ export async function POST(req: Request) {
 
   // --- Stream response ---
   try {
+    const basePrompt = explainCitedClaimIds !== null ? EXPLAIN_SYSTEM_PROMPT : SYSTEM_PROMPT;
     const systemPrompt = compactionResult.compacted
-      ? SYSTEM_PROMPT + "\n\n" + toolGuidance +
+      ? basePrompt + "\n\n" + toolGuidance +
         "\n\n[Note: Earlier conversation context is provided as a summary. Continue naturally.]"
-      : SYSTEM_PROMPT + "\n\n" + toolGuidance;
+      : basePrompt + "\n\n" + toolGuidance;
 
     // Wrap streamText in a UI message stream so we can append a structured
     // `data-sources` part once the model (and all its tool steps) finish.

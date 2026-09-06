@@ -70,6 +70,21 @@ export function Sources({ sources }: { sources: UISource[] }) {
                       aria-label="Citation verified against the source"
                     />
                   )}
+                  {/* Only the "supplementary" tier gets a badge -- "cited" is
+                      the default, expected case for a recommendation's own
+                      evidence, so badging it on every line would just be
+                      noise. This label is read straight from the source's
+                      evidenceTier, not from anything the model said, so it
+                      can't be wrong even if the model's own phrasing is
+                      imprecise. See app/api/chat/tools/ask-about-recommendation.ts. */}
+                  {s.evidenceTier === "supplementary" && (
+                    <span
+                      className="shrink-0 rounded-full border border-border/60 bg-muted px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground"
+                      title="Additional research — not part of why this was recommended"
+                    >
+                      additional research
+                    </span>
+                  )}
                 </div>
                 {sub && (
                   <div className="truncate text-xs text-muted-foreground">{sub}</div>

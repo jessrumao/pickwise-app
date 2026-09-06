@@ -29,7 +29,10 @@
       "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000000709"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "epa-dha-triglyceride-lowering::p_0_a87b9a1e8fe2",
+    "epa-dha-triglyceride-lowering::p_1_91cdde5e6e39"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

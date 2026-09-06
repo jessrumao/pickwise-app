@@ -50,7 +50,9 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/28615996/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "creatine-lean-mass-resistance-trained::p_0_d8769357009c"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

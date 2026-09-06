@@ -29,7 +29,10 @@
       "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11243702/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "epa-dha-exercise-recovery-inflammation::p_0_b5c2a826013e",
+    "epa-dha-exercise-recovery-inflammation::p_1_f53d222539fb"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

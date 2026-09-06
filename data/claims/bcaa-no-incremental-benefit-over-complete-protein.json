@@ -35,7 +35,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "bcaa-no-incremental-benefit-over-complete-protein::p_0_a825c946f70c",
+    "bcaa-no-incremental-benefit-over-complete-protein::p_1_39e476f59837"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

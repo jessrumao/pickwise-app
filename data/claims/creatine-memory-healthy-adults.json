@@ -28,7 +28,10 @@
       "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11275561/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "creatine-memory-healthy-adults::p_0_fa4e13eab185",
+    "creatine-memory-healthy-adults::p_1_c04635603de2"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

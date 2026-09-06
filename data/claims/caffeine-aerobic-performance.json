@@ -28,7 +28,10 @@
       "url": "https://doi.org/10.3390/nu18121989"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "caffeine-aerobic-performance::p_0_e0f43ce8253a",
+    "caffeine-aerobic-performance::p_1_e752cf0b0d47"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

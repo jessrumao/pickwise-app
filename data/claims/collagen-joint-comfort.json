@@ -28,7 +28,10 @@
       "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8521576/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "collagen-joint-comfort::p_0_3982794089f4",
+    "collagen-joint-comfort::p_1_7039dc8f34ba"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

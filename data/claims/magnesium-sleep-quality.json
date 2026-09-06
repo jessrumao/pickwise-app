@@ -28,7 +28,10 @@
       "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12412596/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "magnesium-sleep-quality::p_0_27d75c5ef95e",
+    "magnesium-sleep-quality::p_1_3ce5b2632a1a"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

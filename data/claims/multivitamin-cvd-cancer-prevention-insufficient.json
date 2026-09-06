@@ -28,7 +28,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/35727271/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "multivitamin-cvd-cancer-prevention-insufficient::p_0_390444632540",
+    "multivitamin-cvd-cancer-prevention-insufficient::p_1_e028f6fb2545"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

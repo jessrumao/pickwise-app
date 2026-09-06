@@ -35,7 +35,10 @@
       "url": "https://www.ahajournals.org/doi/10.1161/CIR.0000000000000709"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "epa-dha-general-population-cv-prevention::p_0_043122bce615",
+    "epa-dha-general-population-cv-prevention::p_1_af9808d6f148"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

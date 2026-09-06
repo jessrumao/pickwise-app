@@ -50,7 +50,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/28615996/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "creatine-strength-power-resistance-trained::p_0_a2a681085175",
+    "creatine-strength-power-resistance-trained::p_1_33990476725b"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

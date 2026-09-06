@@ -34,7 +34,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/35727271/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "multivitamin-micronutrient-adequacy-restricted-diets::p_0_e2170d8b433f",
+    "multivitamin-micronutrient-adequacy-restricted-diets::p_1_196be8526d47"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

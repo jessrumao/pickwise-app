@@ -35,7 +35,10 @@
       "url": "https://ods.od.nih.gov/factsheets/Probiotics-HealthProfessional/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "lgg-antibiotic-associated-diarrhoea::p_0_40915dfc4676",
+    "lgg-antibiotic-associated-diarrhoea::p_1_f0d4545965a7"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

@@ -57,7 +57,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "protein-lean-mass-resistance-trained::p_0_a4d5b700a0ed",
+    "protein-lean-mass-resistance-trained::p_1_b11d5a0a35e2"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

@@ -28,7 +28,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/38970118/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "magnesium-exercise-soreness::p_0_2b98d74b7057",
+    "magnesium-exercise-soreness::p_1_4b64ae5e7ad4"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

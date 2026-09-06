@@ -56,7 +56,10 @@
       "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "protein-strength-resistance-trained::p_0_88811b154cde",
+    "protein-strength-resistance-trained::p_1_9c432e232df6"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

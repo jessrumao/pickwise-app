@@ -22,13 +22,16 @@
   "statement": "Beta-alanine improves exercise performance specifically in high-intensity efforts lasting roughly 60-240 seconds; it is not established as a general performance enhancer across all exercise durations.",
   "citations": [
     {
-      "title": "Effects of β-alanine supplementation on exercise performance: a meta-analysis",
+      "title": "Effects of \u03b2-alanine supplementation on exercise performance: a meta-analysis",
       "source": "Amino Acids (meta-analysis)",
       "year": 2012,
       "url": "https://link.springer.com/article/10.1007/s00726-011-1200-z"
     }
   ],
-  "vectorRefs": [],
+  "vectorRefs": [
+    "beta-alanine-high-intensity-performance::p_0_b2e619f7b594",
+    "beta-alanine-high-intensity-performance::p_1_bda2316c4552"
+  ],
   "review": {
     "status": "expert_reviewed",
     "reviewedBy": "Jess",

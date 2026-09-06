@@ -707,7 +707,7 @@ export function IntakeFlow() {
                               </Label>
                               <Textarea
                                 id="protein-food-description"
-                                placeholder="e.g. eggs, dal, roti, chicken curry, milk"
+                                placeholder="e.g. 2 eggs, 1 bowl dal, 3 rotis, chicken curry, 1 glass milk"
                                 {...form.register("proteinFoodDescription")}
                               />
                               <div className="flex items-center gap-2">

@@ -98,6 +98,16 @@
       },
       "questionnaireText": "What kind of exercise, mostly?"
     },
+    "exerciseIntensityTypical": {
+      "type": "string",
+      "enum": [
+        "light",
+        "moderate",
+        "vigorous"
+      ],
+      "questionnaireText": "On a typical session, how intense is your exercise?",
+      "notes": "ADDED 2026-09-06. Additive alongside exerciseFrequencyPerWeek/exerciseType — how hard, not how often or what kind. Not yet read by any eligibility/dosing/safety policy; collected for whoever next authors a policy that could use it (beta-alanine/caffeine relevance is really about intensity)."
+    },
     "primaryGoals": {
       "type": "array",
       "minItems": 1,
@@ -149,15 +159,16 @@
     "estimatedDailyProteinG": {
       "type": "number",
       "minimum": 0,
-      "maximum": 400,
-      "questionnaireText": "If you have a rough idea, about how many grams of protein a day do you get from food? (optional)",
-      "notes": "When present, the gap is computed numerically instead of from the adequacy enum. This is what turns 'you may need protein' into 'you need ~130 g/day and you're getting ~90'."
+      "maximum": 250,
+      "questionnaireText": "About how many grams of protein a day do you get from food?",
+      "notes": "CHANGED 2026-09-06: now asked as a required slider in the intake form (with a food-reference panel to help estimate), not an optional follow-up. Leaving this unset previously made resolveDosing() fall back to the FULL target instead of a real gap, which is why protein was showing 4-5 scoops/day for most people — see lib/engine/dosing.ts. Stays optional in this schema (not every profile source is the intake form) but the form itself no longer allows skipping it."
     },
     "dietaryOilyFishServingsPerWeek": {
       "type": "integer",
       "minimum": 0,
       "maximum": 21,
-      "questionnaireText": "How many servings of oily fish do you eat per week?"
+      "questionnaireText": "How many servings of oily fish do you eat per week?",
+      "notes": "CHANGED 2026-09-06: required in the intake form (was optional) — lib/engine/dosing.ts now converts this into an estimated daily EPA+DHA mg amount (a deliberately conservative average per serving) so omega-3's gap can be quantified the same way protein's is, instead of always falling back to the full target."
     },
     "allergies": {
       "type": "array",

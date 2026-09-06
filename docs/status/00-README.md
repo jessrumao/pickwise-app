@@ -59,6 +59,16 @@ Read in this order:
     (with `heightCm` now required), and a real review screen with per-section
     "Edit" links replacing the raw JSON dump after submission. Live pricing
     was discussed and explicitly deferred — see that note for why.
+12. `questionnaire-finalization-status.md` — the protein-dosage bug (was
+    showing "4-5 scoops/day" for most users) traced to an optional dietary
+    estimate that almost never got filled in, fixed by making it a
+    required slider; the identical bug fixed for omega-3 via the
+    already-asked fish-servings question; a new exercise-intensity
+    question; two eligibility-policy widenings (caffeine, magnesium) done
+    as the sanctioned goal-based alternative to symptom-style questions;
+    and a full audit of which questionnaire answers map to which knowledge-
+    base ingredients, including nine entities that are unreachable by any
+    answer today.
 
 These are snapshots as of the date in each file's title, not living
 documents — if you make a decision that supersedes one, add a new dated

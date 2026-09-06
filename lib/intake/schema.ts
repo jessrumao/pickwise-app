@@ -9,6 +9,7 @@ import { z } from "zod";
 import {
   dietaryPatternSchema,
   exerciseTypeSchema,
+  exerciseIntensitySchema,
   primaryGoalSchema,
 } from "@/types/engine";
 
@@ -30,6 +31,7 @@ export const intakeFormSchema = z
     dietaryPattern: dietaryPatternSchema,
     exerciseFrequencyPerWeek: z.number().int().min(0).max(14),
     exerciseType: z.array(exerciseTypeSchema).optional(),
+    exerciseIntensityTypical: exerciseIntensitySchema,
     primaryGoals: z
       .array(primaryGoalSchema)
       .min(1, "Pick at least one.")
@@ -42,8 +44,16 @@ export const intakeFormSchema = z
     sleepHoursTypical: z.number().min(0).max(14),
     existingSupplementUseText: z.string(),
     dietaryProteinAdequacy: z.enum(["likely_adequate", "likely_inadequate", "unsure"]),
-    estimatedDailyProteinG: z.number().min(0).max(400).optional(),
-    dietaryOilyFishServingsPerWeek: z.number().int().min(0).max(21).optional(),
+    // Required (was optional): leaving this unset made resolveDosing() fall
+    // back to the FULL target instead of a real gap, which is why protein
+    // was showing 4-5 scoops/day for most people — see lib/engine/dosing.ts.
+    // Range capped at 250 (not UserProfile's 400) to match the slider UI.
+    estimatedDailyProteinG: z.number().min(0).max(250),
+    // Required (was optional): dosing.ts now converts this into an estimated
+    // daily EPA+DHA mg amount, so it needs a real answer to quantify the gap
+    // the same way protein's is, instead of always falling back to the full
+    // target.
+    dietaryOilyFishServingsPerWeek: z.number().int().min(0).max(21),
     allergiesText: z.string(),
     relevantHealthContext: z.string().optional(),
     medicationsHasAny: z.boolean(),
@@ -79,7 +89,7 @@ export type IntakeFormValues = z.infer<typeof intakeFormSchema>;
 export const STEP_FIELDS: (keyof IntakeFormValues)[][] = [
   [], // 0: intro/framing, nothing to validate
   ["age", "sex", "isPregnantOrBreastfeeding", "bodyWeightKg", "heightCm"], // 1: about you
-  ["dietaryPattern", "exerciseFrequencyPerWeek", "exerciseType"], // 2: diet & activity
+  ["dietaryPattern", "exerciseFrequencyPerWeek", "exerciseType", "exerciseIntensityTypical"], // 2: diet & activity
   ["primaryGoals", "monthlyBudgetINR", "budgetIsHardConstraint"], // 3: goals & budget
   ["sleepHoursTypical", "existingSupplementUseText"], // 4: sleep & current supplements
   ["dietaryProteinAdequacy", "estimatedDailyProteinG", "dietaryOilyFishServingsPerWeek"], // 5: diet gaps

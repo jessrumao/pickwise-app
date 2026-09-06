@@ -5,6 +5,12 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,12 +34,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import {
   assembleUserProfile,
   fieldsNeedingConfirmation,
   type ParsedFreeText,
 } from "@/lib/intake/assemble-profile";
+import { PROTEIN_FOOD_REFERENCE } from "@/lib/intake/protein-food-reference";
 import {
   intakeFormSchema,
   STEP_FIELDS,
@@ -83,14 +91,15 @@ const DEFAULT_VALUES: IntakeFormValues = {
   dietaryPattern: "omnivore",
   exerciseFrequencyPerWeek: 3,
   exerciseType: [],
+  exerciseIntensityTypical: "moderate",
   primaryGoals: [],
   monthlyBudgetINR: undefined,
   budgetIsHardConstraint: true,
   sleepHoursTypical: 7,
   existingSupplementUseText: "",
   dietaryProteinAdequacy: "unsure",
-  estimatedDailyProteinG: undefined,
-  dietaryOilyFishServingsPerWeek: undefined,
+  estimatedDailyProteinG: 60,
+  dietaryOilyFishServingsPerWeek: 0,
   allergiesText: "",
   relevantHealthContext: "",
   medicationsHasAny: false,
@@ -117,7 +126,6 @@ export function IntakeFlow() {
   });
 
   const sex = form.watch("sex");
-  const dietaryProteinAdequacy = form.watch("dietaryProteinAdequacy");
   const medicationsHasAny = form.watch("medicationsHasAny");
 
   const isReviewStep = step === TOTAL_STEPS - 1;
@@ -450,6 +458,30 @@ export function IntakeFlow() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="exerciseIntensityTypical"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>On a typical session, how intense is your exercise?</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value}>
+                          {[
+                            { value: "light", label: "Light — e.g. walking, easy yoga" },
+                            { value: "moderate", label: "Moderate — 15-30 min of elevated heart rate" },
+                            { value: "vigorous", label: "Vigorous — 45+ min of elevated heart rate, or high-intensity training" },
+                          ].map((opt) => (
+                            <div key={opt.value} className="flex items-center gap-2">
+                              <RadioGroupItem value={opt.value} id={`intensity-${opt.value}`} />
+                              <Label htmlFor={`intensity-${opt.value}`}>{opt.label}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
 
@@ -621,32 +653,58 @@ export function IntakeFlow() {
                     </FormItem>
                   )}
                 />
-                {dietaryProteinAdequacy !== "likely_adequate" && (
-                  <FormField
-                    control={form.control}
-                    name="estimatedDailyProteinG"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          If you have a rough idea, about how many grams of protein a day do
-                          you get from food? (optional)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={400}
-                            value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                <FormField
+                  control={form.control}
+                  name="estimatedDailyProteinG"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About how many grams of protein a day do you get from food?</FormLabel>
+                      <FormDescription>
+                        A rough estimate is fine — this is what turns &ldquo;you may need
+                        protein&rdquo; into a real, personalized amount.
+                      </FormDescription>
+                      <FormControl>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <Slider
+                              min={0}
+                              max={250}
+                              step={5}
+                              value={[field.value]}
+                              onValueChange={([v]) => field.onChange(v)}
+                              className="flex-1"
+                            />
+                            <span className="w-16 shrink-0 text-right text-sm font-medium">
+                              {field.value}g
+                            </span>
+                          </div>
+                          <Accordion type="single" collapsible>
+                            <AccordionItem value="food-reference">
+                              <AccordionTrigger className="text-sm">Need help estimating?</AccordionTrigger>
+                              <AccordionContent>
+                                <p className="mb-2 text-xs text-muted-foreground">
+                                  Rough protein content of common foods, to help you add up a
+                                  typical day.
+                                </p>
+                                <ul className="space-y-1 text-xs">
+                                  {PROTEIN_FOOD_REFERENCE.map((f) => (
+                                    <li key={f.food} className="flex justify-between gap-4">
+                                      <span>{f.food}</span>
+                                      <span className="text-right text-muted-foreground">
+                                        {f.proteinPer100g}g/100g — {f.typicalServing}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="dietaryOilyFishServingsPerWeek"
@@ -654,7 +712,7 @@ export function IntakeFlow() {
                     <FormItem>
                       <FormLabel>
                         How many servings of oily fish (salmon, mackerel, sardines, etc.) do
-                        you eat per week? (optional)
+                        you eat per week?
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -662,9 +720,7 @@ export function IntakeFlow() {
                           min={0}
                           max={21}
                           value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)
-                          }
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -823,6 +879,7 @@ function buildSummary(values: IntakeFormValues): SummarySection[] {
             ? values.exerciseType.map(exerciseLabel).join(", ")
             : "Not specified",
         },
+        { label: "Typical intensity", value: values.exerciseIntensityTypical },
       ],
     },
     {
@@ -849,14 +906,9 @@ function buildSummary(values: IntakeFormValues): SummarySection[] {
       title: STEP_TITLES[5],
       stepIndex: 5,
       rows: [
-        { label: "Protein from food", value: PROTEIN_ADEQUACY_LABELS[values.dietaryProteinAdequacy] },
-        ...(values.estimatedDailyProteinG != null
-          ? [{ label: "Estimated daily protein", value: `${values.estimatedDailyProteinG} g` }]
-          : []),
-        {
-          label: "Oily fish servings/week",
-          value: values.dietaryOilyFishServingsPerWeek != null ? String(values.dietaryOilyFishServingsPerWeek) : "Not provided",
-        },
+        { label: "Protein from food (self-assessment)", value: PROTEIN_ADEQUACY_LABELS[values.dietaryProteinAdequacy] },
+        { label: "Estimated daily protein", value: `${values.estimatedDailyProteinG}g` },
+        { label: "Oily fish servings/week", value: String(values.dietaryOilyFishServingsPerWeek) },
       ],
     },
     {

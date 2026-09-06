@@ -70,12 +70,10 @@ export function assembleUserProfile(
   if (form.exerciseType && form.exerciseType.length > 0) {
     profile.exerciseType = form.exerciseType;
   }
-  if (form.estimatedDailyProteinG !== undefined) {
-    profile.estimatedDailyProteinG = form.estimatedDailyProteinG;
-  }
-  if (form.dietaryOilyFishServingsPerWeek !== undefined) {
-    profile.dietaryOilyFishServingsPerWeek = form.dietaryOilyFishServingsPerWeek;
-  }
+  profile.exerciseIntensityTypical = form.exerciseIntensityTypical;
+  // Both required in the intake form now (see schema.ts) — always set.
+  profile.estimatedDailyProteinG = form.estimatedDailyProteinG;
+  profile.dietaryOilyFishServingsPerWeek = form.dietaryOilyFishServingsPerWeek;
   // Same fail-closed trap as medicationsOrConditionsFlag.freeText above:
   // always set this (default ""), never omit it, or a blank answer to this
   // optional question reads as UNKNOWN instead of "nothing to report" to any

@@ -32,14 +32,17 @@ function toFormValues(sample: UserProfile): IntakeFormValues {
     dietaryPattern: sample.dietaryPattern,
     exerciseFrequencyPerWeek: sample.exerciseFrequencyPerWeek,
     exerciseType: sample.exerciseType ?? [],
+    exerciseIntensityTypical: sample.exerciseIntensityTypical ?? "moderate", // required in the form; no sample predates this
     primaryGoals: sample.primaryGoals,
     monthlyBudgetINR: sample.monthlyBudgetINR,
     budgetIsHardConstraint: sample.budgetIsHardConstraint ?? true,
     sleepHoursTypical: sample.sleepHoursTypical,
     existingSupplementUseText: sample.existingSupplementUse.join(", "),
     dietaryProteinAdequacy: sample.dietaryProteinAdequacy,
-    estimatedDailyProteinG: sample.estimatedDailyProteinG,
-    dietaryOilyFishServingsPerWeek: sample.dietaryOilyFishServingsPerWeek,
+    // required in the form; only vegetarian-muscle-gain's sample sets this
+    estimatedDailyProteinG: sample.estimatedDailyProteinG ?? 60,
+    // required in the form; every sample already sets this, ?? 0 is just a type-safe fallback
+    dietaryOilyFishServingsPerWeek: sample.dietaryOilyFishServingsPerWeek ?? 0,
     allergiesText: sample.allergies.join(", "),
     relevantHealthContext: sample.relevantHealthContext,
     medicationsHasAny: sample.medicationsOrConditionsFlag.hasAny,
@@ -132,6 +135,7 @@ describe("blank optional free-text fields must not read as UNKNOWN to the safety
     dietaryPattern: "vegetarian",
     exerciseFrequencyPerWeek: 4,
     exerciseType: ["resistance_training"],
+    exerciseIntensityTypical: "moderate",
     primaryGoals: ["muscle_gain"],
     monthlyBudgetINR: undefined,
     budgetIsHardConstraint: true,

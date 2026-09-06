@@ -603,6 +603,18 @@ export const exerciseTypeSchema = z.enum([
 ]);
 export type ExerciseType = z.infer<typeof exerciseTypeSchema>;
 
+// ADDED 2026-09-06. Additive nuance dimension alongside exerciseFrequencyPerWeek
+// and exerciseType — frequency/type say how often and what kind, this says how
+// hard a typical session is. Deliberately NOT a composite BMR/TDEE-style
+// "activity level" label (those blend frequency+intensity into one fuzzy
+// band, which is harder for a rules engine to gate on reliably than the
+// clean numeric frequency question this project already asks). Not yet read
+// by any eligibility/dosing/safety policy — collected for whoever next
+// authors policy that could use it (e.g. beta-alanine/caffeine relevance is
+// really about intensity, not just goal + frequency).
+export const exerciseIntensitySchema = z.enum(["light", "moderate", "vigorous"]);
+export type ExerciseIntensity = z.infer<typeof exerciseIntensitySchema>;
+
 export const medicationsOrConditionsFlagSchema = z.object({
   hasAny: z.boolean(),
   freeText: z.string().optional(),
@@ -635,6 +647,9 @@ export const userProfileSchema = z.object({
   dietaryPattern: dietaryPatternSchema,
   exerciseFrequencyPerWeek: z.number().int().min(0).max(14),
   exerciseType: z.array(exerciseTypeSchema).optional(),
+  // ADDED 2026-09-06. See exerciseIntensitySchema's comment — additive, not
+  // yet read by any policy.
+  exerciseIntensityTypical: exerciseIntensitySchema.optional(),
   // Order matters: index 0 is the primary goal and scores 2 in
   // goal_alignment; the rest score 1.
   primaryGoals: z.array(primaryGoalSchema).min(1).max(3),

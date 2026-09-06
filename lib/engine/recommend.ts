@@ -53,7 +53,7 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
     if (rec.compoundId) {
       const dosing = resolveDosing(profile, rec.compoundId);
       const candidateIds = (rec.candidateIngredients ?? []).map((c) => c.ingredientId);
-      const topProduct = pickTopCandidateProduct(candidateIds, products);
+      const topProduct = pickTopCandidateProduct(candidateIds, products, rec.compoundId);
 
       const priorityScore = computePriorityScore({
         gapTier: computeGapTier(dosing?.gapAmount, dosing?.resolvedTargetAmount, dosing?.gapIsQuantified ?? false),

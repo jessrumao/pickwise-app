@@ -16,8 +16,12 @@ describe("generateRecommendations: reproduce demo.mjs exactly across the 5 sampl
 
     expect(byCompound["protein-complete"].status).toBe("recommended");
     expect(byCompound["protein-complete"].servingPlan?.servings).toBe(1.5);
-    expect(byCompound["protein-complete"].servingPlan?.delivered).toBe(36);
-    expect(byCompound["protein-complete"].servingPlan?.productId).toBe("on-gold-standard-whey-1lb");
+    // 2026-09-06: pickTopCandidateProduct now ranks by price per gram of
+    // protein delivered, not catalogue order — muscleblaze-biozyme-whey-1kg
+    // (~Rs2.40/g) beats on-gold-standard-whey-1lb (~Rs5.55/g) even though the
+    // latter was listed first and comfortably affordable either way.
+    expect(byCompound["protein-complete"].servingPlan?.delivered).toBe(37.5);
+    expect(byCompound["protein-complete"].servingPlan?.productId).toBe("muscleblaze-biozyme-whey-1kg");
     expect(byCompound["protein-complete"].dosing?.resolvedTargetAmount).toBe(130);
     expect(byCompound["protein-complete"].dosing?.gapAmount).toBe(40);
 

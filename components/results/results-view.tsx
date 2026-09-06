@@ -1,5 +1,6 @@
 import type { RecommendationResult } from "@/lib/engine";
 import { knowledgeBase } from "@/lib/engine";
+import { Accordion } from "@/components/ui/accordion";
 import { BasketSummary } from "@/components/results/basket-summary";
 import { Disclaimer } from "@/components/results/disclaimer";
 import { RecommendationCard } from "@/components/results/recommendation-card";
@@ -85,8 +86,11 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
   return (
     <div className="mx-auto w-full max-w-xl space-y-6">
       {/* Basket leads the page — "what am I actually getting, and what does
-          it cost" is the answer people want first; the per-item reasoning
-          below explains it, rather than the other way around. */}
+          it cost" is the answer people want first. Routine comes right
+          after it ("how do I actually take this"), then the collapsed
+          per-item reasoning, then the chat — ordered from "what to do"
+          to "why", with the reasoning kept compact so the chat isn't
+          pushed below a wall of scrolling. */}
       {result.budget && (
         <div className="space-y-2">
           <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
@@ -96,16 +100,24 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
         </div>
       )}
 
-      <div className="space-y-4">
+      {routineItems.length > 0 && <RoutineSection items={routineItems} />}
+
+      <div className="space-y-2">
         <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">
           WHY THESE RECOMMENDATIONS
         </p>
-        {visible.map((rec, i) => (
-          <RecommendationCard key={i} rec={rec} safetyEscalations={result.safety.escalations} />
-        ))}
+        <Accordion type="multiple" className="space-y-2">
+          {visible.map((rec, i) => (
+            <RecommendationCard
+              key={i}
+              value={String(i)}
+              rec={rec}
+              safetyEscalations={result.safety.escalations}
+            />
+          ))}
+        </Accordion>
       </div>
 
-      {routineItems.length > 0 && <RoutineSection items={routineItems} />}
       <RecommendationsChat citedClaimIds={citedClaimIds} />
       <Disclaimer />
     </div>

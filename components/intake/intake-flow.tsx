@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -104,10 +104,10 @@ type SubmitState =
   | { status: "parsing" }
   | { status: "needs-confirmation"; profile: UserProfile; fields: string[] }
   | { status: "submitting"; profile: UserProfile }
-  | { status: "done"; profile: UserProfile; profileVersionId: string }
   | { status: "error"; message: string };
 
 export function IntakeFlow() {
+  const router = useRouter();
   const [step, setStep] = React.useState(0);
   const [returnToReview, setReturnToReview] = React.useState(false);
   const [submitState, setSubmitState] = React.useState<SubmitState>({ status: "idle" });
@@ -217,7 +217,13 @@ export function IntakeFlow() {
     setSubmitState({ status: "submitting", profile });
     try {
       const { profileVersionId } = await submitProfile(profile);
-      setSubmitState({ status: "done", profile, profileVersionId });
+      // Straight to results — no intermediate "you're all set, click here"
+      // screen. The user already confirmed their profile on the review
+      // screen; the only thing left to do is show them the outcome. The
+      // "submitting" state's "Working on it…" stays visible until this
+      // navigation completes, then /results shows its own loading state
+      // while the decision is computed.
+      router.push(`/results?profileVersionId=${encodeURIComponent(profileVersionId)}`);
     } catch (error) {
       setSubmitState({
         status: "error",
@@ -236,28 +242,6 @@ export function IntakeFlow() {
       },
     };
     void doSubmit(confirmedProfile);
-  }
-
-  if (submitState.status === "done") {
-    return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Card className="mx-auto w-full max-w-xl">
-          <CardHeader>
-            <CardTitle className="font-display">You&apos;re all set</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Your profile was recorded. Your personalized recommendations are ready.
-            </p>
-            <Button asChild className="font-display text-xs tracking-wide">
-              <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
-                SEE YOUR RECOMMENDATIONS →
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
   }
 
   return (

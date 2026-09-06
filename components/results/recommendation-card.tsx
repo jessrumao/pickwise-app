@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { getProductDisplay, productsForIngredient, monthlyPacksFor } from "@/lib/results/product-lookup";
 import { statusDisplay, TONE_BADGE_CLASSES } from "@/lib/results/status-display";
 import { findMatchingEscalation } from "@/lib/results/trace-match";
@@ -12,10 +12,18 @@ function itemName(rec: Recommendation): string {
   return "Unknown item";
 }
 
+// One AccordionItem per recommendation — collapsed by default (see
+// results-view.tsx's Accordion wrapper). The basket already answers "what
+// am I getting and what does it cost"; this section answers "why", and
+// collapsing it by default keeps the page compact and leaves the
+// results-page chat visible without a wall of scrolling past open reasoning
+// nobody asked to read yet.
 export function RecommendationCard({
+  value,
   rec,
   safetyEscalations,
 }: {
+  value: string;
   rec: Recommendation;
   safetyEscalations: SafetyEscalation[];
 }) {
@@ -32,10 +40,10 @@ export function RecommendationCard({
   const monthlyPacks = chosenProduct ? monthlyPacksFor(chosenProduct.productId, rec.servingPlan) : undefined;
 
   return (
-    <Card>
-      <CardHeader className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="font-display">{itemName(rec)}</CardTitle>
+    <AccordionItem value={value} className="rounded-md border border-border px-3">
+      <AccordionTrigger className="hover:no-underline">
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-2 pr-2">
+          <span className="font-display text-sm">{itemName(rec)}</span>
           <Badge
             variant="outline"
             className={`font-display text-[10px] tracking-wide ${TONE_BADGE_CLASSES[display.tone]}`}
@@ -43,9 +51,10 @@ export function RecommendationCard({
             {display.label}
           </Badge>
         </div>
+      </AccordionTrigger>
+      <AccordionContent className="space-y-3">
         <p className="text-sm text-muted-foreground">{display.framing}</p>
-      </CardHeader>
-      <CardContent className="space-y-3">
+
         {rec.status === "escalate" ? (
           <p className="text-sm">
             {escalation?.userMessage ??
@@ -117,7 +126,7 @@ export function RecommendationCard({
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </AccordionContent>
+    </AccordionItem>
   );
 }

@@ -132,6 +132,67 @@ describe("allocateBudget: partial-month funding (2026-09-07 — never all-or-not
   });
 });
 
+describe("allocateBudget: breadth before depth (2026-09-07 — reproduces a real reported case)", () => {
+  it("gives every item a foothold before maxing out the top-priority one, instead of one item eating the whole budget", () => {
+    // Reproduces a real reported basket: a ₹6000 budget where protein's own
+    // IDEAL (3 packs, ₹5397) fit ALL BY ITSELF, so pure single-pass greedy
+    // funded it in full first and left only ₹603 — not enough for even 1
+    // pack of creatine (₹799) — deferring a well-established, cheap,
+    // high-priority item entirely next to an almost-fully-spent budget.
+    // Breadth-first must give protein LESS than its ideal so creatine (and
+    // everything else) still gets a real foothold.
+    const protein = candidate(4, "protein", 1799, 3); // ideal 3 packs = ₹5397
+    const caffeine = candidate(3, "caffeine", 599, 1); // ideal 1 pack = ₹599
+    const creatine = candidate(2, "creatine", 799, 2); // ideal 2 packs = ₹1598
+    const betaAlanine = candidate(1, "beta-alanine", 599, 1); // ideal 1 pack = ₹599
+
+    const outcome = allocateBudget(
+      [protein, caffeine, creatine, betaAlanine],
+      profile({ monthlyBudgetINR: 6000 })
+    );
+
+    // Nothing deferred — every item shows up somewhere in the basket.
+    expect(outcome.deferred).toHaveLength(0);
+    expect(outcome.funded.map((f) => f.productId)).toEqual([
+      "protein",
+      "caffeine",
+      "creatine",
+      "beta-alanine",
+    ]);
+
+    const byId = Object.fromEntries(outcome.funded.map((f) => [f.productId, f]));
+    // Protein gave up its 3rd pack (ideal) to leave room for the others —
+    // still substantial (2 of 3 packs, 2/3 of the month), not maxed out.
+    expect(byId["protein"].packsPerMonth).toBe(2);
+    expect(byId["protein"].coverageFraction).toBeCloseTo(2 / 3);
+    // Caffeine and beta-alanine reach their own (cheap) ideal in full.
+    expect(byId["caffeine"].coverageFraction).toBe(1);
+    expect(byId["beta-alanine"].coverageFraction).toBe(1);
+    // Creatine gets a real foothold (1 of 2 packs) instead of nothing.
+    expect(byId["creatine"].packsPerMonth).toBe(1);
+    expect(byId["creatine"].coverageFraction).toBe(0.5);
+
+    expect(outcome.totalFundedCostINR).toBe(3598 + 599 + 799 + 599);
+    expect(outcome.totalFundedCostINR).toBeLessThanOrEqual(6000);
+  });
+
+  it("still funds every item to its full ideal when the budget genuinely allows it", () => {
+    // Same shape as above, but with enough budget that breadth-first pass 2
+    // upgrades everything all the way — the two-pass search shouldn't leave
+    // money needlessly unspent when there's truly enough for everyone's ideal.
+    const protein = candidate(4, "protein", 1799, 3); // ideal ₹5397
+    const caffeine = candidate(3, "caffeine", 599, 1); // ideal ₹599
+    const creatine = candidate(2, "creatine", 799, 2); // ideal ₹1598
+    const total = 5397 + 599 + 1598;
+
+    const outcome = allocateBudget([protein, caffeine, creatine], profile({ monthlyBudgetINR: total }));
+
+    expect(outcome.deferred).toHaveLength(0);
+    expect(outcome.funded.every((f) => f.coverageFraction === 1)).toBe(true);
+    expect(outcome.totalFundedCostINR).toBe(total);
+  });
+});
+
 describe("allocateBudget: flexible-budget headroom (budgetIsHardConstraint: false)", () => {
   it("adds min(15% of budget, ₹1000) as extra headroom on the TOTAL basket, not unlimited overage", () => {
     // budget 1000, hard=false -> headroom = min(150, 1000) = 150 -> effective cap 1150.

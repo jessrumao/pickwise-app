@@ -32,10 +32,32 @@
 // would still fit and still deliver the correct per-serving dose. Every
 // candidate/alternative below carries `quantityOptions` — every real,
 // purchasable quantity from 1 pack up to the ideal (lib/engine/monthly-cost.ts) —
-// and the downgrade search below picks whichever (product, quantity)
-// combination covers the MOST of the month while still fitting the
-// remaining budget, searching across every brand AND every quantity of each
-// brand together, never just one axis alone.
+// and the search below picks whichever (product, quantity) combination
+// covers the MOST of the month while still fitting the budget it's given,
+// searching across every brand AND every quantity of each brand together,
+// never just one axis alone.
+//
+// BREADTH BEFORE DEPTH (product decision, 2026-09-07): pure single-pass
+// priority-greedy had a real failure mode — the top-priority item's own
+// IDEAL (a full month, possibly several packs) often fits the budget ALL BY
+// ITSELF, so it consumed nearly the whole thing before any other item was
+// even considered, leaving a well-established, cheap, high-priority item
+// (e.g. creatine) deferred to zero next to an almost-fully-spent budget.
+// That's the opposite of "the best supplements that go well together" — a
+// basket where everything shows up, even if not every item gets its full
+// ideal quantity, beats one item maxed out and everything else dropped.
+// So allocation runs in two passes:
+//   Pass 1 (breadth) — in priority order, give every item its CHEAPEST
+//     viable (brand, quantity) combination that fits what's left. This
+//     deliberately minimizes each item's spend so later, lower-priority
+//     items still get a real chance to appear at all.
+//   Pass 2 (depth) — in priority order again, spend whatever's left
+//     upgrading already-funded items toward their ideal, highest priority
+//     first (and reverting to the original brand over a same-coverage
+//     cheaper one, once there's room to do so without any coverage cost).
+// An item that couldn't afford even 1 pack of its cheapest option in pass 1
+// is deferred outright — pass 2 never rescues it, since by then the budget
+// is already committed to items that DID get a foothold.
 
 import type { UserProfile, Recommendation, BasketItem, BudgetOutcome, ProductId } from "@/types/engine";
 import type { QuantityOption } from "./monthly-cost";
@@ -94,14 +116,14 @@ function allPurchaseOptions(candidate: BasketCandidate): PurchaseOption[] {
 }
 
 /**
- * Best (product, quantity) combination that fits `remaining` — maximizes
+ * Best (product, quantity) combination that fits `budget` — maximizes
  * coverage first (more of the month covered beats a fatter margin under
- * budget), then prefers staying with the original top-priority product over
- * switching brands, then cheapest. Returns undefined when nothing at all
- * (not even 1 pack of the cheapest brand) fits.
+ * budget), then prefers the original top-priority product over an
+ * equally-covering alternative, then cheapest. Returns undefined when
+ * nothing at all (not even 1 pack of the cheapest brand) fits.
  */
-function bestFittingOption(candidate: BasketCandidate, remaining: number): PurchaseOption | undefined {
-  const fitting = allPurchaseOptions(candidate).filter((o) => o.monthlyCostINR <= remaining);
+function bestFittingOption(candidate: BasketCandidate, budget: number): PurchaseOption | undefined {
+  const fitting = allPurchaseOptions(candidate).filter((o) => o.monthlyCostINR <= budget);
   if (fitting.length === 0) return undefined;
   fitting.sort((a, b) => {
     if (b.coverageFraction !== a.coverageFraction) return b.coverageFraction - a.coverageFraction;
@@ -109,6 +131,48 @@ function bestFittingOption(candidate: BasketCandidate, remaining: number): Purch
     return a.monthlyCostINR - b.monthlyCostINR;
   });
   return fitting[0];
+}
+
+/**
+ * Cheapest (product, quantity) combination that fits `budget` — the pass-1
+ * pick, deliberately minimizing spend (not maximizing coverage) so later,
+ * lower-priority items still have a real chance at some budget. Ties
+ * (equal cost) prefer the original top-priority product. Returns undefined
+ * when nothing at all fits — not even 1 pack of the cheapest brand.
+ */
+function cheapestFittingOption(candidate: BasketCandidate, budget: number): PurchaseOption | undefined {
+  const fitting = allPurchaseOptions(candidate).filter((o) => o.monthlyCostINR <= budget);
+  if (fitting.length === 0) return undefined;
+  fitting.sort((a, b) => {
+    if (a.monthlyCostINR !== b.monthlyCostINR) return a.monthlyCostINR - b.monthlyCostINR;
+    if (a.isOriginalProduct !== b.isOriginalProduct) return a.isOriginalProduct ? -1 : 1;
+    return 0;
+  });
+  return fitting[0];
+}
+
+function idealOption(candidate: BasketCandidate): PurchaseOption {
+  return {
+    productId: candidate.productId,
+    priceINR: candidate.priceINR,
+    packsPerMonth: candidate.packsPerMonth,
+    monthlyCostINR: candidate.monthlyCostINR,
+    coverageFraction: 1,
+    isOriginalProduct: true,
+  };
+}
+
+function itemFrom(candidate: BasketCandidate, option: PurchaseOption): BasketItem {
+  return {
+    recommendation: candidate.recommendation,
+    productId: option.productId,
+    priceINR: option.priceINR,
+    packsPerMonth: option.packsPerMonth,
+    monthlyCostINR: option.monthlyCostINR,
+    coverageFraction: option.coverageFraction,
+    priorityScore: candidate.recommendation.priorityScore ?? { gapTier: 0, evidenceTier: 0, goalAlignment: 0, total: 0 },
+    downgradedFromProductId: option.isOriginalProduct ? undefined : candidate.productId,
+  };
 }
 
 export function allocateBudget(candidates: BasketCandidate[], profile: UserProfile): BudgetOutcome {
@@ -128,53 +192,68 @@ export function allocateBudget(candidates: BasketCandidate[], profile: UserProfi
     (a, b) => (b.recommendation.priorityScore?.total ?? 0) - (a.recommendation.priorityScore?.total ?? 0)
   );
 
+  // No budget at all -> nothing to ration; everyone gets their own ideal.
+  if (effectiveBudgetINR == null) {
+    const funded = byPriority.map((c) => itemFrom(c, idealOption(c)));
+    const totalFundedCostINR = round2(funded.reduce((sum, f) => sum + f.monthlyCostINR, 0));
+    return {
+      budgetINR,
+      budgetIsHardConstraint: hardConstraint,
+      headroomINR: 0,
+      funded,
+      deferred: [],
+      totalFundedCostINR,
+      totalDeferredCostINR: 0,
+    };
+  }
+
+  let spent = 0;
+  const picks = new Map<BasketCandidate, PurchaseOption>();
+
+  // Pass 1 — breadth: everyone gets their cheapest viable option first.
+  for (const candidate of byPriority) {
+    const remaining = effectiveBudgetINR - spent;
+    const cheapest = cheapestFittingOption(candidate, remaining);
+    if (cheapest) {
+      picks.set(candidate, cheapest);
+      spent += cheapest.monthlyCostINR;
+    }
+    // Not found: not even 1 pack of the cheapest brand fits what's left —
+    // this item is deferred, and pass 2 never revisits it (see module note).
+  }
+
+  // Pass 2 — depth: spend whatever's left upgrading funded items toward
+  // their ideal, highest priority first. "Upgrade" also covers reverting to
+  // the original brand over a same-coverage cheaper one pass 1 picked,
+  // whenever there's room to do that without spending more overall.
+  for (const candidate of byPriority) {
+    const current = picks.get(candidate);
+    if (!current) continue;
+    const remaining = effectiveBudgetINR - spent;
+    // What this ONE item could have if we're willing to re-spend what it
+    // already costs, plus whatever's genuinely left over.
+    const budgetForThisItem = remaining + current.monthlyCostINR;
+    const best = bestFittingOption(candidate, budgetForThisItem);
+    if (!best) continue;
+    const improvesCoverage = best.coverageFraction > current.coverageFraction;
+    const revertsToPreferredBrandForFree =
+      best.coverageFraction === current.coverageFraction &&
+      best.isOriginalProduct &&
+      !current.isOriginalProduct;
+    if (improvesCoverage || revertsToPreferredBrandForFree) {
+      spent += best.monthlyCostINR - current.monthlyCostINR;
+      picks.set(candidate, best);
+    }
+  }
+
   const funded: BasketItem[] = [];
   const deferred: BasketItem[] = [];
-  let spent = 0;
-
   for (const candidate of byPriority) {
-    const remaining = effectiveBudgetINR != null ? effectiveBudgetINR - spent : Infinity;
-
-    let productId = candidate.productId;
-    let priceINR = candidate.priceINR;
-    let packsPerMonth = candidate.packsPerMonth;
-    let monthlyCostINR = candidate.monthlyCostINR;
-    let coverageFraction = 1;
-    let downgradedFromProductId: ProductId | undefined;
-
-    if (effectiveBudgetINR != null && monthlyCostINR > remaining) {
-      // The ideal, full-month quantity of the top-priority product doesn't
-      // fit — search every (brand, quantity) combination together, not just
-      // "try a cheaper brand at ITS full month" or "try fewer packs of THIS
-      // brand" in isolation.
-      const best = bestFittingOption(candidate, remaining);
-      if (best) {
-        downgradedFromProductId = best.isOriginalProduct ? undefined : productId;
-        productId = best.productId;
-        priceINR = best.priceINR;
-        packsPerMonth = best.packsPerMonth;
-        monthlyCostINR = best.monthlyCostINR;
-        coverageFraction = best.coverageFraction;
-      }
-    }
-
-    const item: BasketItem = {
-      recommendation: candidate.recommendation,
-      productId,
-      priceINR,
-      packsPerMonth,
-      monthlyCostINR,
-      coverageFraction,
-      priorityScore: candidate.recommendation.priorityScore ?? { gapTier: 0, evidenceTier: 0, goalAlignment: 0, total: 0 },
-      downgradedFromProductId,
-    };
-
-    const fitsBudget = effectiveBudgetINR == null || monthlyCostINR <= remaining;
-    if (fitsBudget) {
-      funded.push(item);
-      spent += monthlyCostINR;
+    const picked = picks.get(candidate);
+    if (picked) {
+      funded.push(itemFrom(candidate, picked));
     } else {
-      deferred.push(item); // still carries its cost — never silently dropped
+      deferred.push(itemFrom(candidate, idealOption(candidate))); // still shows its real (ideal) cost, never dropped
     }
   }
 

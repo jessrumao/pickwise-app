@@ -24,27 +24,92 @@
 // of budgetINR, ₹1000), added to the total basket cap — enough to let ONE
 // more genuinely-needed item squeeze in, not unlimited spending. It applies
 // to the TOTAL basket, not per item: funded total <= budgetINR + headroomINR.
+//
+// PARTIAL-MONTH DOWNGRADE (product decision, 2026-09-07): the ideal quantity
+// is a FULL month's supply — but when that doesn't fit, the old behavior was
+// all-or-nothing: defer the item entirely, even if every brand was tried.
+// That's wrong when a shorter runway of the SAME (or a cheaper) product
+// would still fit and still deliver the correct per-serving dose. Every
+// candidate/alternative below carries `quantityOptions` — every real,
+// purchasable quantity from 1 pack up to the ideal (lib/engine/monthly-cost.ts) —
+// and the downgrade search below picks whichever (product, quantity)
+// combination covers the MOST of the month while still fitting the
+// remaining budget, searching across every brand AND every quantity of each
+// brand together, never just one axis alone.
 
 import type { UserProfile, Recommendation, BasketItem, BudgetOutcome, ProductId } from "@/types/engine";
+import type { QuantityOption } from "./monthly-cost";
 
-export interface BasketCandidate {
-  recommendation: Recommendation; // must already carry priorityScore and servingPlan
+interface CandidateProduct {
   productId: ProductId;
   priceINR: number; // per-pack price, display only
-  packsPerMonth: number;
-  monthlyCostINR: number; // the number this allocator actually budgets against
+  packsPerMonth: number; // the IDEAL (full month) pack count
+  monthlyCostINR: number; // the IDEAL cost — what fitsBudget checks against first
+  // Every real purchasable quantity of THIS product, 1 pack up to the ideal
+  // above (so it always includes an entry equal to {packsPerMonth, monthlyCostINR}
+  // at coverageFraction 1). Never empty when packsPerMonth > 0.
+  quantityOptions: QuantityOption[];
+}
+
+export interface BasketCandidate extends CandidateProduct {
+  recommendation: Recommendation; // must already carry priorityScore and servingPlan
   // Other products that could deliver the same recommendation, cheapest-first
   // is NOT assumed — this module sorts them. Only ever populated with
   // products that already satisfy the quality floor (i.e. their serving plan
   // was computed the same way and still meets minEffectiveDose) — computing
   // that is dosing.ts's job, not this module's.
-  alternativeProducts: Array<{ productId: ProductId; priceINR: number; packsPerMonth: number; monthlyCostINR: number }>;
+  alternativeProducts: CandidateProduct[];
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 const FLEXIBLE_BUDGET_HEADROOM_PERCENT = 0.15;
 const FLEXIBLE_BUDGET_HEADROOM_MAX_INR = 1000;
+
+// One purchasable (product, quantity) combination, flattened out of a
+// candidate's own quantityOptions plus every alternative's — the actual
+// search space the downgrade step picks from.
+interface PurchaseOption {
+  productId: ProductId;
+  priceINR: number;
+  packsPerMonth: number;
+  monthlyCostINR: number;
+  coverageFraction: number;
+  isOriginalProduct: boolean; // true only for the top-priority pick's own options
+}
+
+function allPurchaseOptions(candidate: BasketCandidate): PurchaseOption[] {
+  const options: PurchaseOption[] = candidate.quantityOptions.map((q) => ({
+    productId: candidate.productId,
+    priceINR: candidate.priceINR,
+    ...q,
+    isOriginalProduct: true,
+  }));
+  for (const alt of candidate.alternativeProducts) {
+    for (const q of alt.quantityOptions) {
+      options.push({ productId: alt.productId, priceINR: alt.priceINR, ...q, isOriginalProduct: false });
+    }
+  }
+  return options;
+}
+
+/**
+ * Best (product, quantity) combination that fits `remaining` — maximizes
+ * coverage first (more of the month covered beats a fatter margin under
+ * budget), then prefers staying with the original top-priority product over
+ * switching brands, then cheapest. Returns undefined when nothing at all
+ * (not even 1 pack of the cheapest brand) fits.
+ */
+function bestFittingOption(candidate: BasketCandidate, remaining: number): PurchaseOption | undefined {
+  const fitting = allPurchaseOptions(candidate).filter((o) => o.monthlyCostINR <= remaining);
+  if (fitting.length === 0) return undefined;
+  fitting.sort((a, b) => {
+    if (b.coverageFraction !== a.coverageFraction) return b.coverageFraction - a.coverageFraction;
+    if (a.isOriginalProduct !== b.isOriginalProduct) return a.isOriginalProduct ? -1 : 1;
+    return a.monthlyCostINR - b.monthlyCostINR;
+  });
+  return fitting[0];
+}
 
 export function allocateBudget(candidates: BasketCandidate[], profile: UserProfile): BudgetOutcome {
   const budgetINR = profile.monthlyBudgetINR;
@@ -74,18 +139,22 @@ export function allocateBudget(candidates: BasketCandidate[], profile: UserProfi
     let priceINR = candidate.priceINR;
     let packsPerMonth = candidate.packsPerMonth;
     let monthlyCostINR = candidate.monthlyCostINR;
+    let coverageFraction = 1;
     let downgradedFromProductId: ProductId | undefined;
 
     if (effectiveBudgetINR != null && monthlyCostINR > remaining) {
-      const fits = candidate.alternativeProducts
-        .filter((alt) => alt.monthlyCostINR <= remaining)
-        .sort((a, b) => a.monthlyCostINR - b.monthlyCostINR)[0];
-      if (fits) {
-        downgradedFromProductId = productId;
-        productId = fits.productId;
-        priceINR = fits.priceINR;
-        packsPerMonth = fits.packsPerMonth;
-        monthlyCostINR = fits.monthlyCostINR;
+      // The ideal, full-month quantity of the top-priority product doesn't
+      // fit — search every (brand, quantity) combination together, not just
+      // "try a cheaper brand at ITS full month" or "try fewer packs of THIS
+      // brand" in isolation.
+      const best = bestFittingOption(candidate, remaining);
+      if (best) {
+        downgradedFromProductId = best.isOriginalProduct ? undefined : productId;
+        productId = best.productId;
+        priceINR = best.priceINR;
+        packsPerMonth = best.packsPerMonth;
+        monthlyCostINR = best.monthlyCostINR;
+        coverageFraction = best.coverageFraction;
       }
     }
 
@@ -95,6 +164,7 @@ export function allocateBudget(candidates: BasketCandidate[], profile: UserProfi
       priceINR,
       packsPerMonth,
       monthlyCostINR,
+      coverageFraction,
       priorityScore: candidate.recommendation.priorityScore ?? { gapTier: 0, evidenceTier: 0, goalAlignment: 0, total: 0 },
       downgradedFromProductId,
     };

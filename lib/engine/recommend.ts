@@ -20,9 +20,15 @@ import { resolveDosing, pickTopCandidateProduct, buildServingPlan, dosingMinEffe
 import { computeServingPlan } from "./serving-plan";
 import { computeGoalAlignment, computeGapTier, computePriorityScore } from "./priority";
 import { allocateBudget, type BasketCandidate } from "./budget";
-import { packsNeededPerMonth } from "./monthly-cost";
+import { packsNeededPerMonth, quantityOptionsFor, type QuantityOption } from "./monthly-cost";
 import { products, pricingByProductId, eligibilityPolicyById, GRADE_RANK } from "./knowledge-base";
 import type { Product } from "@/types/engine";
+
+interface MonthlyCost {
+  packsPerMonth: number;
+  monthlyCostINR: number;
+  quantityOptions: QuantityOption[];
+}
 
 // Monthly cost for a candidate product against a real daily compound gap —
 // simulates the exact serving plan that product would produce (rounding,
@@ -30,12 +36,15 @@ import type { Product } from "@/types/engine";
 // and turns it into whole packs/month (you can't buy a fraction of a pack).
 // Mirrors pickTopCandidateProduct's own internal ranking simulation exactly,
 // so the product actually chosen and the monthly cost shown for it agree.
+// quantityOptions carries every SMALLER purchasable quantity too (1 pack up
+// to this ideal), so the budget allocator can fund a shorter runway of this
+// same product instead of deferring it outright when the ideal doesn't fit.
 function monthlyCostForCompound(
   product: Product,
   compoundId: string,
   gapAmount: number,
   priceINR: number
-): { packsPerMonth: number; monthlyCostINR: number } {
+): MonthlyCost {
   const calc = computeServingPlan({
     gapAmount,
     amountPerServing: amountPerServingFor(product, compoundId),
@@ -43,7 +52,11 @@ function monthlyCostForCompound(
     minEffectiveDose: dosingMinEffectiveDoseFor(compoundId),
   });
   const packsPerMonth = packsNeededPerMonth(calc.servings, product.servingsPerPack);
-  return { packsPerMonth, monthlyCostINR: packsPerMonth * priceINR };
+  return {
+    packsPerMonth,
+    monthlyCostINR: packsPerMonth * priceINR,
+    quantityOptions: quantityOptionsFor(calc.servings, product.servingsPerPack, priceINR),
+  };
 }
 
 // Ingredient-scoped bundle products (e.g. a multivitamin) have no per-compound
@@ -53,9 +66,13 @@ function monthlyCostForCompound(
 // products are sold under, per product decision.
 const BUNDLE_ASSUMED_DAILY_SERVINGS = 1;
 
-function monthlyCostForBundle(product: Product, priceINR: number): { packsPerMonth: number; monthlyCostINR: number } {
+function monthlyCostForBundle(product: Product, priceINR: number): MonthlyCost {
   const packsPerMonth = packsNeededPerMonth(BUNDLE_ASSUMED_DAILY_SERVINGS, product.servingsPerPack);
-  return { packsPerMonth, monthlyCostINR: packsPerMonth * priceINR };
+  return {
+    packsPerMonth,
+    monthlyCostINR: packsPerMonth * priceINR,
+    quantityOptions: quantityOptionsFor(BUNDLE_ASSUMED_DAILY_SERVINGS, product.servingsPerPack, priceINR),
+  };
 }
 
 export interface RecommendationResult {
@@ -128,7 +145,7 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
       if (topProduct) {
         const price = pricingByProductId.get(topProduct.id)?.priceINR;
         if (price != null) {
-          const { packsPerMonth, monthlyCostINR } = costFor(topProduct, price);
+          const { packsPerMonth, monthlyCostINR, quantityOptions } = costFor(topProduct, price);
           const alternativeProducts = products
             .filter((p) => candidateIds.includes(p.ingredientId) && p.id !== topProduct.id)
             .map((p) => {
@@ -136,13 +153,16 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
               if (altPrice == null) return undefined;
               return { productId: p.id, priceINR: altPrice, ...costFor(p, altPrice) };
             })
-            .filter((alt): alt is { productId: string; priceINR: number; packsPerMonth: number; monthlyCostINR: number } => alt != null);
+            .filter(
+              (alt): alt is { productId: string; priceINR: number } & MonthlyCost => alt != null
+            );
           basketCandidates.push({
             recommendation: updated,
             productId: topProduct.id,
             priceINR: price,
             packsPerMonth,
             monthlyCostINR,
+            quantityOptions,
             alternativeProducts,
           });
         }
@@ -167,13 +187,14 @@ export function generateRecommendations(profile: UserProfile): RecommendationRes
       const product = products.find((p) => p.ingredientId === rec.ingredientId);
       const price = product ? pricingByProductId.get(product.id)?.priceINR : undefined;
       if (product && price != null) {
-        const { packsPerMonth, monthlyCostINR } = monthlyCostForBundle(product, price);
+        const { packsPerMonth, monthlyCostINR, quantityOptions } = monthlyCostForBundle(product, price);
         basketCandidates.push({
           recommendation: updated,
           productId: product.id,
           priceINR: price,
           packsPerMonth,
           monthlyCostINR,
+          quantityOptions,
           alternativeProducts: [],
         });
       }

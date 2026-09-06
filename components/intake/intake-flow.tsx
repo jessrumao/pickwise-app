@@ -38,6 +38,7 @@ import {
   intakeFormSchema,
   STEP_FIELDS,
   STEP_TITLES,
+  SIDEBAR_LABELS,
   TOTAL_STEPS,
   type IntakeFormValues,
 } from "@/lib/intake/schema";
@@ -46,6 +47,7 @@ import {
   parseFreeText,
   submitProfile,
 } from "@/lib/intake/submit-profile";
+import { StepProgressBar, StepSidebar } from "@/components/site/step-sidebar";
 import type { UserProfile } from "@/types/engine";
 
 const PRIMARY_GOAL_OPTIONS: { value: IntakeFormValues["primaryGoals"][number]; label: string }[] = [
@@ -260,9 +262,9 @@ export function IntakeFlow() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <IntakeProgress step={step} />
+      <StepProgressBar total={TOTAL_STEPS} currentIndex={step} />
       <div className="grid flex-1 md:grid-cols-[220px_1fr]">
-        <IntakeStepSidebar step={step} />
+        <StepSidebar labels={SIDEBAR_LABELS} currentIndex={step} />
         <Form {...form}>
           <form onSubmit={(e) => e.preventDefault()} className="flex flex-col">
             <div className="flex-1 space-y-6 px-6 py-10 sm:px-10">
@@ -880,64 +882,6 @@ export function IntakeFlow() {
         </Form>
       </div>
     </div>
-  );
-}
-
-// Segmented progress row -- one tick per step, filled up to the current one.
-function IntakeProgress({ step }: { step: number }) {
-  return (
-    <div className="flex gap-[3px] border-b border-border px-6 py-3 sm:px-10">
-      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-        <div
-          key={i}
-          className={`h-[3px] flex-1 rounded-sm ${
-            i < step ? "bg-brand" : i === step ? "bg-brand/40" : "bg-border"
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
-
-const SIDEBAR_LABELS: Record<number, string> = {
-  0: "Start",
-  ...STEP_TITLES,
-  [TOTAL_STEPS - 1]: "Review",
-};
-
-function IntakeStepSidebar({ step }: { step: number }) {
-  return (
-    <aside className="hidden border-r border-border bg-[#0F0F0F] px-6 py-8 text-[#F2F2F0] md:block">
-      <p className="mb-6 font-display text-[9px] tracking-[0.2em] text-[#2A3A4A]">
-        ANALYSIS STEPS
-      </p>
-      <ol className="space-y-0">
-        {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
-          const state = i === step ? "current" : i < step ? "done" : "upcoming";
-          return (
-            <li
-              key={i}
-              className="flex items-center gap-3 border-b border-[#141414] py-3 last:border-b-0"
-            >
-              <span
-                className={`font-display text-[10px] tracking-wide ${
-                  state === "current" ? "text-brand" : state === "done" ? "text-[#3A4A5A]" : "text-[#2A3A4A]"
-                }`}
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span
-                className={`font-display text-xs ${
-                  state === "current" ? "text-[#F2F2F0]" : "text-[#2A3A4A]"
-                }`}
-              >
-                {SIDEBAR_LABELS[i]}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </aside>
   );
 }
 

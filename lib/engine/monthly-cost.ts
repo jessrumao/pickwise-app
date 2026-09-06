@@ -28,3 +28,43 @@ export function packsNeededPerMonth(dailyServings: number, servingsPerPack: numb
 export function monthlyCostINR(dailyServings: number, servingsPerPack: number, priceINR: number): number {
   return packsNeededPerMonth(dailyServings, servingsPerPack) * priceINR;
 }
+
+// A real, purchasable quantity of ONE product: some whole number of packs,
+// what it costs this month, and what SHARE of the full month it actually
+// covers (1 = the ideal, full 30 days; less than 1 = you'll need to restock
+// before the month is out). The dose per serving is identical across every
+// option here — only how many days it lasts changes. Never generated below
+// 1 pack (there is no such thing as buying less than one whole pack).
+export interface QuantityOption {
+  packsPerMonth: number;
+  monthlyCostINR: number;
+  coverageFraction: number; // 0-1, capped at 1
+}
+
+/**
+ * Every real purchase size for one product, from 1 pack up to the ideal
+ * (packsNeededPerMonth) — the actual search space the budget allocator
+ * chooses from when the ideal, full-month quantity doesn't fit. Letting a
+ * lower-priority item eat the whole budget while a higher-priority one gets
+ * dropped to zero, just because that one item's full month doesn't fit, was
+ * the exact gap this closes: SOME of the highest-priority item (a shorter
+ * runway) beats deferring it entirely, as long as it's still an honestly
+ * labeled partial month, never a smaller-than-effective dose.
+ */
+export function quantityOptionsFor(
+  dailyServings: number,
+  servingsPerPack: number,
+  priceINR: number
+): QuantityOption[] {
+  const idealPacks = packsNeededPerMonth(dailyServings, servingsPerPack);
+  if (idealPacks <= 0) return [];
+  const options: QuantityOption[] = [];
+  for (let packs = 1; packs <= idealPacks; packs++) {
+    const coverageFraction = Math.min(
+      1,
+      (packs * servingsPerPack) / (dailyServings * DAYS_PER_MONTH)
+    );
+    options.push({ packsPerMonth: packs, monthlyCostINR: packs * priceINR, coverageFraction });
+  }
+  return options;
+}

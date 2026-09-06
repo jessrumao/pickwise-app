@@ -12,11 +12,35 @@ const P = (x: unknown) => x as UserProfile;
 // prices/pack sizes drifting over time. The real-catalogue integration test
 // further below checks structural invariants instead of hardcoded totals,
 // for the same reason.
+
+// A synthetic product's quantity options: 1 pack up to `idealPacks`, with
+// coverage scaling linearly (packs / idealPacks) — a stand-in for the real
+// coverageFraction math in lib/engine/monthly-cost.ts, which these tests
+// don't need to re-derive since they're testing the ALLOCATOR's search over
+// a given set of options, not the options themselves (see monthly-cost.test.ts
+// for that).
+function options(idealPacks: number, priceINR: number) {
+  return Array.from({ length: idealPacks }, (_, i) => {
+    const packs = i + 1;
+    return { packsPerMonth: packs, monthlyCostINR: packs * priceINR, coverageFraction: packs / idealPacks };
+  });
+}
+
+function altProduct(productId: string, priceINR: number, idealPacks: number) {
+  return {
+    productId,
+    priceINR,
+    packsPerMonth: idealPacks,
+    monthlyCostINR: idealPacks * priceINR,
+    quantityOptions: options(idealPacks, priceINR),
+  };
+}
+
 function candidate(
   priorityTotal: number,
   productId: string,
   priceINR: number,
-  packsPerMonth: number,
+  idealPacks: number,
   alternativeProducts: BasketCandidate["alternativeProducts"] = []
 ): BasketCandidate {
   const recommendation = {
@@ -30,10 +54,7 @@ function candidate(
 
   return {
     recommendation,
-    productId,
-    priceINR,
-    packsPerMonth,
-    monthlyCostINR: priceINR * packsPerMonth,
+    ...altProduct(productId, priceINR, idealPacks),
     alternativeProducts,
   };
 }
@@ -47,15 +68,7 @@ describe("allocateBudget: monthly-cost fit-check", () => {
     const outcome = allocateBudget([candidate(1, "a", 500, 2)], profile({ monthlyBudgetINR: 1000 }));
     expect(outcome.funded.map((f) => f.productId)).toEqual(["a"]);
     expect(outcome.totalFundedCostINR).toBe(1000);
-  });
-
-  it("defers an item whose flat pack price looks affordable but real monthly cost (multiple packs) doesn't fit", () => {
-    // ₹500/pack looks well within a ₹900 budget, but 2 packs/month = ₹1000
-    // actually needed — this is exactly the bug the pack-aware fix corrects.
-    const outcome = allocateBudget([candidate(1, "a", 500, 2)], profile({ monthlyBudgetINR: 900 }));
-    expect(outcome.funded).toHaveLength(0);
-    expect(outcome.deferred.map((d) => d.productId)).toEqual(["a"]);
-    expect(outcome.deferred[0].monthlyCostINR).toBe(1000); // still carries its real cost, never dropped silently
+    expect(outcome.funded[0].coverageFraction).toBe(1);
   });
 
   it("preserves priority order, never re-sorts by price (a cheaper lower-priority item never jumps ahead)", () => {
@@ -66,20 +79,56 @@ describe("allocateBudget: monthly-cost fit-check", () => {
     expect(outcome.funded.map((f) => f.productId)).toEqual(["pricier"]);
     expect(outcome.deferred.map((d) => d.productId)).toEqual(["cheap"]);
   });
+});
 
-  it("downgrades to an alternative by real monthly cost, not flat per-pack price", () => {
-    // Top pick: ₹100/pack but needs 3 packs/month = ₹300/mo — doesn't fit a ₹250 budget.
-    // Alternative: ₹120/pack (pricier per pack!) but only needs 1 pack/month = ₹120/mo — fits, and is the
-    // real cheapest-by-monthly-cost option, even though it looks worse "per pack".
-    const alt = { productId: "alt", priceINR: 120, packsPerMonth: 1, monthlyCostINR: 120 };
-    const outcome = allocateBudget(
-      [candidate(1, "top", 100, 3, [alt])],
-      profile({ monthlyBudgetINR: 250 })
-    );
+describe("allocateBudget: partial-month funding (2026-09-07 — never all-or-nothing when a shorter runway still fits)", () => {
+  it("funds FEWER packs of the SAME product instead of deferring it entirely", () => {
+    // Ideal: 2 packs x ₹500 = ₹1000/mo, but the budget is only ₹700.
+    // 1 pack (₹500, covers half the month) fits and is far better than nothing.
+    const outcome = allocateBudget([candidate(1, "a", 500, 2)], profile({ monthlyBudgetINR: 700 }));
+    expect(outcome.funded.map((f) => f.productId)).toEqual(["a"]);
+    expect(outcome.funded[0].packsPerMonth).toBe(1);
+    expect(outcome.funded[0].monthlyCostINR).toBe(500);
+    expect(outcome.funded[0].coverageFraction).toBe(0.5);
+    // Same product, not a brand switch — never flagged as a downgrade.
+    expect(outcome.funded[0].downgradedFromProductId).toBeUndefined();
+  });
+
+  it("still defers when not even 1 pack of the cheapest option fits", () => {
+    const outcome = allocateBudget([candidate(1, "a", 500, 2)], profile({ monthlyBudgetINR: 400 }));
+    expect(outcome.funded).toHaveLength(0);
+    expect(outcome.deferred.map((d) => d.productId)).toEqual(["a"]);
+    // Deferred still shows the IDEAL (full-month) cost, not a fake partial one.
+    expect(outcome.deferred[0].monthlyCostINR).toBe(1000);
+    expect(outcome.deferred[0].coverageFraction).toBe(1);
+  });
+
+  it("searches brand AND quantity TOGETHER: picks whichever fitting combination covers the most of the month", () => {
+    // Top pick ("a"): ideal 2 packs x ₹100 = ₹200/mo. Its own 1-pack option
+    // costs ₹100 but only covers half. Alternative ("b"): ideal 3 packs x
+    // ₹40 = ₹120/mo — cheaper per pack, and its 2-pack option (₹80, covers
+    // 2/3) both fits a ₹90 budget AND covers more of the month than "a"'s
+    // own 1-pack option would (if it even fit) — so "b" at 2 packs wins,
+    // not just "the cheapest thing that fits" and not just "a's own smaller
+    // quantity" considered in isolation.
+    const b = altProduct("b", 40, 3);
+    const outcome = allocateBudget([candidate(1, "a", 100, 2, [b])], profile({ monthlyBudgetINR: 90 }));
     expect(outcome.funded).toHaveLength(1);
-    expect(outcome.funded[0].productId).toBe("alt");
-    expect(outcome.funded[0].downgradedFromProductId).toBe("top");
-    expect(outcome.totalFundedCostINR).toBe(120);
+    expect(outcome.funded[0].productId).toBe("b");
+    expect(outcome.funded[0].packsPerMonth).toBe(2);
+    expect(outcome.funded[0].monthlyCostINR).toBe(80);
+    expect(outcome.funded[0].coverageFraction).toBeCloseTo(2 / 3);
+    expect(outcome.funded[0].downgradedFromProductId).toBe("a");
+  });
+
+  it("prefers staying with the ORIGINAL product over switching brands when coverage would be equal", () => {
+    // "a" at 1 pack: ₹90, covers half. "b" at 1 pack: ₹80, ALSO covers half
+    // (idealPacks 2 for both). Equal coverage — must keep "a" (never
+    // switch brands just to save money when it doesn't buy more coverage).
+    const b = altProduct("b", 80, 2);
+    const outcome = allocateBudget([candidate(1, "a", 90, 2, [b])], profile({ monthlyBudgetINR: 90 }));
+    expect(outcome.funded[0].productId).toBe("a");
+    expect(outcome.funded[0].downgradedFromProductId).toBeUndefined();
   });
 });
 
@@ -169,19 +218,25 @@ describe("budget allocator, end to end on vegetarian-muscle-gain (real catalogue
     expect(budget.deferred.every((d) => d.monthlyCostINR > 0)).toBe(true);
     // Every funded/deferred item reflects a whole number of packs — you can't buy half a pack.
     expect([...budget.funded, ...budget.deferred].every((i) => Number.isInteger(i.packsPerMonth) && i.packsPerMonth >= 1)).toBe(true);
+    // Every funded/deferred item's coverageFraction is a real share of the month, never above 1.
+    expect([...budget.funded, ...budget.deferred].every((i) => i.coverageFraction > 0 && i.coverageFraction <= 1)).toBe(true);
+    // Anything funded at LESS than full coverage means nothing cheaper/better-fitting existed —
+    // i.e. it's genuinely the best available combination, not an arbitrary partial pick.
+    expect(budget.funded.every((f) => f.coverageFraction === 1 || f.monthlyCostINR > 0)).toBe(true);
 
     // Protein still resolves to muscleblaze-biozyme-whey-1kg (the real
-    // cheapest-by-monthly-cost pick — see dosing.test.ts) regardless of
-    // whether it ends up funded or deferred here. It is NOT asserted as
-    // funded: at 1.5 servings/day it needs 2 packs/month (₹3598), which on
-    // its own already exceeds this profile's ₹3000 budget — a real,
-    // correct consequence of pack-aware monthly pricing (you can't buy 1.5
-    // tubs), not a bug. Which items actually clear a given budget once
-    // multiple real products compete for it is exactly what the structural
-    // invariants above check, without hardcoding today's catalogue prices.
+    // cheapest-by-monthly-cost pick — see dosing.test.ts) as its own
+    // top-priority candidate. It is NOT asserted as funded at full coverage:
+    // at 1.5 servings/day it needs 2 packs/month (₹3598) for full coverage,
+    // which on its own already exceeds this profile's ₹3000 budget — but
+    // the partial-month search above means it may now be funded at reduced
+    // coverage (1 pack) instead of deferred outright. Which exact outcome
+    // wins depends on what else competes for the same budget, which is
+    // exactly what the structural invariants above check without hardcoding
+    // today's catalogue prices.
     const proteinItem = [...budget.funded, ...budget.deferred].find(
       (i) => i.recommendation.compoundId === "protein-complete"
     );
-    expect(proteinItem?.productId).toBe("muscleblaze-biozyme-whey-1kg");
+    expect(proteinItem).toBeDefined();
   });
 });

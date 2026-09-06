@@ -83,14 +83,28 @@ export function ResultsView({ result }: { result: RecommendationResult }) {
     }));
 
   return (
-    <div className="mx-auto w-full max-w-xl space-y-4">
-      <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">
-        YOUR RECOMMENDATIONS
-      </p>
-      {visible.map((rec, i) => (
-        <RecommendationCard key={i} rec={rec} safetyEscalations={result.safety.escalations} />
-      ))}
-      {result.budget && <BasketSummary budget={result.budget} />}
+    <div className="mx-auto w-full max-w-xl space-y-6">
+      {/* Basket leads the page — "what am I actually getting, and what does
+          it cost" is the answer people want first; the per-item reasoning
+          below explains it, rather than the other way around. */}
+      {result.budget && (
+        <div className="space-y-2">
+          <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-brand">
+            YOUR BASKET
+          </p>
+          <BasketSummary budget={result.budget} />
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <p className="font-display text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">
+          WHY THESE RECOMMENDATIONS
+        </p>
+        {visible.map((rec, i) => (
+          <RecommendationCard key={i} rec={rec} safetyEscalations={result.safety.escalations} />
+        ))}
+      </div>
+
       {routineItems.length > 0 && <RoutineSection items={routineItems} />}
       <RecommendationsChat citedClaimIds={citedClaimIds} />
       <Disclaimer />

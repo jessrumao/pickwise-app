@@ -834,11 +834,16 @@ export interface BasketItem {
   recommendation: Recommendation;
   productId: ProductId;
   priceINR: number; // per-pack price
-  // Whole packs needed this month to cover the real daily need, and the
-  // resulting monthly cost (packsPerMonth * priceINR) — the number that
-  // actually counts against monthlyBudgetINR. See lib/engine/monthly-cost.ts.
+  // Whole packs actually purchased this month, and what that costs — the
+  // number that actually counts against monthlyBudgetINR. See
+  // lib/engine/monthly-cost.ts.
   packsPerMonth: number;
   monthlyCostINR: number;
+  // Share of the full 30 days this quantity actually covers (1 = the ideal,
+  // full month). Less than 1 means the budget didn't stretch to a full
+  // month at this dose — the dose itself is never reduced, only how many
+  // days it lasts before a restock is needed.
+  coverageFraction: number;
   priorityScore: PriorityScore;
   // True when this item was substituted to a cheaper SKU than the top
   // candidate — only ever allowed above the quality floor (still meets the

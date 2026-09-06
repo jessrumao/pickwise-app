@@ -118,3 +118,20 @@ export const STEP_TITLES: Record<number, string> = {
   5: "Diet gaps",
   6: "Allergies & safety",
 };
+
+// One label per intake step, in order (index 0..TOTAL_STEPS-1) — the source
+// of truth for components/site/step-sidebar.tsx, shared by the intake flow
+// itself and by /results (which appends its own "Recommendations" step, the
+// one intake never reaches, so the whole profile -> recommendations journey
+// reads as one continuous stepped flow rather than two differently-styled
+// pages).
+export const SIDEBAR_LABELS: string[] = [
+  "Start",
+  STEP_TITLES[1],
+  STEP_TITLES[2],
+  STEP_TITLES[3],
+  STEP_TITLES[4],
+  STEP_TITLES[5],
+  STEP_TITLES[6],
+  "Review",
+];

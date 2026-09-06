@@ -11,7 +11,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { userProfileSchema, type UserProfile } from "@/types/engine";
-import { assembleUserProfile, fieldsNeedingConfirmation } from "@/lib/intake/assemble-profile";
+import {
+  assembleUserProfile,
+  deriveDietaryProteinAdequacy,
+  fieldsNeedingConfirmation,
+} from "@/lib/intake/assemble-profile";
 import type { IntakeFormValues } from "@/lib/intake/schema";
 import { generateRecommendations } from "@/lib/engine";
 
@@ -38,7 +42,6 @@ function toFormValues(sample: UserProfile): IntakeFormValues {
     budgetIsHardConstraint: sample.budgetIsHardConstraint ?? true,
     sleepHoursTypical: sample.sleepHoursTypical,
     existingSupplementUseText: sample.existingSupplementUse.join(", "),
-    dietaryProteinAdequacy: sample.dietaryProteinAdequacy,
     // required in the form; only vegetarian-muscle-gain's sample sets this
     estimatedDailyProteinG: sample.estimatedDailyProteinG ?? 60,
     proteinFoodDescription: "",
@@ -78,7 +81,14 @@ describe("assembleUserProfile against real sample profiles", () => {
       expect(assembled.primaryGoals).toEqual(sample.primaryGoals);
       expect(assembled.sleepHoursTypical).toBe(sample.sleepHoursTypical);
       expect(assembled.existingSupplementUse).toEqual(sample.existingSupplementUse);
-      expect(assembled.dietaryProteinAdequacy).toBe(sample.dietaryProteinAdequacy);
+      // No longer a straight pass-through — dietaryProteinAdequacy is now
+      // DERIVED from estimatedDailyProteinG/bodyWeightKg (see the "two
+      // questions consolidated into one" note in assemble-profile.ts), so
+      // this checks it matches the same derivation, not the sample's own
+      // originally-authored (now-informational-only) value.
+      expect(assembled.dietaryProteinAdequacy).toBe(
+        deriveDietaryProteinAdequacy(form.estimatedDailyProteinG, sample.bodyWeightKg)
+      );
       expect(assembled.allergies).toEqual(sample.allergies);
       expect(assembled.medicationsOrConditionsFlag.hasAny).toBe(
         sample.medicationsOrConditionsFlag.hasAny
@@ -144,6 +154,21 @@ describe("fieldsNeedingConfirmation", () => {
   });
 });
 
+describe("deriveDietaryProteinAdequacy", () => {
+  it("classifies at or above 1.2g/kg body weight as likely_adequate", () => {
+    expect(deriveDietaryProteinAdequacy(84, 70)).toBe("likely_adequate"); // exactly 1.2g/kg
+    expect(deriveDietaryProteinAdequacy(120, 70)).toBe("likely_adequate");
+  });
+
+  it("classifies below 1.2g/kg body weight as likely_inadequate", () => {
+    expect(deriveDietaryProteinAdequacy(60, 70)).toBe("likely_inadequate"); // ~0.86g/kg
+  });
+
+  it("never returns unsure — the intake form always has a real number by this point", () => {
+    expect(deriveDietaryProteinAdequacy(0, 70)).toBe("likely_inadequate");
+  });
+});
+
 // Regression test for a real bug found via manual Package E browser testing:
 // leaving the two optional free-text questions blank (relevantHealthContext,
 // medicationsFreeText when hasAny is false) used to OMIT those fields from
@@ -170,7 +195,6 @@ describe("blank optional free-text fields must not read as UNKNOWN to the safety
     budgetIsHardConstraint: true,
     sleepHoursTypical: 7,
     existingSupplementUseText: "",
-    dietaryProteinAdequacy: "likely_inadequate",
     estimatedDailyProteinG: 90,
     proteinFoodDescription: "",
     dietaryOilyFishServingsPerWeek: 0,

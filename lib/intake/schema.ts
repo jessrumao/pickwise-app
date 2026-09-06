@@ -43,7 +43,6 @@ export const intakeFormSchema = z
     budgetIsHardConstraint: z.boolean(),
     sleepHoursTypical: z.number().min(0).max(14),
     existingSupplementUseText: z.string(),
-    dietaryProteinAdequacy: z.enum(["likely_adequate", "likely_inadequate", "unsure"]),
     // Required (was optional): leaving this unset made resolveDosing() fall
     // back to the FULL target instead of a real gap, which is why protein
     // was showing 4-5 scoops/day for most people — see lib/engine/dosing.ts.
@@ -102,7 +101,7 @@ export const STEP_FIELDS: (keyof IntakeFormValues)[][] = [
   ["dietaryPattern", "exerciseFrequencyPerWeek", "exerciseType", "exerciseIntensityTypical"], // 2: diet & activity
   ["primaryGoals", "monthlyBudgetINR", "budgetIsHardConstraint"], // 3: goals & budget
   ["sleepHoursTypical", "existingSupplementUseText"], // 4: sleep & current supplements
-  ["dietaryProteinAdequacy", "estimatedDailyProteinG", "dietaryOilyFishServingsPerWeek"], // 5: diet gaps
+  ["estimatedDailyProteinG", "dietaryOilyFishServingsPerWeek"], // 5: diet gaps
   ["allergiesText", "relevantHealthContext", "medicationsHasAny", "medicationsFreeText"], // 6: allergies & safety
   [], // 7: review & submit
 ];

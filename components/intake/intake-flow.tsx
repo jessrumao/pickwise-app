@@ -73,12 +73,6 @@ const EXERCISE_TYPE_OPTIONS: { value: NonNullable<IntakeFormValues["exerciseType
   { value: "none", label: "None" },
 ];
 
-const PROTEIN_ADEQUACY_LABELS: Record<IntakeFormValues["dietaryProteinAdequacy"], string> = {
-  likely_adequate: "Likely adequate",
-  likely_inadequate: "Probably not enough",
-  unsure: "Not sure",
-};
-
 const DEFAULT_VALUES: IntakeFormValues = {
   age: 30,
   sex: "prefer_not_to_say",
@@ -94,7 +88,6 @@ const DEFAULT_VALUES: IntakeFormValues = {
   budgetIsHardConstraint: true,
   sleepHoursTypical: 7,
   existingSupplementUseText: "",
-  dietaryProteinAdequacy: "unsure",
   estimatedDailyProteinG: 60,
   proteinFoodDescription: "",
   estimatedDailyProteinGConfidence: undefined,
@@ -670,40 +663,14 @@ export function IntakeFlow() {
               <>
                 <FormField
                   control={form.control}
-                  name="dietaryProteinAdequacy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Do you feel you consistently get enough protein from food?</FormLabel>
-                      <FormDescription>
-                        Roughly 1.2–2.0 g per kg body weight per day depending on your goal.
-                      </FormDescription>
-                      <FormControl>
-                        <RadioGroup onValueChange={field.onChange} value={field.value}>
-                          {[
-                            { value: "likely_adequate", label: "Yes, likely" },
-                            { value: "likely_inadequate", label: "No, probably not" },
-                            { value: "unsure", label: "Not sure" },
-                          ].map((opt) => (
-                            <div key={opt.value} className="flex items-center gap-2">
-                              <RadioGroupItem value={opt.value} id={`protein-${opt.value}`} />
-                              <Label htmlFor={`protein-${opt.value}`}>{opt.label}</Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="estimatedDailyProteinG"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>About how many grams of protein a day do you get from food?</FormLabel>
                       <FormDescription>
                         A rough estimate is fine — this is what turns &ldquo;you may need
-                        protein&rdquo; into a real, personalized amount.
+                        protein&rdquo; into a real, personalized amount. Most people need roughly
+                        1.2–2.0g per kg body weight per day, depending on their goal.
                       </FormDescription>
                       <FormControl>
                         <div className="space-y-3">
@@ -988,7 +955,6 @@ function buildSummary(values: IntakeFormValues): SummarySection[] {
       title: STEP_TITLES[5],
       stepIndex: 5,
       rows: [
-        { label: "Protein from food (self-assessment)", value: PROTEIN_ADEQUACY_LABELS[values.dietaryProteinAdequacy] },
         { label: "Estimated daily protein", value: `${values.estimatedDailyProteinG}g` },
         { label: "Oily fish servings/week", value: String(values.dietaryOilyFishServingsPerWeek) },
       ],

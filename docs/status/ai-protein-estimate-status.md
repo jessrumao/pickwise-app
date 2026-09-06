@@ -192,6 +192,57 @@ real-value-computed amount (45g for "100g paneer, 2 eggs, 1 bowl dal");
 switching to "Yes" afterward hides the description box while keeping the
 slider (now the user's own value to adjust).
 
+## Update (2026-09-06): consolidated two near-duplicate protein questions
+
+Step 5 asked two separate "how's your protein" questions back to back: a
+3-option self-assessment ("Do you feel you consistently get enough protein
+from food?" — Yes/No/Not sure, driving `dietaryProteinAdequacy`, a real
+eligibility gate checked by `elig-protein-complete.json`) immediately above
+the amount question this whole feature is built around. Once a real number
+is always collected either way (manual slider or the AI estimate), asking
+the user to also separately judge their own adequacy was redundant — and
+having "Not sure" appear as an option on both questions read as repetitive.
+
+Removed the self-assessment question entirely. `dietaryProteinAdequacy` is
+now DERIVED in code from the collected number:
+`deriveDietaryProteinAdequacy(estimatedDailyProteinG, bodyWeightKg)` in
+`lib/intake/assemble-profile.ts` classifies `>= 1.2g/kg bodyweight` as
+`likely_adequate`, else `likely_inadequate` — using the conservative
+(lower) end of the "1.2–2.0g/kg depending on goal" range already shown in
+the amount question's own description text, rather than a per-goal target.
+This is a genuine judgment call, not a domain-reviewed figure — flagged
+in-code and in `elig-protein-complete.json`'s review note (flipped back to
+`draft_needs_expert_review`, since what feeds this expert-reviewed policy
+changed from a self-report to a computed threshold, even though the
+policy's own logic is untouched). The derived value never returns
+`unsure` — the intake form always produces a real number by this point —
+though `UserProfile`'s schema keeps `unsure` valid for other profile
+sources (samples, fixtures) that don't go through the intake form.
+
+`lib/intake/schema.ts`: removed `dietaryProteinAdequacy` from
+`intakeFormSchema` and step 5's `STEP_FIELDS` entirely. `intake-flow.tsx`:
+removed the radio-group `FormField`, `PROTEIN_ADEQUACY_LABELS`, its
+`DEFAULT_VALUES` entry, and its review-screen summary row; folded the
+"1.2–2.0g per kg body weight" context into the remaining amount question's
+own description so that information isn't lost.
+
+`lib/intake/__tests__/assemble-profile.test.ts`: the 5-sample
+field-for-field reproduction test's `dietaryProteinAdequacy` assertion
+changed from a straight pass-through check to comparing against
+`deriveDietaryProteinAdequacy()`'s own output (it's no longer a
+pass-through value, so checking it against the sample's independently
+-authored figure would be checking the wrong thing). Added 3 new dedicated
+unit tests for the derivation function itself: at/above threshold, below
+threshold, and the zero-protein edge case. Full suite: **175 tests pass**
+(172 prior + 3 new). `tsc --noEmit` and `eslint` both clean.
+
+Verified end to end in-browser: step 5 now shows exactly one protein
+question; submitting with a 70kg profile and the 60g slider default
+(0.86g/kg, below threshold) correctly derived `likely_inadequate` and the
+results page's evidence trace read "is not already getting enough protein
+from food" — confirming the eligibility policy fires exactly as it did
+before, just fed by a computed value instead of a self-reported one.
+
 ## Not done here (intentionally)
 
 - No confidence-threshold tuning beyond reusing the existing `0.7` constant

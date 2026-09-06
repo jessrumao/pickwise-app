@@ -13,6 +13,16 @@ exact ids directly -- it is a metadata/id lookup, never an open semantic
 search. See types/engine.ts's comment on Claim.vectorRefs and the
 grade-laundering note in tasks/F-pinecone-evidence-ingestion.md.
 
+evidenceTier metadata: every record this script creates (children, parents,
+propositions) is also tagged evidenceTier="cited" -- the counterpart to
+ingest_research_papers.py, which tags its broader, general-research corpus
+evidenceTier="supplementary". Neither script's own retrieval changes because
+of this tag (lib/evidence.ts still does its exact id lookup, unaffected); the
+tag exists so a future semantic-search Q&A tool can filter to "cited" only by
+default, and widen to "supplementary" only on request, so a real but
+unrelated paper can never be mistaken for what actually justified a
+recommendation.
+
 Usage:
     cd RAGloader
     python build_claim_documents.py   # regenerate content/claims/*.md (safe, no creds)
@@ -27,6 +37,11 @@ env.template to .env.local and `source` it, before running):
     ANTHROPIC_API_KEY    -- same key the app uses; this pipeline's enrichment
                              and proposition-decomposition steps call the
                              Anthropic API directly
+    UNSTRUCTURED_API_KEY -- required even for these markdown documents: the
+                             pipeline parses every "research_paper"-type
+                             document (any file type) through the Unstructured
+                             platform API for structural parsing. Get a free
+                             trial key at platform.unstructured.io.
 Optional:
     PINECONE_INDEX_HOST  -- if unset, resolved automatically from
                              PINECONE_INDEX_NAME (config.ts's "myai6") via
@@ -43,16 +58,17 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from myAI6_RAG import PipelineConfig, DocumentConfig, process_and_upsert, _rid
+from myAI6_RAG import PipelineConfig, DocumentConfig, process_and_upsert, _rid, _collect_source_ids
 from pinecone import Pinecone
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CLAIMS_DIR = REPO_ROOT / "data" / "claims"
 CONTENT_DIR = Path(__file__).resolve().parent / "content" / "claims"
+EVIDENCE_TIER = "cited"
 
 
 def load_pipeline_config() -> PipelineConfig:
-    required = ("PINECONE_API_KEY", "ANTHROPIC_API_KEY")
+    required = ("PINECONE_API_KEY", "ANTHROPIC_API_KEY", "UNSTRUCTURED_API_KEY")
     missing = [v for v in required if not os.environ.get(v)]
     if missing:
         raise SystemExit(
@@ -78,8 +94,22 @@ def load_pipeline_config() -> PipelineConfig:
         pinecone_index_host=index_host,
         pinecone_index_name=index_name,
         anthropic_api_key=os.environ["ANTHROPIC_API_KEY"],
-        unstructured_api_key=os.environ.get("UNSTRUCTURED_API_KEY", ""),
+        unstructured_api_key=os.environ["UNSTRUCTURED_API_KEY"],
     )
+
+
+def tag_evidence_tier(pcfg: PipelineConfig, source_name: str, tier: str = EVIDENCE_TIER):
+    """Metadata-only patch (no re-embedding): sets evidenceTier on every
+    record -- children, parents, propositions -- belonging to source_name."""
+    index = Pinecone(api_key=pcfg.pinecone_api_key).Index(host=pcfg.pinecone_index_host)
+    cfg = pcfg.cfg
+    total = 0
+    for ns in (cfg["pinecone_ns_children"], cfg["pinecone_ns_parents"], cfg["pinecone_ns_propositions"]):
+        ids = _collect_source_ids(index, ns, source_name, deep=False)
+        for vid in ids:
+            index.update(id=vid, set_metadata={"evidenceTier": tier}, namespace=ns)
+        total += len(ids)
+    return total
 
 
 def main():
@@ -90,7 +120,7 @@ def main():
     if not claim_files:
         raise SystemExit(f"No claim files found in {CLAIMS_DIR}")
 
-    ingested, skipped = 0, 0
+    ingested, skipped, tagged = 0, 0, 0
     for claim_path in claim_files:
         claim = json.loads(claim_path.read_text())
         claim_id = claim["id"]
@@ -121,9 +151,13 @@ def main():
         claim["vectorRefs"] = vector_refs
         claim_path.write_text(json.dumps(claim, indent=2) + "\n")
         print(f"   vectorRefs -> {vector_refs}")
+
+        n = tag_evidence_tier(pcfg, claim_id)
+        print(f"   evidenceTier='{EVIDENCE_TIER}' set on {n} records")
+        tagged += n
         ingested += 1
 
-    print(f"\nDone. {ingested} ingested, {skipped} failed.")
+    print(f"\nDone. {ingested} ingested, {skipped} failed, {tagged} records tagged evidenceTier='{EVIDENCE_TIER}'.")
     print("Re-run build_claim_documents.py + this script whenever a claim's statement "
           "or citations change, so the index and vectorRefs stay in sync.")
 

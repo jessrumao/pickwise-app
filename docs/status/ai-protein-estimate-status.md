@@ -106,9 +106,65 @@ omnivore profile eating "eggs, dal, roti, chicken curry, milk").
 clean — this was a UI/prompt change only, no schema or test-covered logic
 touched.
 
+## Update (2026-09-06): ground the estimate in real values, not LLM memory
+
+Stress-tested the single-call LLM estimate against 20 common Indian foods
+with known real protein values and found it unreliable in two ways: (1)
+inconsistent differentiation between close quantities — 50g and 100g of
+chicken breast once returned the identical estimate — and (2) outright
+wrong nutrition priors for specific foods, most notably regular curd
+(200g) coming back at 28g protein against a real value of ~8g, a 3.5x
+overestimate. Prompt-only fixes (asking it to be "conservative," lowering
+temperature) improved consistency but couldn't fix a wrong prior, and once
+overcorrected into returning 0g for a description that clearly named a
+protein food ("chicken rice vegetables salad").
+
+Root fix: stopped asking the LLM to compute protein at all. It now only
+*identifies* foods and estimates their quantity in grams (converting
+stated units — pieces, bowls, ml/L — using realistic Indian-diet portion
+sizes), matching each item against a new real per-100g reference table,
+`lib/intake/protein-database.ts` (~29 common foods: roti, dal, paneer,
+curd, milk, eggs, chicken/fish variants, legumes, South Indian staples,
+nuts, soy chunks, generic vegetables/fruit). `computeProteinFromItems()`
+(`lib/intake/compute-protein-from-items.ts`) then does the actual
+multiplication in code — deterministic, not LLM arithmetic. Only foods
+with no reasonable database match fall back to the LLM's own per-item
+guess, and returned confidence is now `quantityConfidence × matchedProteinFraction`
+— computed in code, not self-reported by the model — so an estimate resting
+on unmatched guesses is never treated as confidently as one built on real
+values, no matter how fluent it sounds.
+
+Re-ran the same 20-food stress test after this change: nearly every result
+now matches (or is within 1-3g of) the real reference value, e.g. regular
+curd corrected from 28g to 7g (true ~8g), and confidence rose to 0.85-0.95
+for these well-specified single items — now honestly earned, since the
+arithmetic behind it is real. The gram-differentiation bug is also fully
+resolved: 50g/100g/200g chicken breast (+ 2 eggs) now returns 29g/44g/75g,
+exactly proportional to the stated quantity. Confirmed the previously-fixed
+cases still hold: vague inputs stay low-confidence (0.25-0.35), the
+zero-protein regression is gone (38g for "chicken rice vegetables salad"),
+and ml/L liquid scaling is exact (250ml/500ml/1L milk → 9g/17g/34g, matching
+milk's real 3.4g/100g).
+
+Added `lib/intake/__tests__/compute-protein-from-items.test.ts` (6 tests,
+pure function, no network call) covering: single real-value lookup, summing
+multiple matched items, the unmatched self-estimate fallback, a mixed
+matched+unmatched case's fractional confidence weighting, the empty-items
+edge case, and an unmatched item with no self-estimate defaulting to zero
+rather than throwing. Full suite: **172 tests pass** (166 prior + 6 new).
+`tsc --noEmit` and `eslint app/api/intake lib/intake` both clean. Verified
+end to end in-browser: "100g paneer, 2 eggs, 1 bowl dal" → exactly 45g
+(18 + 13 + 14, matching the database's real values precisely).
+
 ## Not done here (intentionally)
 
 - No confidence-threshold tuning beyond reusing the existing `0.7` constant
   — not re-derived or asked to be domain-reviewed for this specific field.
 - No caching/rate-limiting on the new endpoint — same as `/api/intake/parse`,
   which has none either; out of scope for an intake-time, once-per-session call.
+- `PROTEIN_DATABASE`'s ~29 entries are typical/rounded figures (same caveat
+  the old UI-facing reference table carried), not lab-verified per-brand
+  values — good enough for a rough supplement-dosing estimate. Extending
+  coverage (regional dishes, more packaged/branded foods) is straightforward
+  since `computeProteinFromItems` and the schema are already generic over
+  the table's contents — just add entries to `protein-database.ts`.

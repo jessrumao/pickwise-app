@@ -1,7 +1,7 @@
 "use client";
 
 import { ToolCallPart, ToolResultPart } from "ai";
-import { BookOpen, Globe, Search, Wrench } from "lucide-react";
+import { BookOpen, Globe, ShieldCheck, Wrench } from "lucide-react";
 import { Shimmer } from "../ai-elements/shimmer";
 import { useRotatingLabel } from "@/hooks/use-rotating-label";
 import { pickRandomPastTense, type FunLabelCategory } from "@/lib/fun-labels";
@@ -40,6 +40,16 @@ const TOOL_CONFIG: Record<string, ToolDisplayConfig> = {
     resultCategory: "knowledgeBase",
     call_icon: <BookOpen className="w-4 h-4" />,
     result_icon: <BookOpen className="w-4 h-4" />,
+    formatArgs: formatSearchArgs,
+  },
+  // Explain-mode tool (RecommendationsChat on /results) — scoped to one
+  // recommendation's cited evidence, distinct from the general KB search
+  // above. See app/api/chat/tools/ask-about-recommendation.ts.
+  askAboutRecommendation: {
+    callCategory: "evidence",
+    resultCategory: "evidence",
+    call_icon: <ShieldCheck className="w-4 h-4" />,
+    result_icon: <ShieldCheck className="w-4 h-4" />,
     formatArgs: formatSearchArgs,
   },
 };

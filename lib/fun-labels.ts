@@ -7,7 +7,7 @@ export const FUN_LABELS = {
   thinking: [
     "Deliberating",
     "Thinking",
-    "Ringeling",
+    "Weighing the evidence",
     "Pondering",
     "Brainstorming",
     "Contemplating",
@@ -17,7 +17,7 @@ export const FUN_LABELS = {
     "Distilling",
     "Synthesizing",
     "Aggregating",
-    "Ringlating",
+    "Cross-checking",
     "Extrapolating",
     "Understanding",
     "Scrutinizing",
@@ -31,7 +31,7 @@ export const FUN_LABELS = {
     "Retrieving",
     "Querying",
     "Accessing",
-    "Fetching ",
+    "Fetching",
   ],
   webSearch: [
     "Searching",
@@ -40,16 +40,25 @@ export const FUN_LABELS = {
     "Browsing",
     "Collecting",
   ],
+  // Backs the askAboutRecommendation tool on /results — searching the exact
+  // cited evidence (and, secondarily, the broader vetted corpus) behind one
+  // recommendation. See app/api/chat/tools/ask-about-recommendation.ts.
+  evidence: [
+    "Reviewing the evidence",
+    "Checking citations",
+    "Verifying the research",
+    "Consulting the studies",
+  ],
   assembling: [
     "Composing",
     "Constructing",
     "Organizing",
-    "Ringelizing",
+    "Summarizing",
     "Synthesizing",
     "Integrating",
     "Structuring",
     "Formulating",
-    "Finalizing:",
+    "Finalizing",
   ],
   compacting: [
     "Archiving previous discussion",
@@ -81,7 +90,7 @@ export const PAST_TENSE: Record<FunLabelCategory, string[]> = {
   thinking: [
     "Deliberated",
     "Thought",
-    "Ringeld",
+    "Weighed the evidence",
     "Pondered",
     "Brainstormed",
     "Contemplated",
@@ -91,7 +100,7 @@ export const PAST_TENSE: Record<FunLabelCategory, string[]> = {
     "Distilled information",
     "Synthesized knowledge",
     "Aggregated data",
-    "Ringelated",
+    "Cross-checked findings",
     "Connected concepts",
     "Extrapolated findings",
     "Understood the bigger picture",
@@ -119,11 +128,17 @@ export const PAST_TENSE: Record<FunLabelCategory, string[]> = {
     "Browsed the internet",
     "Collected contemporary data",
   ],
+  evidence: [
+    "Reviewed the evidence",
+    "Checked citations",
+    "Verified the research",
+    "Consulted the studies",
+  ],
   assembling: [
     "Composed an answer",
     "Constructed a response",
-    "Organize thoughts",
-    "Ringelized insights",
+    "Organized thoughts",
+    "Summarized insights",
     "Synthesized all information",
     "Integrated insights",
     "Structured a response",

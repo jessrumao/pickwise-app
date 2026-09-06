@@ -1,12 +1,14 @@
 // config.ts
-// Central app config (NO static MODEL export) --> myAI6
+// Central app config (NO static MODEL export) --> myAI6, forked for Pickwise
 //
-// TODO(Package D/G): this file still carries myAI6's "personal chatbot about
-// an owner" framing (AI_NAME, OWNER_NAME, AI_DESCRIPTION, WELCOME_MESSAGE,
-// KB_SCOPE, EXA_SYSTEM_PROMPT's owner-profile clause). B0 only removed the
-// fetchOwnerProfiles tool wiring (dead code) -- rewriting these for the
-// nutrition/supplement domain belongs to whichever package first needs a
-// working prompt (likely D or G), not B0.
+// The identity/prompt constants below (AI_NAME, OWNER_NAME, AI_DESCRIPTION,
+// WELCOME_MESSAGE, KB_SCOPE, EXA_SYSTEM_PROMPT) were rewritten for Pickwise's
+// supplement/nutrition domain. They only feed the standalone /chat page's
+// general-purpose mode (SYSTEM_PROMPT in prompts.ts) — the product's real
+// chat surface is the explain-mode chat on /results (EXPLAIN_SYSTEM_PROMPT),
+// which doesn't read any of these. /chat itself is intentionally kept as a
+// reference implementation of the general chatbot pattern, not linked from
+// product navigation.
 
 function getDateAndTime(): string {
   const now = new Date();
@@ -27,19 +29,16 @@ function getDateAndTime(): string {
 export const DATE_AND_TIME = getDateAndTime();
 
 // --- Assistant identity (all user-facing naming derives from these) ---
-export const AI_NAME = "myAI6"; // ← your assistant's name
-export const OWNER_NAME = "Your Name"; // ← the person this assistant represents
+export const AI_NAME = "Piky"; // ← your assistant's name
+export const OWNER_NAME = "Pickwise"; // ← the platform this assistant represents
 export const AI_DESCRIPTION = `
-${AI_NAME} is ${OWNER_NAME}'s AI assistant. It answers questions about ${OWNER_NAME}'s work using a curated knowledge base, and can search the web for current information.
+${AI_NAME} is ${OWNER_NAME}'s AI assistant. It answers questions about the evidence behind supplements in ${OWNER_NAME}'s knowledge base, and can search the web for supporting context.
 `.trim();
 
 // Browser tab / metadata title. Change freely — one line, no other edits needed.
-// Deliberately not `${AI_NAME}` — the site's public identity is Pickwise now
-// that / is a Pickwise landing page (see app/page.tsx); the chat at /chat is
-// still internally the myAI6 scaffold pending its own domain rewrite.
 export const BROWSER_TAB_TITLE = "Pickwise";
 
-export const WELCOME_MESSAGE = `Hello! I'm ${AI_NAME}, ${OWNER_NAME}'s AI assistant.`;
+export const WELCOME_MESSAGE = `Hello! I'm the ${OWNER_NAME} Assistant. Ask me about the evidence behind any supplement we have recommended you.`;
 export const CLEAR_CHAT_TEXT = "New";
 
 // --- Defaults (PROF REQUIREMENT: Anthropic by default) ---
@@ -108,17 +107,16 @@ export const PINECONE_VISUAL_TOP_K = 20; // topK for the visual-enrichment query
 export const PINECONE_VISUALS_PER_SOURCE = 20; // max figure/table chunks merged into context per retrieved source (keep >= PINECONE_VISUAL_TOP_K so late-document figures are not cut)
 
 // --- Knowledge Base Scope (tells the model what topics are indexed) ---
-// Update this list whenever you ingest new content into Pinecone.
+// Update this whenever the RAGloader ingestion pipeline adds new ingredients.
 // The model uses this to decide whether to search the KB or skip it entirely.
 export const KB_SCOPE = `
-The knowledge base covers ${OWNER_NAME}'s work. Topics include:
+The knowledge base covers ${OWNER_NAME}'s supplement and nutrition evidence base: a
+curated set of well-studied dietary supplements for generally healthy adults —
+e.g. whey/plant/casein protein, creatine monohydrate, BCAA/EAA, omega-3 (EPA/DHA),
+vitamin D3, magnesium, probiotics, and multivitamins — along with the peer-reviewed
+research, typical dosing ranges, and safety/contraindication notes behind each.
 
-DOCUMENTS AND TOPICS (replace these examples with what you actually ingest):
-- [Example] A research paper or article, its methods, and its findings
-- [Example] A CV or resume: education, employment, projects, awards
-- [Example] Presentation slides or a talk transcript
-
-Any question about ${OWNER_NAME} or the topics above is within scope.
+Any question about these supplements, their evidence, dosing, or safety is within scope.
 `.trim();
 
 // --- Exa Web Search ---
@@ -128,7 +126,7 @@ export const EXA_MAX_CHARACTERS = 3000; // max chars of page text per result
 // "preferred" makes Exa fetch live page content when possible, reducing the odds
 // that stale or deleted pages (e.g. dead university URLs) surface in results.
 export const EXA_LIVECRAWL = "preferred" as const; // "never" | "fallback" | "preferred" | "always"
-export const EXA_SYSTEM_PROMPT = `Prefer authoritative and academic sources: peer-reviewed journals, arxiv.org, SSRN, NBER, university sites, and official publications. For questions about ${OWNER_NAME}, prioritize their official profiles: LinkedIn, ORCID, ResearchGate, and Google Scholar. Avoid duplicates, low-quality aggregators, and pages that appear outdated or removed.`;
+export const EXA_SYSTEM_PROMPT = `Prefer authoritative and academic sources: peer-reviewed journals, PubMed, the Cochrane Library, NIH Office of Dietary Supplements fact sheets, WHO/ICMR-NIN publications, and official nutrition/health guidelines. Avoid duplicates, low-quality aggregators, supplement-retailer blogs, and pages that appear outdated or removed.`;
 
 // --- Chat Route Limits ---
 // Hard cap on tool-use steps per request. Must be large enough to cover the

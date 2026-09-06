@@ -1,4 +1,4 @@
-# Pickwise — Product and Technical Documentation
+# Pickwise - Product and Technical Documentation
 
 Pickwise is an evidence-based supplement and nutrition decision engine
 for generally healthy Indian adults, built on the myAI6 template for the
@@ -7,7 +7,7 @@ BITSoM “AI in Business” midterm. This document covers the product case
 technical implementation (Part C), followed by team and disclosure
 information (Part D).
 
-## Part A — The product case
+## Part A - The product case
 
 ### A1. Unique selling proposition
 
@@ -263,7 +263,7 @@ the end of Year 1 without a paid acquisition budget, since the whole
 model above assumes reach at effectively zero marginal
 customer-acquisition cost.
 
-## Part B — Features beyond the myAI6 base
+## Part B - Features beyond the myAI6 base
 
   Feature                                                                                                                                           What the user experiences                                                                                                                                                                                                                                 Value-chain link it serves                                                                                           Where it lives in the code
   ------------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ rather than filled with unverified data; and regulatory compliance
 (FSSAI) is documented as a researched writeup rather than implemented,
 since building it was out of scope for this phase.
 
-## Part C — Technical documentation
+## Part C - Technical documentation
 
 ### C1. Architecture
 
@@ -603,7 +603,9 @@ variables are set in the Vercel project’s settings. Rate limiting and
 moderation remain on in production by default, and a spending limit
 should be set in the Anthropic console before any public traffic.
 
-## Part D — Team and disclosure
+**Live URL:** https://pickwise-app-wine.vercel.app/
+
+## Part D - Team and disclosure
 
 ### D1. Team and contribution matrix
 

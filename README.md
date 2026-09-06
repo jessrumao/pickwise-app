@@ -1,5 +1,11 @@
 # Pickwise
 
+**Team:** Group 8 - Jess Rumao, K P Aakash, Kirti Bhandari, Sanket Rathi
+**Live app:** https://pickwise-app-wine.vercel.app/
+**Documentation:** [DOCUMENTATION.md](./DOCUMENTATION.md)
+
+---
+
 **An evidence-based supplement and nutrition decision engine, built India-first for generally healthy adults.**
 
 Tell Pickwise your goals, diet, and lifestyle. It tells you plainly whether a supplement actually makes sense, and which one — backed by a real citation, not an influencer's opinion or a retailer's margin. It is also comfortable saying **"you don't need anything right now."** That's the point: Pickwise is not a supplement store with a quiz bolted on. It's a decision layer that sits *in front of* the market and is willing to recommend nothing.
@@ -237,7 +243,7 @@ Per the project's own scope decisions — not oversights:
 
 ## Acknowledgment
 
-This project was forked from and builds on [myAI6](https://github.com/dringel/myAI6), a RAG chatbot template by [Daniel M. Ringel](https://www.ringel.ai) — the streaming API pattern, Pinecone parent-child retrieval architecture, and citation-verification pipeline originate there. `app/chat/page.tsx` is kept as a reference implementation of that original general-purpose pattern.
+This project was built on top of [myAI6](https://github.com/dringel/myAI6), a RAG chatbot template by [Daniel M. Ringel](https://www.ringel.ai) — the streaming API pattern, Pinecone parent-child retrieval architecture, and citation-verification pipeline originate there. `app/chat/page.tsx` is kept as a reference implementation of that original general-purpose pattern.
 
 ## License
 

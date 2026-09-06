@@ -237,16 +237,6 @@ export function IntakeFlow() {
     void doSubmit(confirmedProfile);
   }
 
-  function startOver() {
-    form.reset(DEFAULT_VALUES);
-    setReturnToReview(false);
-    setStep(0);
-    setSubmitState({ status: "idle" });
-    setProteinKnowsAmount(null);
-    setProteinEstimateRevealed(false);
-    setProteinEstimateState("idle");
-  }
-
   if (submitState.status === "done") {
     return (
       <Card className="mx-auto w-full max-w-xl">
@@ -257,16 +247,11 @@ export function IntakeFlow() {
           <p className="text-sm text-muted-foreground">
             Your profile was recorded. Your personalized recommendations are ready.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
-                See your recommendations
-              </Link>
-            </Button>
-            <Button type="button" variant="outline" onClick={startOver}>
-              Start over
-            </Button>
-          </div>
+          <Button asChild>
+            <Link href={`/results?profileVersionId=${encodeURIComponent(submitState.profileVersionId)}`}>
+              See your recommendations
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     );

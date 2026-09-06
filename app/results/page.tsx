@@ -67,6 +67,9 @@ function ResultsPageInner() {
     return (
       <main className="flex min-h-svh flex-col items-center gap-6 p-6">
         <ResultsView result={state.result} />
+        <Button asChild variant="outline">
+          <Link href="/intake">Start over</Link>
+        </Button>
       </main>
     );
   }
